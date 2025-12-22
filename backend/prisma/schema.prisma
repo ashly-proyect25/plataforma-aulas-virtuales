@@ -1,0 +1,307 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+model User {
+  id              Int          @id @default(autoincrement())
+  username        String       @unique
+  email           String       @unique
+  password        String
+  name            String
+  role            Role         @default(STUDENT)
+  isActive        Boolean      @default(true)
+  createdBy       Int?
+  creator         User?        @relation("CreatedUsers", fields: [createdBy], references: [id])
+  createdUsers    User[]       @relation("CreatedUsers")
+  coursesCreated  Course[]     @relation("CourseCreatedBy")
+  avatar          String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  teachingCourses Course[]     @relation("Teacher")
+  enrollments     Enrollment[]
+  sessions        Session[]
+  messages        Message[]
+  workGroups      WorkGroup[]  @relation("WorkGroupMembers")
+  attendances     Attendance[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+model Course {
+  id              Int              @id @default(autoincrement())
+  code            String           @unique
+  title           String
+  description     String?
+  teacherId       Int
+  teacher         User             @relation("Teacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  thumbnail       String?
+  color           String?
+  credits         Int              @default(3)
+  isActive        Boolean          @default(true)
+  startDate       DateTime?
+  endDate         DateTime?
+  durationWeeks   Int?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  createdBy       Int
+  creator         User?            @relation("CourseCreatedBy", fields: [createdBy], references: [id])
+  classrooms      Classroom[]
+  enrollments     Enrollment[]
+  resources       CourseResource[]
+  quizzes         Quiz[]
+  forums          Forum[]
+  workGroups      WorkGroup[]
+  schedules       CourseSchedule[]
+
+  @@index([teacherId])
+  @@index([isActive])
+  @@index([createdBy])
+}
+
+model Classroom {
+  id           Int          @id @default(autoincrement())
+  courseId     Int
+  course       Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  scheduledAt  DateTime?
+  duration     Int?
+  isLive       Boolean      @default(false)
+  recordingUrl String?
+  roomCode     String?      @unique
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  sessions     Session[]
+  messages     Message[]
+  attendances  Attendance[]
+
+  @@index([courseId])
+}
+
+model Enrollment {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId   Int
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime @default(now())
+  enrolledBy Int?
+  isActive   Boolean  @default(true)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model Session {
+  id          Int       @id @default(autoincrement())
+  classroomId Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime  @default(now())
+  leftAt      DateTime?
+  duration    Int?
+
+  @@index([classroomId])
+  @@index([userId])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+model Attendance {
+  id          Int              @id @default(autoincrement())
+  classroomId Int
+  classroom   Classroom        @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      AttendanceStatus @default(ABSENT)
+  justification String?
+  markedAt    DateTime         @default(now())
+  markedBy    Int?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([classroomId, userId])
+  @@index([classroomId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Message {
+  id          Int       @id @default(autoincrement())
+  classroomId Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message     String
+  createdAt   DateTime  @default(now())
+
+  @@index([classroomId])
+  @@index([userId])
+}
+
+enum ResourceType {
+  VIDEO
+  DOCUMENT
+  LINK
+  INFORMATION
+}
+
+model CourseResource {
+  id          Int          @id @default(autoincrement())
+  courseId    Int
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  type        ResourceType
+  content     String? // URL para videos/links, texto para información
+  fileUrl     String? // Para documentos
+  order       Int          @default(0)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([courseId])
+  @@index([type])
+}
+
+model Quiz {
+  id           Int            @id @default(autoincrement())
+  courseId     Int
+  course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  duration     Int? // Duración en minutos
+  passingScore Int            @default(70) // Nota mínima en porcentaje
+  maxAttempts  Int            @default(3) // Intentos máximos
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  questions    QuizQuestion[]
+  attempts     QuizAttempt[]
+
+  @@index([courseId])
+}
+
+model QuizQuestion {
+  id            Int      @id @default(autoincrement())
+  quizId        Int
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question      String
+  options       String[] // Array de opciones
+  correctAnswer Int // Índice de la respuesta correcta
+  points        Int      @default(1)
+  order         Int      @default(0)
+
+  @@index([quizId])
+}
+
+model QuizAttempt {
+  id          Int      @id @default(autoincrement())
+  quizId      Int
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId      Int
+  answers     String // JSON con las respuestas
+  score       Float
+  completedAt DateTime @default(now())
+
+  @@index([quizId])
+  @@index([userId])
+}
+
+model Forum {
+  id          Int         @id @default(autoincrement())
+  courseId    Int
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  posts       ForumPost[]
+
+  @@index([courseId])
+}
+
+model ForumPost {
+  id        Int          @id @default(autoincrement())
+  forumId   Int
+  forum     Forum        @relation(fields: [forumId], references: [id], onDelete: Cascade)
+  userId    Int
+  title     String
+  content   String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  replies   ForumReply[]
+
+  @@index([forumId])
+  @@index([userId])
+}
+
+model ForumReply {
+  id        Int       @id @default(autoincrement())
+  postId    Int
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    Int
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([postId])
+  @@index([userId])
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model CourseSchedule {
+  id        Int       @id @default(autoincrement())
+  courseId  Int
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  dayOfWeek DayOfWeek
+  startTime String    // Formato "HH:mm" ejemplo: "08:00"
+  endTime   String    // Formato "HH:mm" ejemplo: "10:00"
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([courseId])
+  @@index([dayOfWeek])
+}
+
+model WorkGroup {
+  id        Int      @id @default(autoincrement())
+  name      String
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  students  User[]   @relation("WorkGroupMembers")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}

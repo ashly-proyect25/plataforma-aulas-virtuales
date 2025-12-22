@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Quiz" ADD COLUMN     "maxAttempts" INTEGER NOT NULL DEFAULT 3,
+ADD COLUMN     "passingScore" INTEGER NOT NULL DEFAULT 70;
