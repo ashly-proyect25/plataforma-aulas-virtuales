@@ -23,22 +23,26 @@ export const authenticate = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('🔍 [AUTH] Token decodificado:', decoded);
 
-    // Verificar sesión en Redis
-    const sessionKey = `session:${decoded.userId}`;
-    console.log('🔍 [AUTH] Buscando sesión en Redis:', sessionKey);
-    
-    const session = await redisClient.get(sessionKey);
-    console.log('🔍 [AUTH] Sesión encontrada:', session ? 'SÍ' : 'NO');
-    
-    if (session) {
-      console.log('🔍 [AUTH] Contenido de sesión:', session);
-    }
-    
-    if (!session) {
-      console.log('❌ [AUTH] Sesión NO encontrada en Redis, rechazando request');
-      return res.status(401).json({
-        error: 'Sesión expirada o inválida'
-      });
+    // Verificar sesión en Redis (si está disponible)
+    if (redisClient.isAvailable()) {
+      const sessionKey = `session:${decoded.userId}`;
+      console.log('🔍 [AUTH] Buscando sesión en Redis:', sessionKey);
+
+      const session = await redisClient.get(sessionKey);
+      console.log('🔍 [AUTH] Sesión encontrada:', session ? 'SÍ' : 'NO');
+
+      if (session) {
+        console.log('🔍 [AUTH] Contenido de sesión:', session);
+      }
+
+      if (!session) {
+        console.log('❌ [AUTH] Sesión NO encontrada en Redis, rechazando request');
+        return res.status(401).json({
+          error: 'Sesión expirada o inválida'
+        });
+      }
+    } else {
+      console.log('⚠️  [AUTH] Redis no disponible, usando solo JWT');
     }
 
     // Agregar info del usuario al request
