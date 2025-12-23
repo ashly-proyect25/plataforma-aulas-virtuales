@@ -23,38 +23,50 @@ const redisUrl = getRedisUrl();
 let redisClient = null;
 let isConnected = false;
 
-// Only create and connect if Redis URL is available
-try {
-  redisClient = createClient({
-    url: redisUrl,
-    socket: {
-      tls: redisUrl.startsWith('rediss://'),
-      rejectUnauthorized: false, // For Upstash and other cloud Redis providers
-    },
-  });
+// Temporarily disable Redis in production to allow server to start
+// TODO: Fix Upstash Redis configuration
+const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
 
-  redisClient.on('error', (err) => {
-    console.error('❌ Redis error:', err);
-    isConnected = false;
-  });
+if (!REDIS_ENABLED) {
+  console.log('⚠️  Redis is disabled via REDIS_ENABLED environment variable');
+  console.log('⚠️  Application will run without Redis caching');
+} else {
+  // Only create and connect if Redis URL is available
+  try {
+    redisClient = createClient({
+      url: redisUrl,
+      socket: {
+        tls: redisUrl.startsWith('rediss://'),
+        rejectUnauthorized: false, // For Upstash and other cloud Redis providers
+        reconnectStrategy: false, // Disable automatic reconnection
+      },
+    });
 
-  redisClient.on('connect', () => {
-    console.log('✅ Redis connected');
+    redisClient.on('error', (err) => {
+      console.error('❌ Redis error:', err.message);
+      isConnected = false;
+      // Don't crash the app on Redis errors
+    });
+
+    redisClient.on('connect', () => {
+      console.log('✅ Redis connected');
+      isConnected = true;
+    });
+
+    redisClient.on('disconnect', () => {
+      console.log('⚠️  Redis disconnected');
+      isConnected = false;
+    });
+
+    await redisClient.connect();
     isConnected = true;
-  });
-
-  redisClient.on('disconnect', () => {
-    console.log('⚠️  Redis disconnected');
+    console.log('✅ Redis client initialized successfully');
+  } catch (error) {
+    console.error('⚠️  Failed to connect to Redis:', error.message);
+    console.log('⚠️  Application will continue without Redis caching');
+    redisClient = null;
     isConnected = false;
-  });
-
-  await redisClient.connect();
-  isConnected = true;
-} catch (error) {
-  console.error('⚠️  Failed to connect to Redis:', error.message);
-  console.log('⚠️  Application will continue without Redis caching');
-  redisClient = null;
-  isConnected = false;
+  }
 }
 
 // Safe wrapper for Redis operations
@@ -89,8 +101,24 @@ const safeRedisClient = {
     }
   },
 
+  async quit() {
+    if (redisClient && isConnected) {
+      try {
+        await redisClient.quit();
+        console.log('✅ Redis disconnected gracefully');
+      } catch (error) {
+        console.error('Redis QUIT error:', error.message);
+      }
+    }
+  },
+
   isAvailable() {
     return redisClient !== null && isConnected;
+  },
+
+  // For compatibility with old code
+  get isOpen() {
+    return isConnected;
   }
 };
 
