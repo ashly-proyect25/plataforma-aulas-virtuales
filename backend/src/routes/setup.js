@@ -111,4 +111,35 @@ router.post('/setup/migrate', async (req, res) => {
   }
 });
 
+// ⚠️ RUTA TEMPORAL PARA DB PUSH - MÁS ROBUSTA QUE MIGRATE
+router.post('/setup/db-push', async (req, res) => {
+  try {
+    console.log('🔧 Ejecutando Prisma DB Push...');
+
+    const { stdout, stderr } = await execAsync('npx prisma db push --accept-data-loss', {
+      cwd: process.cwd(),
+      env: process.env,
+      timeout: 120000 // 2 minutos de timeout
+    });
+
+    console.log('✅ DB Push ejecutado exitosamente');
+    console.log('STDOUT:', stdout);
+    if (stderr) console.error('STDERR:', stderr);
+
+    res.json({
+      message: '✅ Base de datos sincronizada exitosamente',
+      output: stdout,
+      errors: stderr || null
+    });
+  } catch (error) {
+    console.error('❌ Error al ejecutar DB Push:', error);
+    res.status(500).json({
+      error: 'Error al sincronizar base de datos',
+      details: error.message,
+      output: error.stdout,
+      errors: error.stderr
+    });
+  }
+});
+
 export default router;
