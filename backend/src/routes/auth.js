@@ -85,7 +85,7 @@ router.delete(
 router.post(
   '/auth/users/student',
   authenticate,
-  authorize('TEACHER'),
+  authorize('ADMIN', 'TEACHER'),
   authController.createStudent
 );
 
@@ -93,7 +93,7 @@ router.post(
 router.get(
   '/auth/users/students',
   authenticate,
-  authorize('TEACHER'),
+  authorize('ADMIN', 'TEACHER'),
   authController.getStudents
 );
 
@@ -101,7 +101,7 @@ router.get(
 router.patch(
   '/auth/users/students/:id/toggle-status',
   authenticate,
-  authorize('TEACHER'),
+  authorize('ADMIN', 'TEACHER'),
   authController.toggleStudentStatus
 );
 // Obtener todos los estudiantes
