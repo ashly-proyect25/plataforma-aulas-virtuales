@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.js';
 import coursesRoutes from './routes/courses.js';
 import resourcesRoutes from './routes/resources.js';
 import quizzesRoutes from './routes/quizzes.js';
+import setupRoutes from './routes/setup.js';
 // Cargar variables de entorno
 dotenv.config();
 // Crear aplicación Express
@@ -51,6 +52,8 @@ app.get('/', (req, res) => {
     status: 'online'
   });
 });
+// ⚠️ Ruta temporal de setup (crear admin)
+app.use('/api', setupRoutes);
 // Rutas de autenticación
 app.use('/api', authRoutes);
 // ✅ IMPORTANTE: Rutas específicas PRIMERO (quizzes y resources)
