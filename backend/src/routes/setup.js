@@ -2,7 +2,10 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
+const execAsync = promisify(exec);
 const router = express.Router();
 const prisma = new PrismaClient();
 
@@ -74,6 +77,36 @@ router.post('/setup/create-admin', async (req, res) => {
     res.status(500).json({
       error: 'Error al crear administrador',
       details: error.message
+    });
+  }
+});
+
+// ⚠️ RUTA TEMPORAL PARA EJECUTAR MIGRACIONES - ELIMINAR DESPUÉS DE USAR
+router.post('/setup/migrate', async (req, res) => {
+  try {
+    console.log('🔧 Ejecutando migraciones de Prisma...');
+
+    const { stdout, stderr } = await execAsync('npx prisma migrate deploy', {
+      cwd: process.cwd(),
+      env: process.env
+    });
+
+    console.log('✅ Migraciones ejecutadas exitosamente');
+    console.log('STDOUT:', stdout);
+    if (stderr) console.error('STDERR:', stderr);
+
+    res.json({
+      message: '✅ Migraciones ejecutadas exitosamente',
+      output: stdout,
+      errors: stderr || null
+    });
+  } catch (error) {
+    console.error('❌ Error al ejecutar migraciones:', error);
+    res.status(500).json({
+      error: 'Error al ejecutar migraciones',
+      details: error.message,
+      output: error.stdout,
+      errors: error.stderr
     });
   }
 });
