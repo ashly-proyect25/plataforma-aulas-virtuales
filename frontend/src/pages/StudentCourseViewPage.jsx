@@ -1,4 +1,5 @@
 // frontend/src/pages/StudentCourseViewPage.jsx
+// Fix: Botón Volver ahora visible en tema claro
 
 import { useState, useEffect } from 'react';
 import {
