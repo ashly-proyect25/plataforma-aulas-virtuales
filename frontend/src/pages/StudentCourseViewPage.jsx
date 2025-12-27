@@ -115,7 +115,7 @@ const StudentCourseViewPage = () => {
           }`}>
             <button
               onClick={() => navigate('/alumno/dashboard')}
-              className={`flex items-center gap-2 px-3 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition ${
+              className={`flex items-center gap-2 px-3 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition text-white ${
                 isScrolled ? 'py-1 text-xs' : 'py-1.5 text-sm'
               }`}
             >

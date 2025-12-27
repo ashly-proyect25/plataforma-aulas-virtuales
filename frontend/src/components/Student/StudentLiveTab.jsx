@@ -3746,9 +3746,9 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                     </div>
 
                     {/* Panel de participantes - Ancho fijo con scroll */}
-                    <div className="flex flex-col gap-2" style={{ width: isFullscreen ? '320px' : '280px', minWidth: isFullscreen ? '320px' : '280px' }}>
+                    <div className="flex flex-col gap-2 h-full" style={{ width: isFullscreen ? '320px' : '280px', minWidth: isFullscreen ? '320px' : '280px' }}>
                       {/* Contenedor con scroll SOLO para los recuadros de participantes */}
-                      <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{ maxHeight: isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)' }}>
+                      <div className="flex-1 flex flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                         {/* Todos los recuadros de participantes van aquí */}
 
                       {/* ✅ DUAL STREAM: Cuando hay pantalla compartida Y NO está pinneada, mostrar CÁMARA en panel lateral */}
