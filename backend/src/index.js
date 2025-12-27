@@ -17,19 +17,41 @@ dotenv.config();
 // Crear aplicación Express
 const app = express();
 const httpServer = createServer(app);
+// Configurar orígenes permitidos para CORS
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5000',
+  'https://plataforma-aulas-virtuales.vercel.app',
+];
+
+// Función para verificar si el origen está permitido
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (como mobile apps o curl)
+    if (!origin) return callback(null, true);
+
+    // Permitir si está en la lista de orígenes permitidos
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Permitir cualquier URL de preview de Vercel (*.vercel.app)
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+};
+
 // Configurar Socket.IO
 const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 // ==================== MIDDLEWARES ====================
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true,
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Logging middleware (desarrollo)
