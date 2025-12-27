@@ -657,7 +657,12 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
             // Crear nueva peer connection para este estudiante
             try {
               const pc = new RTCPeerConnection({
-                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+                iceServers: [
+                  { urls: 'stun:stun.l.google.com:19302' },
+                  { urls: 'stun:stun1.l.google.com:19302' },
+                  { urls: 'stun:stun2.l.google.com:19302' }
+                ],
+                iceCandidatePoolSize: 10
               });
 
               // Agregar mis tracks
@@ -937,7 +942,12 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         // NO existe conexión - crear nueva
         console.log(`🆕 [STUDENT-P2P] Creando nueva peer connection para ${fromViewerId}`);
         pc = new RTCPeerConnection({
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' }
+          ],
+          iceCandidatePoolSize: 10
         });
 
         // ✅ Si tengo mi propio stream, agregarlo a la conexión P2P
@@ -2645,13 +2655,22 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
             }
 
             // ✅ También remover audio de conexiones P2P con otros estudiantes
-            peerStudentsRef.current.forEach((pc, viewerId) => {
+            peerStudentsRef.current.forEach(async (pc, viewerId) => {
               if (pc.connectionState !== 'closed') {
                 const sender = pc.getSenders().find(s => s.track?.kind === 'audio');
                 if (sender) {
                   try {
-                    sender.replaceTrack(null);
+                    await sender.replaceTrack(null);
                     console.log(`🔇 [STUDENT-P2P] Audio track removido de estudiante ${viewerId}`);
+
+                    // ✅ CRITICAL FIX: Renegociar después de remover audio
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    socketRef.current.emit('student-offer', {
+                      offer,
+                      targetViewerId: viewerId
+                    });
+                    console.log(`📤 [STUDENT-P2P] Offer de renegociación enviado a ${viewerId} (audio desactivado)`);
                   } catch (err) {
                     console.warn(`Could not remove track for student ${viewerId}:`, err);
                   }
@@ -2737,13 +2756,16 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           }
 
           // ✅ También agregar audio a conexiones P2P con otros estudiantes
-          peerStudentsRef.current.forEach((pc, viewerId) => {
+          peerStudentsRef.current.forEach(async (pc, viewerId) => {
             if (pc.connectionState !== 'closed') {
               const sender = pc.getSenders().find(s => s.track === null || s.track?.kind === 'audio');
+              let needsRenegotiation = false;
+
               if (sender) {
                 try {
-                  sender.replaceTrack(newAudioTrack);
+                  await sender.replaceTrack(newAudioTrack);
                   console.log(`🎤 [STUDENT-P2P] Audio track agregado a estudiante ${viewerId}`);
+                  needsRenegotiation = true;
                 } catch (err) {
                   console.warn(`Could not replace track for student ${viewerId}:`, err);
                 }
@@ -2751,8 +2773,24 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                 try {
                   pc.addTrack(newAudioTrack, myStream);
                   console.log(`🎤 [STUDENT-P2P] Audio track agregado a estudiante ${viewerId} (nuevo sender)`);
+                  needsRenegotiation = true;
                 } catch (err) {
                   console.warn(`Could not add track for student ${viewerId}:`, err);
+                }
+              }
+
+              // ✅ CRITICAL FIX: Renegociar después de agregar audio
+              if (needsRenegotiation) {
+                try {
+                  const offer = await pc.createOffer();
+                  await pc.setLocalDescription(offer);
+                  socketRef.current.emit('student-offer', {
+                    offer,
+                    targetViewerId: viewerId
+                  });
+                  console.log(`📤 [STUDENT-P2P] Offer de renegociación enviado a ${viewerId} (audio activado)`);
+                } catch (err) {
+                  console.warn(`Could not renegotiate with student ${viewerId}:`, err);
                 }
               }
             }

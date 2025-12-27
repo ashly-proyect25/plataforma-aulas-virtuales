@@ -1103,6 +1103,22 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           cameraTrack.enabled = false;
 
           console.log('📹 [TEACHER-DUAL] Track de video deshabilitado, aún en stream');
+
+          // ✅ CRITICAL FIX: Renegociar con todos los estudiantes para que vean el cambio
+          const viewerIds = Object.keys(peerConnectionsRef.current);
+          for (const viewerId of viewerIds) {
+            const pc = peerConnectionsRef.current[viewerId];
+            if (pc.connectionState !== 'closed' && pc.connectionState !== 'failed') {
+              try {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                socketRef.current.emit('offer', { viewerId, offer });
+                console.log(`📤 [TEACHER-DUAL] Offer de renegociación enviado a viewer ${viewerId} (cámara desactivada)`);
+              } catch (error) {
+                console.error(`❌ [TEACHER-DUAL] Error renegociando con ${viewerId}:`, error);
+              }
+            }
+          }
         }
 
         // ✅ Notificar a todos los estudiantes que la cámara está desactivada
@@ -1174,6 +1190,16 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                 pc.addTrack(newVideoTrack, streamRef.current);
                 console.log(`➕ [TEACHER-DUAL] Track de cámara agregado para viewer ${viewerId}`);
               }
+
+              // ✅ CRITICAL FIX: Renegociar para actualizar el stream en el estudiante
+              try {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                socketRef.current.emit('offer', { viewerId, offer });
+                console.log(`📤 [TEACHER-DUAL] Offer de renegociación enviado a viewer ${viewerId} (cámara reactivada)`);
+              } catch (renegotiateError) {
+                console.error(`❌ [TEACHER-DUAL] Error renegociando con ${viewerId}:`, renegotiateError);
+              }
             }
 
             // ✅ CRÍTICO: NO actualizar videoRef si está compartiendo pantalla
@@ -1208,6 +1234,22 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           // El track existe y solo está deshabilitado, simplemente habilitarlo
           console.log('📹 [TEACHER-DUAL] Habilitando track de cámara existente');
           cameraTrack.enabled = true;
+
+          // ✅ CRITICAL FIX: Renegociar con todos los estudiantes para que vean el cambio
+          const viewerIds = Object.keys(peerConnectionsRef.current);
+          for (const viewerId of viewerIds) {
+            const pc = peerConnectionsRef.current[viewerId];
+            if (pc.connectionState !== 'closed' && pc.connectionState !== 'failed') {
+              try {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                socketRef.current.emit('offer', { viewerId, offer });
+                console.log(`📤 [TEACHER-DUAL] Offer de renegociación enviado a viewer ${viewerId} (cámara activada)`);
+              } catch (error) {
+                console.error(`❌ [TEACHER-DUAL] Error renegociando con ${viewerId}:`, error);
+              }
+            }
+          }
 
           // ✅ CRÍTICO: NO actualizar videoRef si está compartiendo pantalla
           // porque videoRef debe mostrar la pantalla, NO la cámara
