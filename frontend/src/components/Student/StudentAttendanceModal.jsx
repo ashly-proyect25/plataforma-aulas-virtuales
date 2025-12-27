@@ -8,7 +8,7 @@ const StudentAttendanceModal = ({ isOpen, onClose, attendances, attendanceSummar
   return (
     <>
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -31,69 +31,69 @@ const StudentAttendanceModal = ({ isOpen, onClose, attendances, attendanceSummar
             {/* Summary Cards */}
             {attendanceSummary && (
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                      <p className="text-sm font-semibold text-gray-600 mb-1">
                         Total Clases
                       </p>
-                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                      <p className="text-2xl font-bold text-gray-800">
                         {attendanceSummary.total}
                       </p>
                     </div>
-                    <Calendar className="text-gray-600 dark:text-gray-400 opacity-20" size={32} />
+                    <Calendar className="text-gray-600 opacity-20" size={32} />
                   </div>
                 </div>
 
-                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                <div className="bg-green-50/20 rounded-lg p-4 border border-green-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-green-700 dark:text-green-400 mb-1">
+                      <p className="text-sm font-semibold text-green-700 mb-1">
                         Presentes
                       </p>
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      <p className="text-2xl font-bold text-green-600">
                         {attendanceSummary.present}
                       </p>
                     </div>
-                    <CheckCircle className="text-green-600 dark:text-green-400 opacity-20" size={32} />
+                    <CheckCircle className="text-green-600 opacity-20" size={32} />
                   </div>
                 </div>
 
-                <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+                <div className="bg-red-50/20 rounded-lg p-4 border border-red-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
+                      <p className="text-sm font-semibold text-red-700 mb-1">
                         Ausentes
                       </p>
-                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                      <p className="text-2xl font-bold text-red-600">
                         {attendanceSummary.absent}
                       </p>
                     </div>
-                    <XCircle className="text-red-600 dark:text-red-400 opacity-20" size={32} />
+                    <XCircle className="text-red-600 opacity-20" size={32} />
                   </div>
                 </div>
 
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
+                <div className="bg-yellow-50/20 rounded-lg p-4 border border-yellow-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-yellow-700 dark:text-yellow-400 mb-1">
+                      <p className="text-sm font-semibold text-yellow-700 mb-1">
                         Tarde
                       </p>
-                      <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                      <p className="text-2xl font-bold text-yellow-600">
                         {attendanceSummary.late}
                       </p>
                     </div>
-                    <Clock className="text-yellow-600 dark:text-yellow-400 opacity-20" size={32} />
+                    <Clock className="text-yellow-600 opacity-20" size={32} />
                   </div>
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                <div className="bg-blue-50/20 rounded-lg p-4 border border-blue-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-blue-700 dark:text-blue-400 mb-1">
+                      <p className="text-sm font-semibold text-blue-700 mb-1">
                         % Asistencia
                       </p>
-                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      <p className="text-2xl font-bold text-blue-600">
                         {attendanceSummary.attendanceRate}%
                       </p>
                     </div>
@@ -108,42 +108,42 @@ const StudentAttendanceModal = ({ isOpen, onClose, attendances, attendanceSummar
                 <Loader className="animate-spin text-cyan-600" size={40} />
               </div>
             ) : attendances.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <Calendar size={48} className="mx-auto text-gray-400 dark:text-gray-600 mb-4" />
-                <p className="text-gray-600 dark:text-gray-400 font-semibold">No hay registros de asistencia</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <Calendar size={48} className="mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600 font-semibold">No hay registros de asistencia</p>
+                <p className="text-sm text-gray-500 mt-2">
                   Los registros de asistencia aparecerán aquí
                 </p>
               </div>
             ) : (
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
+              <div className="bg-gray-50/50 rounded-lg overflow-hidden border border-gray-200">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-100 dark:bg-gray-700">
+                    <thead className="bg-gray-100">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                           Clase
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                           Fecha
                         </th>
-                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                           Estado
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                           Hora de Registro
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+                    <tbody className="divide-y divide-gray-200 bg-white">
                       {attendances.map((record, index) => (
-                        <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <tr key={index} className="hover:bg-gray-50:bg-gray-700">
                           <td className="px-6 py-4">
-                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                            <div className="text-sm font-medium text-gray-800">
                               {record.classroomTitle}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {record.scheduledAt ? new Date(record.scheduledAt).toLocaleDateString('es-ES', {
                               weekday: 'short',
                               day: 'numeric',
@@ -153,31 +153,31 @@ const StudentAttendanceModal = ({ isOpen, onClose, attendances, attendanceSummar
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             {record.status === 'PRESENT' && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                 <CheckCircle size={14} />
                                 Presente
                               </span>
                             )}
                             {record.status === 'ABSENT' && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                                 <XCircle size={14} />
                                 Ausente
                               </span>
                             )}
                             {record.status === 'LATE' && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
                                 <Clock size={14} />
                                 Tarde
                               </span>
                             )}
                             {record.status === 'EXCUSED' && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                                 <FileText size={14} />
                                 Justificado
                               </span>
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {record.markedAt ? new Date(record.markedAt).toLocaleString('es-ES', {
                               day: 'numeric',
                               month: 'short',
@@ -195,10 +195,10 @@ const StudentAttendanceModal = ({ isOpen, onClose, attendances, attendanceSummar
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 flex items-center justify-end border-t border-gray-200 dark:border-gray-600">
+          <div className="bg-gray-50 p-4 flex items-center justify-end border-t border-gray-200">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition font-semibold"
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300:bg-gray-500 transition font-semibold"
             >
               Cerrar
             </button>

@@ -89,7 +89,7 @@ const CourseScheduleView = ({ course }) => {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-6">
         <div className="flex justify-center py-8">
           <Loader className="animate-spin text-indigo-600" size={32} />
         </div>
@@ -99,20 +99,20 @@ const CourseScheduleView = ({ course }) => {
 
   if (!scheduleData?.schedules || scheduleData.schedules.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-            <Calendar size={24} className="text-indigo-600 dark:text-indigo-400" />
+          <div className="p-3 bg-indigo-100/30 rounded-lg">
+            <Calendar size={24} className="text-indigo-600" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Horario del Curso</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Información de horarios y fechas</p>
+            <h3 className="text-xl font-bold text-gray-800">Horario del Curso</h3>
+            <p className="text-sm text-gray-500">Información de horarios y fechas</p>
           </div>
         </div>
         <div className="text-center py-12">
-          <Calendar className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={48} />
-          <p className="text-gray-500 dark:text-gray-400">No hay horario configurado para este curso</p>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+          <Calendar className="mx-auto text-gray-300 mb-3" size={48} />
+          <p className="text-gray-500">No hay horario configurado para este curso</p>
+          <p className="text-sm text-gray-400 mt-2">
             El administrador debe configurar el horario
           </p>
         </div>
@@ -123,43 +123,43 @@ const CourseScheduleView = ({ course }) => {
   const scheduleGrid = getScheduleGrid();
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-          <Calendar size={24} className="text-indigo-600 dark:text-indigo-400" />
+        <div className="p-3 bg-indigo-100/30 rounded-lg">
+          <Calendar size={24} className="text-indigo-600" />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Horario del Curso</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Información de horarios y fechas</p>
+          <h3 className="text-xl font-bold text-gray-800">Horario del Curso</h3>
+          <p className="text-sm text-gray-500">Información de horarios y fechas</p>
         </div>
       </div>
 
       {/* Course Duration Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Fecha de Inicio</p>
-          <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+        <div className="bg-gradient-to-br from-blue-50 to-cyan-50/20/20 rounded-lg p-4 border border-blue-200">
+          <p className="text-sm font-semibold text-gray-700 mb-1">Fecha de Inicio</p>
+          <p className="text-lg font-bold text-blue-600">
             {formatDate(scheduleData.startDate)}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Fecha de Fin</p>
-          <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50/20/20 rounded-lg p-4 border border-purple-200">
+          <p className="text-sm font-semibold text-gray-700 mb-1">Fecha de Fin</p>
+          <p className="text-lg font-bold text-purple-600">
             {formatDate(scheduleData.endDate)}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Duración</p>
-          <p className="text-lg font-bold text-green-600 dark:text-green-400">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50/20/20 rounded-lg p-4 border border-green-200">
+          <p className="text-sm font-semibold text-gray-700 mb-1">Duración</p>
+          <p className="text-lg font-bold text-green-600">
             {scheduleData.durationWeeks ? `${scheduleData.durationWeeks} semanas` : '-'}
           </p>
         </div>
       </div>
 
       {/* Visual Schedule Grid */}
-      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+      <div className="bg-gray-50/50 rounded-lg p-4">
+        <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
           <Clock size={20} />
           Horario Semanal
         </h4>
@@ -168,23 +168,23 @@ const CourseScheduleView = ({ course }) => {
           <div className="min-w-[700px]">
             {/* Header Days */}
             <div className="grid grid-cols-8 gap-2 mb-2">
-              <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">Hora</div>
+              <div className="text-xs font-semibold text-gray-600">Hora</div>
               {daysOfWeek.map(day => (
                 <div key={day.value} className="text-center">
-                  <div className="text-xs font-semibold text-gray-800 dark:text-gray-200">{day.label}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">({day.short})</div>
+                  <div className="text-xs font-semibold text-gray-800">{day.label}</div>
+                  <div className="text-xs text-gray-500">({day.short})</div>
                 </div>
               ))}
             </div>
 
             {/* Time Grid */}
-            <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
               {getRelevantTimeSlots().map((time) => {
                 const hour = parseInt(time.split(':')[0]);
 
                 return (
-                  <div key={time} className="grid grid-cols-8 border-b border-gray-200 dark:border-gray-600 last:border-b-0">
-                    <div className="bg-gray-100 dark:bg-gray-700 p-2 text-xs font-semibold text-gray-600 dark:text-gray-400 flex items-center justify-center">
+                  <div key={time} className="grid grid-cols-8 border-b border-gray-200 last:border-b-0">
+                    <div className="bg-gray-100 p-2 text-xs font-semibold text-gray-600 flex items-center justify-center">
                       {time}
                     </div>
                     {daysOfWeek.map(day => {
@@ -202,16 +202,16 @@ const CourseScheduleView = ({ course }) => {
                           key={day.value}
                           className={`p-2 text-xs flex flex-col items-center justify-center min-h-[50px] ${
                             hasClass
-                              ? 'bg-indigo-100 dark:bg-indigo-900/30 border-l-4 border-indigo-600'
-                              : 'bg-white dark:bg-gray-800'
+                              ? 'bg-indigo-100/30 border-l-4 border-indigo-600'
+                              : 'bg-white'
                           }`}
                         >
                           {hasClass && classesInHour.map((schedule, idx) => (
                             <div key={idx} className="text-center">
-                              <span className="text-indigo-700 dark:text-indigo-300 font-semibold block">
+                              <span className="text-indigo-700 font-semibold block">
                                 {course.code}
                               </span>
-                              <span className="text-indigo-600 dark:text-indigo-400 text-xs">
+                              <span className="text-indigo-600 text-xs">
                                 {schedule.startTime}-{schedule.endTime}
                               </span>
                             </div>
@@ -229,25 +229,25 @@ const CourseScheduleView = ({ course }) => {
 
       {/* Schedule Details List */}
       <div className="mt-6">
-        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3">Horarios Detallados</h4>
+        <h4 className="font-bold text-gray-800 mb-3">Horarios Detallados</h4>
         <div className="space-y-2">
           {scheduleData.schedules.map((schedule, index) => {
             const day = daysOfWeek.find(d => d.value === schedule.dayOfWeek);
             return (
-              <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-3 flex items-center justify-between">
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-                    <span className="text-indigo-600 dark:text-indigo-400 font-bold text-sm">{day?.short}</span>
+                  <div className="w-12 h-12 bg-indigo-100/30 rounded-lg flex items-center justify-center">
+                    <span className="text-indigo-600 font-bold text-sm">{day?.short}</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800 dark:text-gray-200">{day?.label}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="font-semibold text-gray-800">{day?.label}</p>
+                    <p className="text-sm text-gray-600">
                       {schedule.startTime} - {schedule.endTime}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-semibold">
+                  <span className="px-3 py-1 bg-green-100/30 text-green-700 rounded-full text-xs font-semibold">
                     Activo
                   </span>
                 </div>

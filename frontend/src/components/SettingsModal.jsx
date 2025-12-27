@@ -93,7 +93,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+        <div className="border-b border-gray-200 bg-gray-50">
           <div className="flex overflow-x-auto">
             {tabs.map(tab => {
               const Icon = tab.icon;
@@ -123,7 +123,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                   className={`flex items-center gap-2 px-6 py-3 font-medium text-sm transition-colors border-b-2 whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-indigo-600 text-indigo-600 bg-white'
-                      : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:text-white'
+                      : 'border-transparent text-gray-600 hover:text-gray-800'
                   }`}
                 >
                   <Icon size={18} />
@@ -139,7 +139,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           {/* Apariencia */}
           {activeTab === 'appearance' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Tema de la Aplicación</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Tema de la Aplicación</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {themeOptions.map(option => {
                   const Icon = option.icon;
@@ -150,13 +150,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
                       className={`p-4 rounded-lg border-2 transition-all ${
                         settings.theme === option.value
                           ? 'border-indigo-600 bg-indigo-50'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600'
+                          : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <Icon size={32} className={`mx-auto mb-2 ${
                         settings.theme === option.value ? 'text-indigo-600' : 'text-gray-400'
                       }`} />
-                      <p className="font-semibold text-gray-800 dark:text-white">{option.label}</p>
+                      <p className="font-semibold text-gray-800">{option.label}</p>
                       <p className="text-xs text-gray-500 mt-1">{option.description}</p>
                     </button>
                   );
@@ -168,7 +168,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           {/* Notificaciones */}
           {activeTab === 'notifications' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Preferencias de Notificaciones</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Preferencias de Notificaciones</h3>
               
               <div className="space-y-3">
                 <ToggleOption
@@ -196,7 +196,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           {/* Idioma */}
           {activeTab === 'language' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Idioma de la Interfaz</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Idioma de la Interfaz</h3>
               <div className="space-y-2">
                 {languageOptions.map(option => (
                   <button
@@ -205,12 +205,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
                     className={`w-full flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                       settings.language === option.value
                         ? 'border-indigo-600 bg-indigo-50'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600'
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-3xl">{option.flag}</span>
-                      <span className="font-semibold text-gray-800 dark:text-white">{option.label}</span>
+                      <span className="font-semibold text-gray-800">{option.label}</span>
                     </div>
                     {settings.language === option.value && (
                       <CheckCircle size={20} className="text-indigo-600" />
@@ -224,7 +224,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           {/* Audio/Video */}
           {activeTab === 'media' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Configuración Multimedia</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Configuración Multimedia</h3>
               
               <div className="space-y-3">
                 <ToggleOption
@@ -257,10 +257,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
         )}
 
         {/* Footer */}
-        <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex gap-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="bg-gray-50 px-6 py-4 flex gap-3 border-t border-gray-200">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 transition font-semibold"
+            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-semibold"
           >
             Cancelar
           </button>
@@ -280,9 +280,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
 // Componente auxiliar para opciones toggle
 const ToggleOption = ({ label, description, checked, onChange }) => {
   return (
-    <div className="flex items-start justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700">
+    <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
       <div className="flex-1">
-        <p className="font-semibold text-gray-800 dark:text-white text-sm">{label}</p>
+        <p className="font-semibold text-gray-800 text-sm">{label}</p>
         <p className="text-xs text-gray-500 mt-1">{description}</p>
       </div>
       <button

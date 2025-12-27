@@ -48,12 +48,12 @@ const StudentResourcesTab = ({ courseId }) => {
 
   const getTypeBgColor = (type) => {
     const colors = {
-      VIDEO: 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300',
-      DOCUMENT: 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300',
-      LINK: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300',
-      INFORMATION: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300'
+      VIDEO: 'bg-red-100 text-red-600',
+      DOCUMENT: 'bg-blue-100 text-blue-600',
+      LINK: 'bg-green-100 text-green-600',
+      INFORMATION: 'bg-yellow-100 text-yellow-600'
     };
-    return colors[type] || 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
+    return colors[type] || 'bg-gray-100 text-gray-600';
   };
 
   if (loading) {
@@ -69,8 +69,8 @@ const StudentResourcesTab = ({ courseId }) => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Recursos del Curso</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h3 className="text-2xl font-bold text-gray-800">Recursos del Curso</h3>
+          <p className="text-sm text-gray-500 mt-1">
             {resources.length} {resources.length === 1 ? 'recurso disponible' : 'recursos disponibles'}
           </p>
         </div>
@@ -78,18 +78,18 @@ const StudentResourcesTab = ({ courseId }) => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900 dark:bg-opacity-30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex gap-2 items-start">
-          <AlertCircle size={18} className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2 items-start">
+          <AlertCircle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
       {/* Resources List */}
       {resources.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <FileText size={48} className="mx-auto text-gray-400 dark:text-gray-600 mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">No hay recursos disponibles</p>
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+        <div className="text-center py-12 bg-white rounded-lg shadow-md">
+          <FileText size={48} className="mx-auto text-gray-400 mb-4" />
+          <p className="text-gray-600">No hay recursos disponibles</p>
+          <p className="text-sm text-gray-500 mt-2">
             El docente aún no ha agregado recursos a este curso
           </p>
         </div>
@@ -98,7 +98,7 @@ const StudentResourcesTab = ({ courseId }) => {
           {resources.map((resource) => (
             <div
               key={resource.id}
-              className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-md hover:shadow-lg transition"
+              className="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition"
             >
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 mt-1">
@@ -108,7 +108,7 @@ const StudentResourcesTab = ({ courseId }) => {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-2 gap-3">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-gray-800 dark:text-gray-100 text-lg">
+                      <h4 className="font-bold text-gray-800 text-lg">
                         {resource.title}
                       </h4>
                       <span className={`inline-block text-xs px-2 py-1 rounded-full mt-1 ${getTypeBgColor(resource.type)}`}>
@@ -118,7 +118,7 @@ const StudentResourcesTab = ({ courseId }) => {
                   </div>
 
                   {resource.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    <p className="text-sm text-gray-600 mb-3">
                       {resource.description}
                     </p>
                   )}
@@ -136,7 +136,7 @@ const StudentResourcesTab = ({ courseId }) => {
                   )}
 
                   {resource.type === 'INFORMATION' && (
-                    <div className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mt-2 border border-gray-200 dark:border-gray-600">
+                    <div className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg mt-2 border border-gray-200">
                       <p className="whitespace-pre-wrap">{resource.content}</p>
                     </div>
                   )}

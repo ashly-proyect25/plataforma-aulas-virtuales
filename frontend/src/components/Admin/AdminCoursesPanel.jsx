@@ -203,8 +203,8 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
             <BookOpen className="text-white" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Gestión de Materias</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Administra todas las materias y asignaciones</p>
+            <h2 className="text-2xl font-bold text-gray-800">Gestión de Materias</h2>
+            <p className="text-sm text-gray-500">Administra todas las materias y asignaciones</p>
           </div>
         </div>
         <button
@@ -218,16 +218,16 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
 
       {/* Mensajes */}
       {successMessage && (
-        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex gap-2 items-start">
-          <CheckCircle size={20} className="text-green-500 dark:text-green-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-green-700 dark:text-green-400">{successMessage}</p>
+        <div className="bg-green-50/20 border border-green-200 rounded-lg p-4 flex gap-2 items-start">
+          <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-green-700">{successMessage}</p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex gap-2 items-start">
-          <AlertCircle size={20} className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+        <div className="bg-red-50/20 border border-red-200 rounded-lg p-4 flex gap-2 items-start">
+          <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
@@ -237,8 +237,8 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
           onClick={() => setFilterActive(true)}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filterActive
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              ? 'bg-blue-100 text-blue-700'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200:bg-gray-600'
           }`}
         >
           Activas
@@ -247,15 +247,15 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
           onClick={() => setFilterActive(false)}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             !filterActive
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              ? 'bg-blue-100 text-blue-700'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200:bg-gray-600'
           }`}
         >
           Inactivas
         </button>
         <button
           onClick={fetchCourses}
-          className="ml-auto px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+          className="ml-auto px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200:bg-gray-600 transition"
         >
           Actualizar
         </button>
@@ -274,7 +274,7 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
           {courses.map(course => (
             <div
               key={course.id}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl transition-shadow duration-200 overflow-hidden"
+              className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-xl transition-shadow duration-200 overflow-hidden"
               style={{ borderLeft: `4px solid ${course.color}` }}
             >
               {editingCourseId === course.id ? (
@@ -288,7 +288,7 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                         setEditData({ ...editData, title: e.target.value })
                       }
                       onKeyDown={(e) => handleEditKeyDown(e, course.id)}
-                      className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="px-3 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       placeholder="Título"
                     />
                     <select
@@ -299,7 +299,7 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                           teacherId: parseInt(e.target.value)
                         })
                       }
-                      className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="px-3 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                       {teachers.map(teacher => (
                         <option key={teacher.id} value={teacher.id}>
@@ -314,7 +314,7 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                       setEditData({ ...editData, description: e.target.value })
                     }
                     onKeyDown={(e) => handleEditKeyDown(e, course.id)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
                     rows="2"
                     placeholder="Descripción"
                   />
@@ -329,7 +329,7 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                     <button
                       onClick={handleCancelEdit}
                       disabled={editLoading}
-                      className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition disabled:opacity-50"
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400:bg-gray-500 transition disabled:opacity-50"
                     >
                       Cancelar
                     </button>
@@ -342,20 +342,20 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                          <h3 className="text-lg font-bold text-gray-800">
                             {course.code}
                           </h3>
                           <span className={`px-2 py-1 text-xs font-semibold rounded ${
                             course.isActive
-                              ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-700'
                           }`}>
                             {course.isActive ? 'Activa' : 'Inactiva'}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">{course.title}</p>
+                        <p className="text-sm text-gray-600">{course.title}</p>
                         {course.description && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-xs text-gray-500 mt-1">
                             {course.description}
                           </p>
                         )}
@@ -365,8 +365,8 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                           onClick={() => handleToggleStatus(course.id, course.isActive)}
                           className={`p-2 rounded-lg transition ${
                             course.isActive
-                              ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800'
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                              ? 'bg-blue-100 text-blue-600 hover:bg-blue-200:bg-blue-800'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200:bg-gray-600'
                           }`}
                           title={course.isActive ? 'Desactivar' : 'Activar'}
                         >
@@ -374,14 +374,14 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                         </button>
                         <button
                           onClick={() => handleEditCourse(course)}
-                          className="p-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-800 rounded-lg transition"
+                          className="p-2 bg-yellow-100 text-yellow-600 hover:bg-yellow-200:bg-yellow-800 rounded-lg transition"
                           title="Editar"
                         >
                           <Edit2 size={18} />
                         </button>
                         <button
                           onClick={() => handleDeleteCourse(course.id)}
-                          className="p-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800 rounded-lg transition"
+                          className="p-2 bg-red-100 text-red-600 hover:bg-red-200:bg-red-800 rounded-lg transition"
                           title="Eliminar"
                         >
                           <Trash2 size={18} />
@@ -390,7 +390,7 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                     </div>
 
                     {/* Información */}
-                    <div className="grid grid-cols-3 gap-3 text-xs text-gray-600 dark:text-gray-400 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-3 gap-3 text-xs text-gray-600 pt-3 border-t border-gray-200">
                       <div className="flex items-center gap-1">
                         <Users size={14} />
                         <span>{course._count?.enrollments || 0} estudiantes</span>
@@ -407,24 +407,24 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                   </div>
 
                   {/* Botones de Acción */}
-                  <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
+                  <div className="bg-gray-50/50 px-4 py-3 border-t border-gray-200 flex gap-2">
                     <button
                       onClick={() => handleOpenScheduleModal(course)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition font-semibold text-sm"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-50/20 text-purple-600 hover:bg-purple-100:bg-purple-900/30 rounded-lg transition font-semibold text-sm"
                     >
                       <Calendar size={16} />
                       Horario
                     </button>
                     <button
                       onClick={() => handleOpenImportStudents(course)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition font-semibold text-sm"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50/20 text-green-600 hover:bg-green-100:bg-green-900/30 rounded-lg transition font-semibold text-sm"
                     >
                       <Upload size={16} />
                       Importar
                     </button>
                     <button
                       onClick={() => handleOpenStudentsModal(course)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition font-semibold text-sm"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50/20 text-blue-600 hover:bg-blue-100:bg-blue-900/30 rounded-lg transition font-semibold text-sm"
                     >
                       <Users size={16} />
                       Alumnos
@@ -440,8 +440,8 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
       {/* Empty State */}
       {!loading && courses.length === 0 && (
         <div className="text-center py-12">
-          <BookOpen className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={48} />
-          <p className="text-gray-500 dark:text-gray-400 font-semibold">
+          <BookOpen className="mx-auto text-gray-300 mb-3" size={48} />
+          <p className="text-gray-500 font-semibold">
             No hay materias {filterActive ? 'activas' : 'inactivas'}
           </p>
         </div>

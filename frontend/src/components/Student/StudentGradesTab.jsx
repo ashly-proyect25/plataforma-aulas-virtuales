@@ -106,8 +106,8 @@ const StudentGradesTab = ({ course }) => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Mis Calificaciones</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h3 className="text-2xl font-bold text-gray-800">Mis Calificaciones</h3>
+          <p className="text-sm text-gray-500 mt-1">
             Historial de notas y progreso académico
           </p>
         </div>
@@ -115,10 +115,10 @@ const StudentGradesTab = ({ course }) => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-cyan-600">
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-cyan-600">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+              <p className="text-sm font-semibold text-gray-600 mb-1">
                 Promedio General
               </p>
               <p className="text-3xl font-bold text-cyan-600">
@@ -129,10 +129,10 @@ const StudentGradesTab = ({ course }) => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-purple-600">
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+              <p className="text-sm font-semibold text-gray-600 mb-1">
                 Evaluaciones
               </p>
               <p className="text-3xl font-bold text-purple-600">
@@ -143,10 +143,10 @@ const StudentGradesTab = ({ course }) => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-green-600">
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-600">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+              <p className="text-sm font-semibold text-gray-600 mb-1">
                 Aprobadas
               </p>
               <p className="text-3xl font-bold text-green-600">
@@ -160,11 +160,11 @@ const StudentGradesTab = ({ course }) => {
         {/* Nueva tarjeta de Asistencia */}
         <div
           onClick={() => setShowAttendanceModal(true)}
-          className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-blue-600 cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-600 cursor-pointer hover:shadow-lg transition-shadow"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+              <p className="text-sm font-semibold text-gray-600 mb-1">
                 % Asistencia
               </p>
               <p className="text-3xl font-bold text-blue-600">
@@ -175,7 +175,7 @@ const StudentGradesTab = ({ course }) => {
                   e.stopPropagation();
                   setShowAttendanceModal(true);
                 }}
-                className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                className="mt-2 text-xs text-blue-600 hover:underline flex items-center gap-1"
               >
                 <ClipboardCheck size={12} />
                 Ver detalle
@@ -192,62 +192,62 @@ const StudentGradesTab = ({ course }) => {
           <Loader className="animate-spin text-cyan-600" size={40} />
         </div>
       ) : grades.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <BarChart size={48} className="mx-auto text-gray-400 dark:text-gray-600 mb-4" />
-          <p className="text-gray-600 dark:text-gray-400 font-semibold">No hay calificaciones registradas</p>
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+        <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <BarChart size={48} className="mx-auto text-gray-400 mb-4" />
+          <p className="text-gray-600 font-semibold">No hay calificaciones registradas</p>
+          <p className="text-sm text-gray-500 mt-2">
             Tus calificaciones aparecerán aquí una vez que completes las evaluaciones
           </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Evaluación
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Tipo
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Fecha
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Calificación
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Estado
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200">
                 {grades.map((grade, index) => (
-                  <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <tr key={index} className="hover:bg-gray-50:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                      <div className="text-sm font-medium text-gray-800">
                         {grade.title}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-sm text-gray-600">
                         {grade.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {grade.date}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-lg font-bold text-gray-800 dark:text-gray-200">
+                      <span className="text-lg font-bold text-gray-800">
                         {grade.score}%
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         grade.score >= 60
-                          ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                          : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
                       }`}>
                         {grade.score >= 60 ? 'Aprobado' : 'Reprobado'}
                       </span>

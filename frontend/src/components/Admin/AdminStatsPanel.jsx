@@ -124,16 +124,16 @@ const AdminStatsPanel = ({
           <BarChart3 className="text-white" size={24} />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Estadísticas Generales</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Resumen de la plataforma</p>
+          <h2 className="text-2xl font-bold text-gray-800">Estadísticas Generales</h2>
+          <p className="text-sm text-gray-500">Resumen de la plataforma</p>
         </div>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex gap-2 items-start">
-          <AlertCircle size={20} className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+        <div className="bg-red-50/20 border border-red-200 rounded-lg p-4 flex gap-2 items-start">
+          <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
@@ -183,19 +183,19 @@ const AdminStatsPanel = ({
       {/* Detailed Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Docentes */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-blue-600">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Docentes</h3>
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-600">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Docentes</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-300">Totales</span>
+              <span className="text-gray-600">Totales</span>
               <span className="text-2xl font-bold text-blue-600">{stats.totalTeachers}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-300">Activos</span>
+              <span className="text-gray-600">Activos</span>
               <span className="text-2xl font-bold text-green-600">{stats.activeTeachers}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-300">Inactivos</span>
+              <span className="text-gray-600">Inactivos</span>
               <span className="text-2xl font-bold text-red-600">
                 {stats.totalTeachers - stats.activeTeachers}
               </span>
@@ -204,19 +204,19 @@ const AdminStatsPanel = ({
         </div>
 
         {/* Materias */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-purple-600">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Materias</h3>
+        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Materias</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-300">Totales</span>
+              <span className="text-gray-600">Totales</span>
               <span className="text-2xl font-bold text-purple-600">{stats.totalCourses}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-300">Activas</span>
+              <span className="text-gray-600">Activas</span>
               <span className="text-2xl font-bold text-green-600">{stats.activeCourses}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-300">Inactivas</span>
+              <span className="text-gray-600">Inactivas</span>
               <span className="text-2xl font-bold text-red-600">
                 {stats.totalCourses - stats.activeCourses}
               </span>
@@ -226,26 +226,26 @@ const AdminStatsPanel = ({
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow">
-        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Acciones Rápidas</h3>
+      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow">
+        <h3 className="text-lg font-bold text-gray-800 mb-4">Acciones Rápidas</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <button
             onClick={onOpenCreateTeacher}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 transition-all font-semibold shadow-md hover:shadow-lg"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600:bg-blue-700 transition-all font-semibold shadow-md hover:shadow-lg"
           >
             <Plus size={20} />
             Nuevo Docente
           </button>
           <button
             onClick={onOpenCreateCourse}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-500 dark:bg-purple-600 text-white rounded-lg hover:bg-purple-600 dark:hover:bg-purple-700 transition-all font-semibold shadow-md hover:shadow-lg"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600:bg-purple-700 transition-all font-semibold shadow-md hover:shadow-lg"
           >
             <Plus size={20} />
             Nueva Materia
           </button>
           <button
             onClick={onDownloadReport}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-orange-500 dark:bg-orange-600 text-white rounded-lg hover:bg-orange-600 dark:hover:bg-orange-700 transition-all font-semibold shadow-md hover:shadow-lg"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600:bg-orange-700 transition-all font-semibold shadow-md hover:shadow-lg"
           >
             <Download size={20} />
             Descargar Reporte

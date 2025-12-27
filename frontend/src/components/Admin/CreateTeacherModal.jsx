@@ -105,18 +105,18 @@ function CreateTeacherModal({ isOpen, onClose, onTeacherCreated }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl border border-gray-200 dark:border-slate-700 animate-scale-in">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-gray-200 animate-scale-in">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
-              <UserPlus className="w-5 h-5 text-orange-400 dark:text-orange-400" />
+              <UserPlus className="w-5 h-5 text-orange-400" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Crear Docente</h2>
+            <h2 className="text-xl font-bold text-gray-800">Crear Docente</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-white transition-colors"
+            className="text-gray-400 hover:text-gray-600:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -142,124 +142,124 @@ function CreateTeacherModal({ isOpen, onClose, onTeacherCreated }) {
 
           {/* Nombre Completo */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Nombre Completo
             </label>
             <div className="relative">
-              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-400" />
+              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-900/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 ${
+                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 placeholder-gray-400 ${
                   errors.name
                     ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-slate-700 focus:ring-orange-500'
+                    : 'border-gray-300 focus:ring-orange-500'
                 }`}
                 placeholder="Ej: Juan Pérez García"
               />
             </div>
             {errors.name && (
-              <p className="text-red-500 dark:text-red-400 text-xs mt-1 flex items-center gap-1">
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 {errors.name}
               </p>
             )}
-            <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Debe incluir al menos nombre y apellido
             </p>
           </div>
 
           {/* Usuario */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Usuario
             </label>
             <div className="relative">
-              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-400" />
+              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-900/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 ${
+                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 placeholder-gray-400 ${
                   errors.username
                     ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-slate-700 focus:ring-orange-500'
+                    : 'border-gray-300 focus:ring-orange-500'
                 }`}
                 placeholder="Ej: juan.perez"
               />
             </div>
             {errors.username && (
-              <p className="text-red-500 dark:text-red-400 text-xs mt-1 flex items-center gap-1">
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 {errors.username}
               </p>
             )}
-            <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Sin espacios. Solo letras, números, puntos, guiones
             </p>
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Correo Electrónico
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-400" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-900/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 ${
+                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 placeholder-gray-400 ${
                   errors.email
                     ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-slate-700 focus:ring-orange-500'
+                    : 'border-gray-300 focus:ring-orange-500'
                 }`}
                 placeholder="juan@email.com"
               />
             </div>
             {errors.email && (
-              <p className="text-red-500 dark:text-red-400 text-xs mt-1 flex items-center gap-1">
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 {errors.email}
               </p>
             )}
-            <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Sin espacios. Formato válido de correo
             </p>
           </div>
 
           {/* Contraseña */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Contraseña Temporal
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-400" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-900/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 ${
+                className={`w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 placeholder-gray-400 ${
                   errors.password
                     ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-slate-700 focus:ring-orange-500'
+                    : 'border-gray-300 focus:ring-orange-500'
                 }`}
                 placeholder="Mínimo 8 caracteres con números"
               />
             </div>
             {errors.password && (
-              <p className="text-red-500 dark:text-red-400 text-xs mt-1 flex items-center gap-1">
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 {errors.password}
               </p>
             )}
-            <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Al menos 8 caracteres, debe incluir números
             </p>
           </div>
@@ -269,7 +269,7 @@ function CreateTeacherModal({ isOpen, onClose, onTeacherCreated }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-white rounded-lg font-medium transition-colors"
+              className="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300:bg-slate-600 text-gray-700 rounded-lg font-medium transition-colors"
             >
               Cancelar
             </button>

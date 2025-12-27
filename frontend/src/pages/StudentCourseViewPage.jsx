@@ -93,10 +93,10 @@ const StudentCourseViewPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Cargando materia...</p>
+          <p className="text-gray-600">Cargando materia...</p>
         </div>
       </div>
     );
@@ -105,7 +105,7 @@ const StudentCourseViewPage = () => {
   if (!course) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100">
       {/* Header - Compacto */}
       <header className={`bg-gradient-to-r from-cyan-600 to-blue-600 text-white sticky top-0 z-40 transition-all duration-300 ${
         isScrolled ? 'py-1 shadow-xl' : 'py-4 shadow-lg'
@@ -116,12 +116,12 @@ const StudentCourseViewPage = () => {
           }`}>
             <button
               onClick={() => navigate('/alumno/dashboard')}
-              className={`flex items-center gap-2 px-3 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-900 dark:text-white shadow-md ${
+              className={`flex items-center gap-2 px-3 rounded-lg bg-white hover:bg-gray-100 transition text-gray-900 shadow-md ${
                 isScrolled ? 'py-1 text-xs' : 'py-1.5 text-sm'
               }`}
             >
-              <ArrowLeft size={isScrolled ? 16 : 18} className="text-gray-900 dark:text-white" />
-              <span className="font-semibold text-gray-900 dark:text-white">Volver</span>
+              <ArrowLeft size={isScrolled ? 16 : 18} className="text-gray-900" />
+              <span className="font-semibold text-gray-900">Volver</span>
             </button>
             <UserMenu loginPath="/login/alumno" />
           </div>
@@ -159,7 +159,7 @@ const StudentCourseViewPage = () => {
       </header>
 
       {/* Tabs Navigation */}
-      <div className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky z-30 shadow-sm transition-all duration-300 ${
+      <div className={`bg-white border-b border-gray-200 sticky z-30 shadow-sm transition-all duration-300 ${
         isScrolled ? 'top-[52px]' : 'top-[90px]'
       }`}>
         <div className="container mx-auto px-4">
@@ -172,8 +172,8 @@ const StudentCourseViewPage = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-6 py-4 font-semibold text-sm transition border-b-2 flex items-center gap-2 whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'border-b-cyan-600 text-cyan-600 dark:text-cyan-400'
-                      : 'border-b-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                      ? 'border-b-cyan-600 text-cyan-600'
+                      : 'border-b-transparent text-gray-600 hover:text-gray-800:text-gray-100'
                   }`}
                 >
                   <Icon size={18} />

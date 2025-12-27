@@ -59,9 +59,9 @@ const CourseInfoTab = ({ course }) => {
 
         {/* Descripción */}
         {course.description && (
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">Descripción</p>
-            <p className="text-gray-700 dark:text-gray-300">{course.description}</p>
+          <div className="mt-6 p-4 bg-blue-50/20 rounded-lg border border-blue-200">
+            <p className="text-sm font-semibold text-blue-900 mb-2">Descripción</p>
+            <p className="text-gray-700">{course.description}</p>
           </div>
         )}
 

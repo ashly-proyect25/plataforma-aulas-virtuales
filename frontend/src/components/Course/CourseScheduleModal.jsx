@@ -164,7 +164,7 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
   return (
     <>
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -191,36 +191,36 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
             ) : (
               <div className="space-y-6">
                 {/* Dates Configuration */}
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <div className="bg-gray-50/50 rounded-lg p-4">
+                  <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <Calendar size={20} />
                     Configuración de Fechas
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Fecha de Inicio *
                       </label>
                       <input
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-800"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Fecha de Fin
                       </label>
                       <input
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-800"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Duración (Semanas)
                       </label>
                       <input
@@ -230,18 +230,18 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
                         min="1"
                         max="52"
                         placeholder="16"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-800"
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     * Puede especificar fecha de fin O duración en semanas
                   </p>
                 </div>
 
                 {/* Visual Schedule Grid */}
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <div className="bg-gray-50/50 rounded-lg p-4">
+                  <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <Clock size={20} />
                     Horario Semanal
                   </h3>
@@ -250,20 +250,20 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
                     <div className="min-w-[700px]">
                       {/* Header Days */}
                       <div className="grid grid-cols-8 gap-2 mb-2">
-                        <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">Hora</div>
+                        <div className="text-xs font-semibold text-gray-600">Hora</div>
                         {daysOfWeek.map(day => (
                           <div key={day.value} className="text-center">
-                            <div className="text-xs font-semibold text-gray-800 dark:text-gray-200">{day.label}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">({day.short})</div>
+                            <div className="text-xs font-semibold text-gray-800">{day.label}</div>
+                            <div className="text-xs text-gray-500">({day.short})</div>
                           </div>
                         ))}
                       </div>
 
                       {/* Time Grid - Simplified Visual */}
-                      <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                      <div className="border border-gray-300 rounded-lg overflow-hidden">
                         {timeSlots.filter((_, i) => i % 2 === 0).map((time) => (
-                          <div key={time} className="grid grid-cols-8 border-b border-gray-200 dark:border-gray-600 last:border-b-0">
-                            <div className="bg-gray-100 dark:bg-gray-700 p-2 text-xs font-semibold text-gray-600 dark:text-gray-400 flex items-center justify-center">
+                          <div key={time} className="grid grid-cols-8 border-b border-gray-200 last:border-b-0">
+                            <div className="bg-gray-100 p-2 text-xs font-semibold text-gray-600 flex items-center justify-center">
                               {time}
                             </div>
                             {daysOfWeek.map(day => {
@@ -279,12 +279,12 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
                                   key={day.value}
                                   className={`p-2 text-xs flex items-center justify-center min-h-[40px] ${
                                     hasClass
-                                      ? 'bg-indigo-100 dark:bg-indigo-900/30 border-l-2 border-indigo-600'
-                                      : 'bg-white dark:bg-gray-800'
+                                      ? 'bg-indigo-100/30 border-l-2 border-indigo-600'
+                                      : 'bg-white'
                                   }`}
                                 >
                                   {hasClass && (
-                                    <span className="text-indigo-700 dark:text-indigo-300 font-semibold">Clase</span>
+                                    <span className="text-indigo-700 font-semibold">Clase</span>
                                   )}
                                 </div>
                               );
@@ -297,9 +297,9 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
                 </div>
 
                 {/* Schedule Slots Configuration */}
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                <div className="bg-gray-50/50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
                       <Clock size={20} />
                       Horarios de Clase
                     </h3>
@@ -314,21 +314,21 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
 
                   <div className="space-y-3">
                     {schedules.length === 0 ? (
-                      <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                      <p className="text-gray-500 text-center py-8">
                         No hay horarios configurados. Haz clic en "Agregar Horario" para comenzar.
                       </p>
                     ) : (
                       schedules.map((schedule, index) => (
-                        <div key={index} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                        <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
                           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                             <div>
-                              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                              <label className="block text-xs font-semibold text-gray-700 mb-1">
                                 Día
                               </label>
                               <select
                                 value={schedule.dayOfWeek}
                                 onChange={(e) => updateScheduleSlot(index, 'dayOfWeek', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-800 text-sm"
                               >
                                 {daysOfWeek.map(day => (
                                   <option key={day.value} value={day.value}>{day.label}</option>
@@ -336,13 +336,13 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                              <label className="block text-xs font-semibold text-gray-700 mb-1">
                                 Hora Inicio
                               </label>
                               <select
                                 value={schedule.startTime}
                                 onChange={(e) => updateScheduleSlot(index, 'startTime', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-800 text-sm"
                               >
                                 {timeSlots.map(time => (
                                   <option key={time} value={time}>{time}</option>
@@ -350,13 +350,13 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                              <label className="block text-xs font-semibold text-gray-700 mb-1">
                                 Hora Fin
                               </label>
                               <select
                                 value={schedule.endTime}
                                 onChange={(e) => updateScheduleSlot(index, 'endTime', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-800 text-sm"
                               >
                                 {timeSlots.map(time => (
                                   <option key={time} value={time}>{time}</option>
@@ -366,7 +366,7 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
                             <div className="flex items-end">
                               <button
                                 onClick={() => removeScheduleSlot(index)}
-                                className="w-full px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition flex items-center justify-center gap-2 text-sm font-semibold"
+                                className="w-full px-3 py-2 bg-red-100/30 text-red-700 rounded-lg hover:bg-red-200:bg-red-900/50 transition flex items-center justify-center gap-2 text-sm font-semibold"
                               >
                                 <Trash2 size={16} />
                                 Eliminar
@@ -383,7 +383,7 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 flex items-center justify-between gap-3 border-t border-gray-200 dark:border-gray-600">
+          <div className="bg-gray-50 p-4 flex items-center justify-between gap-3 border-t border-gray-200">
             <button
               onClick={handleGenerateClasses}
               disabled={generating || !startDate || schedules.length === 0}
@@ -404,7 +404,7 @@ const CourseScheduleModal = ({ isOpen, onClose, course, onSuccess }) => {
             <div className="flex items-center gap-3">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition font-semibold"
+                className="px-4 py-2 text-gray-700 hover:bg-gray-200:bg-gray-600 rounded-lg transition font-semibold"
               >
                 Cancelar
               </button>

@@ -114,7 +114,7 @@ const HelpModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -133,7 +133,7 @@ const HelpModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Search Bar */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+        <div className="p-6 border-b border-gray-200 bg-gray-50">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input
@@ -141,14 +141,14 @@ const HelpModal = ({ isOpen, onClose }) => {
               placeholder="Buscar ayuda..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div className="flex h-[500px]">
           {/* Sidebar */}
-          <div className="w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 overflow-y-auto">
+          <div className="w-64 border-r border-gray-200 bg-gray-50 overflow-y-auto">
             <div className="p-4 space-y-1">
               {categories.map(category => {
                 const Icon = category.icon;
@@ -162,7 +162,7 @@ const HelpModal = ({ isOpen, onClose }) => {
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       activeCategory === category.id
                         ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100'
+                        : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     <Icon size={20} />
@@ -177,17 +177,17 @@ const HelpModal = ({ isOpen, onClose }) => {
           <div className="flex-1 overflow-y-auto p-6">
             {activeCategory === 'getting-started' && (
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Primeros Pasos</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Primeros Pasos</h3>
                 {helpContent['getting-started'].map((item, index) => (
                   <div
                     key={index}
-                    className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 transition-colors cursor-pointer group"
+                    className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-start gap-4">
                       <span className="text-3xl">{item.icon}</span>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800 dark:text-white mb-1">{item.title}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                        <h4 className="font-semibold text-gray-800 mb-1">{item.title}</h4>
+                        <p className="text-sm text-gray-600">{item.description}</p>
                       </div>
                       <ChevronRight size={20} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
                     </div>
@@ -198,17 +198,17 @@ const HelpModal = ({ isOpen, onClose }) => {
 
             {activeCategory === 'faq' && (
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Preguntas Frecuentes</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Preguntas Frecuentes</h3>
                 {helpContent.faq.map((item, index) => (
                   <details
                     key={index}
-                    className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 transition-colors group"
+                    className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors group"
                   >
-                    <summary className="font-semibold text-gray-800 dark:text-white cursor-pointer list-none flex items-center justify-between">
+                    <summary className="font-semibold text-gray-800 cursor-pointer list-none flex items-center justify-between">
                       {item.question}
                       <ChevronRight size={18} className="text-gray-400 group-hover:text-blue-600 transition-transform group-open:rotate-90" />
                     </summary>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 pl-4 border-l-2 border-blue-200">
+                    <p className="text-sm text-gray-600 mt-3 pl-4 border-l-2 border-blue-200">
                       {item.answer}
                     </p>
                   </details>
@@ -218,7 +218,7 @@ const HelpModal = ({ isOpen, onClose }) => {
 
             {activeCategory === 'contact' && (
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Contacta con Nosotros</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Contacta con Nosotros</h3>
                 {helpContent.contact.map((item, index) => {
                   const Icon = item.icon;
                   return (
@@ -231,9 +231,9 @@ const HelpModal = ({ isOpen, onClose }) => {
                           <Icon size={24} className="text-white" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-gray-800 dark:text-white mb-1">{item.title}</h4>
+                          <h4 className="font-bold text-gray-800 mb-1">{item.title}</h4>
                           <p className="text-blue-600 font-mono text-sm mb-1">{item.value}</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">{item.description}</p>
+                          <p className="text-xs text-gray-600">{item.description}</p>
                         </div>
                       </div>
                     </div>
@@ -241,8 +241,8 @@ const HelpModal = ({ isOpen, onClose }) => {
                 })}
 
                 {/* Formulario de Contacto */}
-                <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-                  <h4 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                <div className="mt-6 p-6 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                  <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <FileText size={20} />
                     Enviar Mensaje
                   </h4>
@@ -250,12 +250,12 @@ const HelpModal = ({ isOpen, onClose }) => {
                     <input
                       type="text"
                       placeholder="Asunto"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
                     <textarea
                       placeholder="Describe tu problema o consulta..."
                       rows="4"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
                     />
                     <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm">
                       Enviar Mensaje
@@ -268,8 +268,8 @@ const HelpModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+          <p className="text-sm text-gray-600">
             ¿No encontraste lo que buscabas?
           </p>
           <button className="text-sm text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1">

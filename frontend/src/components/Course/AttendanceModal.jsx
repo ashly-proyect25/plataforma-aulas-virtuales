@@ -138,15 +138,15 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'PRESENT':
-        return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700';
+        return 'bg-green-100 text-green-700 border-green-300';
       case 'ABSENT':
-        return 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700';
+        return 'bg-red-100 text-red-700 border-red-300';
       case 'LATE':
-        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700';
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
       case 'EXCUSED':
-        return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700';
+        return 'bg-blue-100 text-blue-700 border-blue-300';
       default:
-        return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
+        return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
@@ -200,7 +200,7 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
   return (
     <>
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -222,7 +222,7 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
           <div className="flex-1 overflow-auto p-6">
             {!selectedClassroom ? (
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                <h3 className="text-lg font-bold text-gray-800">
                   Selecciona una clase
                 </h3>
                 {loading ? (
@@ -235,13 +235,13 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                       <button
                         key={classroom.id}
                         onClick={() => handleClassroomSelect(classroom)}
-                        className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition text-left border-2 border-transparent hover:border-indigo-500"
+                        className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100:bg-gray-600 transition text-left border-2 border-transparent hover:border-indigo-500"
                       >
-                        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-1">
+                        <h4 className="font-bold text-gray-800 mb-1">
                           {classroom.title}
                         </h4>
                         {classroom.scheduledAt && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-sm text-gray-600">
                             {new Date(classroom.scheduledAt).toLocaleString('es-ES', {
                               weekday: 'long',
                               year: 'numeric',
@@ -257,8 +257,8 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Users className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={48} />
-                    <p className="text-gray-500 dark:text-gray-400">No hay clases programadas</p>
+                    <Users className="mx-auto text-gray-300 mb-3" size={48} />
+                    <p className="text-gray-500">No hay clases programadas</p>
                   </div>
                 )}
               </div>
@@ -273,11 +273,11 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                     ← Volver a clases
                   </button>
                   <div className="text-right">
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100">
+                    <h3 className="font-bold text-gray-800">
                       {selectedClassroom.title}
                     </h3>
                     {selectedClassroom.scheduledAt && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600">
                         {new Date(selectedClassroom.scheduledAt).toLocaleDateString('es-ES')}
                       </p>
                     )}
@@ -286,12 +286,12 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
 
                 {/* Información de horario y período */}
                 {classPeriod && (
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50/20/20 rounded-lg p-4 border border-blue-200">
                     <div className="flex items-start gap-3">
-                      <Calendar className="text-blue-600 dark:text-blue-400 mt-1" size={20} />
+                      <Calendar className="text-blue-600 mt-1" size={20} />
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-bold text-gray-800 dark:text-gray-100">Información de Horario</h4>
+                          <h4 className="font-bold text-gray-800">Información de Horario</h4>
                           {classPeriod.isInRegistrationWindow && (
                             <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full animate-pulse">
                               Ventana de registro activa
@@ -310,25 +310,25 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                           <div>
-                            <span className="text-gray-600 dark:text-gray-400">Inicio:</span>
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">
+                            <span className="text-gray-600">Inicio:</span>
+                            <p className="font-semibold text-gray-800">
                               {classPeriod.scheduledTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                             </p>
                           </div>
                           <div>
-                            <span className="text-gray-600 dark:text-gray-400">Fin:</span>
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">
+                            <span className="text-gray-600">Fin:</span>
+                            <p className="font-semibold text-gray-800">
                               {classPeriod.endTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                             </p>
                           </div>
                           <div>
-                            <span className="text-gray-600 dark:text-gray-400">Duración:</span>
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">
+                            <span className="text-gray-600">Duración:</span>
+                            <p className="font-semibold text-gray-800">
                               {classPeriod.duration} min
                             </p>
                           </div>
                         </div>
-                        <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                        <div className="mt-2 text-xs text-gray-600">
                           <p>• Ventana de registro: {classPeriod.earlyTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {classPeriod.lateGraceTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
                       </div>
@@ -339,7 +339,7 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                 {/* Botones de acción rápida */}
                 {students.length > 0 && (
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Acción rápida:</span>
+                    <span className="text-sm font-semibold text-gray-700">Acción rápida:</span>
                     <button
                       onClick={() => markAllAs('PRESENT')}
                       className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2"
@@ -353,33 +353,33 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                 {/* Summary */}
                 {summary && (
                   <div className="grid grid-cols-4 gap-4">
-                    <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                    <div className="bg-green-50/20 rounded-lg p-4 border border-green-200">
                       <div className="flex items-center gap-2 mb-1">
-                        <CheckCircle size={20} className="text-green-600 dark:text-green-400" />
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Presentes</span>
+                        <CheckCircle size={20} className="text-green-600" />
+                        <span className="text-sm font-semibold text-gray-700">Presentes</span>
                       </div>
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.present}</p>
+                      <p className="text-2xl font-bold text-green-600">{summary.present}</p>
                     </div>
-                    <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+                    <div className="bg-red-50/20 rounded-lg p-4 border border-red-200">
                       <div className="flex items-center gap-2 mb-1">
-                        <XCircle size={20} className="text-red-600 dark:text-red-400" />
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Ausentes</span>
+                        <XCircle size={20} className="text-red-600" />
+                        <span className="text-sm font-semibold text-gray-700">Ausentes</span>
                       </div>
-                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">{summary.absent}</p>
+                      <p className="text-2xl font-bold text-red-600">{summary.absent}</p>
                     </div>
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
+                    <div className="bg-yellow-50/20 rounded-lg p-4 border border-yellow-200">
                       <div className="flex items-center gap-2 mb-1">
-                        <Clock size={20} className="text-yellow-600 dark:text-yellow-400" />
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tarde</span>
+                        <Clock size={20} className="text-yellow-600" />
+                        <span className="text-sm font-semibold text-gray-700">Tarde</span>
                       </div>
-                      <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{summary.late}</p>
+                      <p className="text-2xl font-bold text-yellow-600">{summary.late}</p>
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                    <div className="bg-blue-50/20 rounded-lg p-4 border border-blue-200">
                       <div className="flex items-center gap-2 mb-1">
-                        <FileText size={20} className="text-blue-600 dark:text-blue-400" />
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Justificados</span>
+                        <FileText size={20} className="text-blue-600" />
+                        <span className="text-sm font-semibold text-gray-700">Justificados</span>
                       </div>
-                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.excused}</p>
+                      <p className="text-2xl font-bold text-blue-600">{summary.excused}</p>
                     </div>
                   </div>
                 )}
@@ -390,28 +390,28 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                     <Loader className="animate-spin text-indigo-600" size={32} />
                   </div>
                 ) : students.length > 0 ? (
-                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg overflow-hidden">
+                  <div className="bg-gray-50/50 rounded-lg overflow-hidden">
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-gray-100 dark:bg-gray-700">
+                        <thead className="bg-gray-100">
                           <tr>
-                            <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Estudiante</th>
-                            <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Estado</th>
+                            <th className="text-left py-3 px-4 font-semibold text-gray-700">Estudiante</th>
+                            <th className="text-center py-3 px-4 font-semibold text-gray-700">Estado</th>
                           </tr>
                         </thead>
                         <tbody>
                           {students.map(student => {
                             const isAutoRegistered = student.markedBy === student.id;
                             return (
-                            <tr key={student.id} className="border-b border-gray-200 dark:border-gray-600">
+                            <tr key={student.id} className="border-b border-gray-200">
                               <td className="py-3 px-4">
                                 <div className="flex items-center gap-2">
                                   <div>
-                                    <div className="font-medium text-gray-800 dark:text-gray-200">{student.name}</div>
-                                    <div className="text-sm text-gray-500 dark:text-gray-400">@{student.username}</div>
+                                    <div className="font-medium text-gray-800">{student.name}</div>
+                                    <div className="text-sm text-gray-500">@{student.username}</div>
                                   </div>
                                   {isAutoRegistered && (
-                                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">
+                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">
                                       Auto-registro
                                     </span>
                                   )}
@@ -426,7 +426,7 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                                       className={`px-3 py-2 rounded-lg font-semibold text-xs flex items-center gap-1 transition border-2 ${
                                         student.status === status
                                           ? getStatusColor(status)
-                                          : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                                          : 'bg-gray-100 text-gray-500 border-transparent hover:border-gray-300:border-gray-600'
                                       }`}
                                       title={getStatusLabel(status)}
                                     >
@@ -445,7 +445,7 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <p className="text-gray-500 dark:text-gray-400">No hay estudiantes inscritos</p>
+                    <p className="text-gray-500">No hay estudiantes inscritos</p>
                   </div>
                 )}
               </div>
@@ -454,10 +454,10 @@ const AttendanceModal = ({ isOpen, onClose, course, onSuccess }) => {
 
           {/* Footer */}
           {selectedClassroom && students.length > 0 && (
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 flex items-center justify-end gap-3 border-t border-gray-200 dark:border-gray-600">
+            <div className="bg-gray-50 p-4 flex items-center justify-end gap-3 border-t border-gray-200">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition font-semibold"
+                className="px-4 py-2 text-gray-700 hover:bg-gray-200:bg-gray-600 rounded-lg transition font-semibold"
               >
                 Cancelar
               </button>

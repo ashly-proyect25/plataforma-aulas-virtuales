@@ -134,24 +134,24 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
                 key={scheduledClass.id}
                 className="min-w-full px-2"
               >
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-6 border-2 border-blue-200 dark:border-blue-700 shadow-lg">
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50/20/20 rounded-xl p-6 border-2 border-blue-200 shadow-lg">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                        <h3 className="text-2xl font-bold text-gray-800">
                           {scheduledClass.title}
                         </h3>
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
                             status.color === 'green'
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                              ? 'bg-green-100 text-green-700'
                               : status.color === 'blue'
-                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                              ? 'bg-blue-100 text-blue-700'
                               : status.color === 'yellow'
-                              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                              ? 'bg-yellow-100 text-yellow-700'
                               : status.color === 'red'
-                              ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                              : 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-gray-100 text-gray-700'
                           }`}
                         >
                           <StatusIcon size={12} />
@@ -160,13 +160,13 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
                       </div>
 
                       {scheduledClass.description && (
-                        <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        <p className="text-gray-600 mb-4">
                           {scheduledClass.description}
                         </p>
                       )}
 
                       <div className="space-y-2">
-                        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center gap-3 text-gray-700">
                           <Calendar size={20} className="text-blue-600" />
                           <span className="font-semibold">
                             {new Date(scheduledClass.date).toLocaleDateString('es-ES', {
@@ -177,12 +177,12 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
                             })}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center gap-3 text-gray-700">
                           <Clock size={20} className="text-blue-600" />
                           <span className="font-semibold">
                             {scheduledClass.time} ({scheduledClass.duration} minutos)
                           </span>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                          <span className="text-sm text-gray-500">
                             • {timeMessage}
                           </span>
                         </div>
@@ -201,7 +201,7 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
                         Iniciar Clase
                       </button>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed">
+                      <div className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
                         <AlertCircle size={20} />
                         <span className="font-semibold">
                           {scheduledClass.isLive || scheduledClass.wasStarted
@@ -214,7 +214,7 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
 
                   {!canStart && !scheduledClass.isLive && !scheduledClass.wasStarted && (
                     <div className="mt-3 text-center">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600">
                         Podrás iniciar esta clase 30 minutos antes o después de la hora programada
                       </p>
                     </div>
@@ -230,13 +230,13 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
           <>
             <button
               onClick={handlePrevious}
-              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-3 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all z-10 ml-2"
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white text-gray-800 p-3 rounded-full shadow-lg hover:bg-gray-100:bg-gray-700 transition-all z-10 ml-2"
             >
               <ChevronLeft size={24} />
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-3 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all z-10 mr-2"
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white text-gray-800 p-3 rounded-full shadow-lg hover:bg-gray-100:bg-gray-700 transition-all z-10 mr-2"
             >
               <ChevronRight size={24} />
             </button>
@@ -254,7 +254,7 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
               className={`h-2 rounded-full transition-all ${
                 index === currentIndex
                   ? 'w-8 bg-blue-600'
-                  : 'w-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                  : 'w-2 bg-gray-300 hover:bg-gray-400:bg-gray-500'
               }`}
             />
           ))}

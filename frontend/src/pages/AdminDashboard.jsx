@@ -103,7 +103,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -123,7 +123,7 @@ const AdminDashboard = () => {
       </header>
 
       {/* Navigation Tabs */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-[72px] z-30 shadow-sm">
+      <div className="bg-white border-b border-gray-200 sticky top-[72px] z-30 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex gap-1 overflow-x-auto">
             {tabs.map(tab => {
@@ -135,7 +135,7 @@ const AdminDashboard = () => {
                   className={`px-6 py-4 font-semibold text-sm transition border-b-2 flex items-center gap-2 whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-b-orange-600 text-orange-600'
-                      : 'border-b-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                      : 'border-b-transparent text-gray-600 hover:text-gray-800:text-gray-100'
                   }`}
                 >
                   <Icon size={18} className={activeTab === tab.id ? tab.color : ''} />

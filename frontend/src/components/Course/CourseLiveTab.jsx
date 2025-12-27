@@ -1916,15 +1916,15 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   const scheduleView = view === 'schedule' && (
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl shadow-md">
                 <Video size={28} className="text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Clases en Vivo</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <h2 className="text-2xl font-bold text-gray-800">Clases en Vivo</h2>
+                <p className="text-sm text-gray-500">
                   Programa o inicia una clase inmediatamente
                 </p>
               </div>
@@ -1960,9 +1960,9 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         </div>
 
         {/* Clases Programadas - Carrusel */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
               <Calendar size={24} className="text-blue-600" />
               Clases Programadas ({scheduledClasses.length})
             </h3>
@@ -1983,8 +1983,8 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             />
           ) : (
             <div className="text-center py-12">
-              <Calendar className="mx-auto text-gray-300 dark:text-gray-600 mb-4" size={48} />
-              <p className="text-gray-600 dark:text-gray-400 mb-4">No hay clases programadas</p>
+              <Calendar className="mx-auto text-gray-300 mb-4" size={48} />
+              <p className="text-gray-600 mb-4">No hay clases programadas</p>
               <button
                 onClick={() => setShowScheduleModal(true)}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
@@ -1998,7 +1998,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         {/* Modal de Programar Clase */}
         {showScheduleModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
               <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 flex items-center justify-between rounded-t-xl">
                 <div className="flex items-center gap-3">
                   <Calendar size={24} />
@@ -2014,26 +2014,26 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Título de la clase *
                   </label>
                   <input
                     type="text"
                     value={scheduleForm.title}
                     onChange={(e) => setScheduleForm({ ...scheduleForm, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Ej: Introducción a React"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Descripción
                   </label>
                   <textarea
                     value={scheduleForm.description}
                     onChange={(e) => setScheduleForm({ ...scheduleForm, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     rows="3"
                     placeholder="Descripción de la clase..."
                   />
@@ -2041,48 +2041,48 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Fecha *
                     </label>
                     <input
                       type="date"
                       value={scheduleForm.date}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, date: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Hora *
                     </label>
                     <input
                       type="time"
                       value={scheduleForm.time}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, time: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Duración (min)
                     </label>
                     <input
                       type="number"
                       value={scheduleForm.duration}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, duration: parseInt(e.target.value) || 60 })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       min="15"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex gap-3 rounded-b-xl">
+              <div className="bg-gray-50 px-6 py-4 flex gap-3 rounded-b-xl">
                 <button
                   onClick={() => setShowScheduleModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition font-semibold"
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100:bg-gray-700 transition font-semibold"
                 >
                   Cancelar
                 </button>
@@ -2101,7 +2101,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         {/* Modal de Preferencias de Inicio */}
         {showStartPreferencesModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
               <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white p-6 flex items-center justify-between rounded-t-xl">
                 <div className="flex items-center gap-3">
                   <Video size={24} />
@@ -2116,21 +2116,21 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               </div>
 
               <div className="p-6 space-y-6">
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                <p className="text-gray-600 text-sm">
                   Configura cómo deseas iniciar la clase en vivo:
                 </p>
 
                 {/* Opción de cámara */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     {startWithCamera ? (
-                      <Video size={24} className="text-green-600 dark:text-green-400" />
+                      <Video size={24} className="text-green-600" />
                     ) : (
-                      <VideoOff size={24} className="text-red-600 dark:text-red-400" />
+                      <VideoOff size={24} className="text-red-600" />
                     )}
                     <div>
-                      <p className="font-semibold text-gray-800 dark:text-gray-100">Cámara</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="font-semibold text-gray-800">Cámara</p>
+                      <p className="text-xs text-gray-500">
                         {startWithCamera ? 'Iniciar con cámara encendida' : 'Iniciar con cámara apagada'}
                       </p>
                     </div>
@@ -2138,7 +2138,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                   <button
                     onClick={() => setStartWithCamera(!startWithCamera)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      startWithCamera ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+                      startWithCamera ? 'bg-green-600' : 'bg-gray-300'
                     }`}
                   >
                     <span
@@ -2150,16 +2150,16 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                 </div>
 
                 {/* Opción de audio */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     {startWithAudio ? (
-                      <Mic size={24} className="text-green-600 dark:text-green-400" />
+                      <Mic size={24} className="text-green-600" />
                     ) : (
-                      <MicOff size={24} className="text-red-600 dark:text-red-400" />
+                      <MicOff size={24} className="text-red-600" />
                     )}
                     <div>
-                      <p className="font-semibold text-gray-800 dark:text-gray-100">Micrófono</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="font-semibold text-gray-800">Micrófono</p>
+                      <p className="text-xs text-gray-500">
                         {startWithAudio ? 'Iniciar con micrófono encendido' : 'Iniciar con micrófono apagado'}
                       </p>
                     </div>
@@ -2167,7 +2167,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                   <button
                     onClick={() => setStartWithAudio(!startWithAudio)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      startWithAudio ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+                      startWithAudio ? 'bg-green-600' : 'bg-gray-300'
                     }`}
                   >
                     <span
@@ -2178,18 +2178,18 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                   </button>
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
-                  <p className="text-xs text-blue-800 dark:text-blue-200">
+                <div className="bg-blue-50/20 border border-blue-200 rounded-lg p-3">
+                  <p className="text-xs text-blue-800">
                     <AlertCircle size={14} className="inline mr-1" />
                     Podrás activar/desactivar la cámara y el micrófono en cualquier momento durante la clase.
                   </p>
                 </div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex gap-3 rounded-b-xl">
+              <div className="bg-gray-50 px-6 py-4 flex gap-3 rounded-b-xl">
                 <button
                   onClick={() => setShowStartPreferencesModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition font-semibold"
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100:bg-gray-700 transition font-semibold"
                 >
                   Cancelar
                 </button>
@@ -2206,12 +2206,12 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         )}
 
         {/* Instrucciones */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-          <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+        <div className="bg-blue-50/20 border border-blue-200 rounded-lg p-6">
+          <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
             <AlertCircle size={20} />
             Instrucciones
           </h3>
-          <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+          <ul className="space-y-2 text-sm text-blue-800">
             <li>• Puedes <strong>programar clases</strong> con anticipación o <strong>iniciar inmediatamente</strong></li>
             <li>• Los estudiantes recibirán notificaciones cuando inicies una clase</li>
             <li>• Asegúrate de tener buena conexión a internet y permisos de cámara/micrófono</li>
@@ -2267,7 +2267,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           <div className={
             isMinimized
               ? "w-full bg-gray-900 rounded-lg overflow-hidden flex flex-col"
-              : `bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full flex flex-col ${isFullscreen ? 'h-screen max-w-none' : 'h-[85vh] max-w-7xl'}`
+              : `bg-white rounded-xl shadow-2xl w-full flex flex-col ${isFullscreen ? 'h-screen max-w-none' : 'h-[85vh] max-w-7xl'}`
           } ref={containerRef}>
             {/* Header del modal */}
             {(
@@ -3161,7 +3161,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
     {/* Chat flotante - ONLY show when streaming is active */}
     {showChat && !isMinimized && isStreaming && (
-      <div className="fixed right-4 bottom-4 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-2xl flex flex-col h-96 z-50">
+      <div className="fixed right-4 bottom-4 w-80 bg-white rounded-lg shadow-2xl flex flex-col h-96 z-50">
           <div className="p-4 bg-blue-600 text-white rounded-t-lg flex items-center justify-between">
             <h3 className="font-bold">Chat</h3>
             <button onClick={() => setShowChat(false)} className="hover:bg-white/20 p-1 rounded">
@@ -3177,30 +3177,30 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               </div>
             ) : (
               messages.map((msg) => (
-                <div key={msg.id} className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+                <div key={msg.id} className="bg-gray-100 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">
+                    <span className="font-semibold text-sm text-gray-800">
                       {msg.sender}
                     </span>
                     <span className="text-xs text-gray-500">
                       {new Date(msg.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{msg.text}</p>
+                  <p className="text-sm text-gray-700">{msg.text}</p>
                 </div>
               ))
             )}
             <div ref={chatEndRef} />
           </div>
 
-          <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700">
+          <form onSubmit={handleSendMessage} className="p-4 border-t">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Escribe un mensaje..."
-                className="flex-1 px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             <button
               type="submit"
@@ -3217,7 +3217,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       {/* Screen Share Request Modal */}
       {showScreenShareRequestModal && screenShareRequests.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 flex items-center justify-between rounded-t-xl">
               <div className="flex items-center gap-3">
                 <Monitor size={24} />
@@ -3233,16 +3233,16 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
             <div className="p-6 space-y-4 max-h-96 overflow-y-auto">
               {screenShareRequests.map((request, index) => (
-                <div key={request.viewerId} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <div key={request.viewerId} className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
                       <UserCircle size={24} className="text-white" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-800 dark:text-gray-100">
+                      <p className="font-semibold text-gray-800">
                         {request.viewerName}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600">
                         Solicita compartir su pantalla
                       </p>
                     </div>
@@ -3268,8 +3268,8 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               ))}
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 rounded-b-xl">
-              <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
+            <div className="bg-gray-50 px-6 py-4 rounded-b-xl">
+              <p className="text-xs text-gray-600 text-center">
                 <AlertCircle size={14} className="inline mr-1" />
                 El estudiante podrá compartir su pantalla con toda la clase si lo apruebas
               </p>

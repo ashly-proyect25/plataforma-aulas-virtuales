@@ -16,29 +16,29 @@ const Toast = ({ type = 'info', message, onClose, duration = 4000 }) => {
   const configs = {
     success: {
       icon: CheckCircle,
-      bgColor: 'bg-green-500 dark:bg-green-600',
-      borderColor: 'border-green-600 dark:border-green-700',
+      bgColor: 'bg-green-500',
+      borderColor: 'border-green-600',
       textColor: 'text-white',
       iconColor: 'text-white'
     },
     error: {
       icon: XCircle,
-      bgColor: 'bg-red-500 dark:bg-red-600',
-      borderColor: 'border-red-600 dark:border-red-700',
+      bgColor: 'bg-red-500',
+      borderColor: 'border-red-600',
       textColor: 'text-white',
       iconColor: 'text-white'
     },
     warning: {
       icon: AlertCircle,
-      bgColor: 'bg-yellow-500 dark:bg-yellow-600',
-      borderColor: 'border-yellow-600 dark:border-yellow-700',
+      bgColor: 'bg-yellow-500',
+      borderColor: 'border-yellow-600',
       textColor: 'text-white',
       iconColor: 'text-white'
     },
     info: {
       icon: Info,
-      bgColor: 'bg-blue-500 dark:bg-blue-600',
-      borderColor: 'border-blue-600 dark:border-blue-700',
+      bgColor: 'bg-blue-500',
+      borderColor: 'border-blue-600',
       textColor: 'text-white',
       iconColor: 'text-white'
     }

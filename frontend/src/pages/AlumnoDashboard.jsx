@@ -246,17 +246,17 @@ function AlumnoDashboard() {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-blue-50 to-cyan-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-blue-50 to-cyan-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Cargando...</p>
+          <p className="text-gray-600">Cargando...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -292,10 +292,10 @@ function AlumnoDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-cyan-600">
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-cyan-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">Materias Inscritas</p>
+                <p className="text-gray-600 text-sm font-semibold">Materias Inscritas</p>
                 <p className="text-3xl font-bold text-cyan-600 mt-1">
                   {loading ? <Loader className="animate-spin" size={32} /> : courses.length}
                 </p>
@@ -304,10 +304,10 @@ function AlumnoDashboard() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-green-600">
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">Total Clases</p>
+                <p className="text-gray-600 text-sm font-semibold">Total Clases</p>
                 <p className="text-3xl font-bold text-green-600 mt-1">
                   {loading ? <Loader className="animate-spin" size={32} /> :
                     courses.reduce((sum, c) => sum + (c._count?.classrooms || 0), 0)}
@@ -317,10 +317,10 @@ function AlumnoDashboard() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-purple-600">
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">Docentes</p>
+                <p className="text-gray-600 text-sm font-semibold">Docentes</p>
                 <p className="text-3xl font-bold text-purple-600 mt-1">
                   {loading ? <Loader className="animate-spin" size={32} /> :
                     new Set(courses.map(c => c.teacher?.id)).size}
@@ -330,10 +330,10 @@ function AlumnoDashboard() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-orange-600">
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-orange-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">Compañeros</p>
+                <p className="text-gray-600 text-sm font-semibold">Compañeros</p>
                 <p className="text-3xl font-bold text-orange-600 mt-1">
                   {loading ? <Loader className="animate-spin" size={32} /> :
                     courses.reduce((sum, c) => sum + ((c._count?.enrollments || 1) - 1), 0)}
@@ -349,18 +349,18 @@ function AlumnoDashboard() {
           {/* Clases en Vivo Activas */}
           <div className={`rounded-lg shadow-lg p-6 ${
             liveCourses.length > 0
-              ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-2 border-red-400 dark:border-red-600'
-              : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+              ? 'bg-gradient-to-r from-red-50 to-pink-50/20/20 border-2 border-red-400'
+              : 'bg-white border border-gray-200'
           }`}>
             <div className="flex items-center gap-3 mb-4">
               <div className={`p-2 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg ${liveCourses.length > 0 ? 'animate-pulse' : ''}`}>
                 <Video className="text-white" size={20} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">
+                <h3 className="text-base font-bold text-gray-800">
                   {liveCourses.length > 0 ? '🔴 ' : ''}Clases en Vivo
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-gray-600">
                   {liveCourses.length > 0
                     ? `${liveCourses.length} ${liveCourses.length === 1 ? 'activa' : 'activas'}`
                     : 'Sin clases activas'
@@ -375,25 +375,25 @@ function AlumnoDashboard() {
                   <div
                     key={liveClass.courseId}
                     onClick={() => navigate(`/alumno/curso/${liveClass.courseId}?tab=live`)}
-                    className="p-4 bg-white dark:bg-gray-800 rounded-lg border-2 border-red-500 cursor-pointer hover:shadow-xl transition-all animate-pulse"
+                    className="p-4 bg-white rounded-lg border-2 border-red-500 cursor-pointer hover:shadow-xl transition-all animate-pulse"
                     style={{ borderLeft: `4px solid ${liveClass.courseColor || '#ef4444'}` }}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase">
+                      <span className="text-xs font-bold text-red-600 uppercase">
                         EN VIVO
                       </span>
                     </div>
 
-                    <h4 className="font-bold text-gray-800 dark:text-gray-100 text-sm mb-1">
+                    <h4 className="font-bold text-gray-800 text-sm mb-1">
                       {liveClass.courseCode}
                     </h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    <p className="text-xs text-gray-600 mb-2">
                       {liveClass.courseTitle}
                     </p>
 
                     <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-xs text-gray-600">
                         <UserCircle size={12} />
                         <span className="truncate">{liveClass.teacherName}</span>
                       </div>
@@ -406,22 +406,22 @@ function AlumnoDashboard() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <Video className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={40} />
-                <p className="text-gray-500 dark:text-gray-400 text-sm font-semibold mb-1">Sin clases en vivo</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Las clases activas aparecerán aquí</p>
+                <Video className="mx-auto text-gray-300 mb-3" size={40} />
+                <p className="text-gray-500 text-sm font-semibold mb-1">Sin clases en vivo</p>
+                <p className="text-xs text-gray-400">Las clases activas aparecerán aquí</p>
               </div>
             )}
           </div>
 
           {/* Mis Materias */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg">
                 <BookOpen className="text-white" size={20} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">Mis Materias</h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <h3 className="text-base font-bold text-gray-800">Mis Materias</h3>
+                <p className="text-xs text-gray-600">
                   {courses.length} {courses.length === 1 ? 'materia activa' : 'materias activas'}
                 </p>
               </div>
@@ -435,8 +435,8 @@ function AlumnoDashboard() {
               ) : error ? (
                 <div className="text-center py-8">
                   <AlertCircle className="mx-auto text-red-400 mb-3" size={40} />
-                  <p className="text-red-600 dark:text-red-400 text-sm font-semibold mb-2">Error al cargar</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{error}</p>
+                  <p className="text-red-600 text-sm font-semibold mb-2">Error al cargar</p>
+                  <p className="text-xs text-gray-500">{error}</p>
                   <button
                     onClick={fetchMyCourses}
                     className="mt-3 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition text-sm font-semibold"
@@ -450,20 +450,20 @@ function AlumnoDashboard() {
                     <div
                       key={course.id}
                       onClick={() => navigate(`/alumno/curso/${course.id}`)}
-                      className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 hover:border-cyan-500"
+                      className="p-3 border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer bg-white hover:border-cyan-500"
                       style={{ borderLeft: `4px solid ${course.color || '#06b6d4'}` }}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h4 className="font-bold text-gray-800 dark:text-gray-100 text-sm">{course.code}</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{course.title}</p>
-                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                          <h4 className="font-bold text-gray-800 text-sm">{course.code}</h4>
+                          <p className="text-xs text-gray-600 truncate">{course.title}</p>
+                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                             <span className="truncate">{course.teacher?.name}</span>
                             <span>{course._count?.classrooms || 0} clases</span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="text-xs px-2 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 rounded font-semibold">
+                          <span className="text-xs px-2 py-1 bg-cyan-100 text-cyan-700 rounded font-semibold">
                             {course.credits || 3} cr
                           </span>
                         </div>
@@ -473,9 +473,9 @@ function AlumnoDashboard() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <BookOpen className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={40} />
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-semibold mb-1">Sin materias inscritas</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Espera a que el docente te inscriba</p>
+                  <BookOpen className="mx-auto text-gray-300 mb-3" size={40} />
+                  <p className="text-gray-500 text-sm font-semibold mb-1">Sin materias inscritas</p>
+                  <p className="text-xs text-gray-400">Espera a que el docente te inscriba</p>
                 </div>
               )}
             </div>
@@ -485,15 +485,15 @@ function AlumnoDashboard() {
         {/* Grid de Recursos y Próximas Clases */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Recursos Recientes */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-4 border-b border-gray-200">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg">
                   <FileText className="text-white" size={20} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">Recursos Recientes</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Últimos materiales</p>
+                  <h3 className="text-base font-bold text-gray-800">Recursos Recientes</h3>
+                  <p className="text-xs text-gray-500">Últimos materiales</p>
                 </div>
               </div>
             </div>
@@ -515,21 +515,21 @@ function AlumnoDashboard() {
                       <div
                         key={resource.id}
                         onClick={() => navigate(`/alumno/curso/${resource.courseId}?tab=${tab}`)}
-                        className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 hover:border-purple-500"
+                        className="p-3 border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer bg-white hover:border-purple-500"
                         style={{ borderLeft: `4px solid ${resource.courseColor || '#9333ea'}` }}
                       >
                         <div className="flex items-start gap-2">
-                          <div className="p-1.5 bg-purple-50 dark:bg-purple-900/30 rounded">
-                            <FileText size={16} className="text-purple-600 dark:text-purple-400" />
+                          <div className="p-1.5 bg-purple-50/30 rounded">
+                            <FileText size={16} className="text-purple-600" />
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-bold text-gray-800 dark:text-gray-100 text-sm">{resource.title}</h4>
-                            <p className="text-xs text-gray-600 dark:text-gray-300">{resource.courseCode}</p>
+                            <h4 className="font-bold text-gray-800 text-sm">{resource.title}</h4>
+                            <p className="text-xs text-gray-600">{resource.courseCode}</p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded font-semibold">
+                              <span className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded font-semibold">
                                 {resource.type}
                               </span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                              <span className="text-xs text-gray-500">
                                 {new Date(resource.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                               </span>
                             </div>
@@ -541,9 +541,9 @@ function AlumnoDashboard() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <FileText className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={40} />
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-semibold mb-1">Sin recursos recientes</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Los recursos aparecerán aquí</p>
+                  <FileText className="mx-auto text-gray-300 mb-3" size={40} />
+                  <p className="text-gray-500 text-sm font-semibold mb-1">Sin recursos recientes</p>
+                  <p className="text-xs text-gray-400">Los recursos aparecerán aquí</p>
                 </div>
               )}
             </div>
@@ -552,17 +552,17 @@ function AlumnoDashboard() {
           {/* Próximas Clases Programadas */}
           <div className={`rounded-lg shadow ${
             scheduledClasses.length > 0
-              ? 'bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800'
-              : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+              ? 'bg-gradient-to-r from-blue-50 to-cyan-50/20/20 border border-blue-200'
+              : 'bg-white border border-gray-200'
           }`}>
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-b border-gray-200">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg">
                   <Calendar className="text-white" size={20} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">Próximas Clases</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <h3 className="text-base font-bold text-gray-800">Próximas Clases</h3>
+                  <p className="text-xs text-gray-500">
                     {scheduledClasses.length > 0
                       ? `${scheduledClasses.length} ${scheduledClasses.length === 1 ? 'programada' : 'programadas'}`
                       : 'Sin clases programadas'
@@ -593,12 +593,12 @@ function AlumnoDashboard() {
                     return (
                       <div
                         key={scheduledClass.id}
-                        className={`p-3 bg-white dark:bg-gray-800 rounded-lg border hover:shadow-lg transition-all ${
+                        className={`p-3 bg-white rounded-lg border hover:shadow-lg transition-all ${
                           isSoon
                             ? 'border-green-500 animate-pulse'
                             : isToday
                             ? 'border-blue-500'
-                            : 'border-gray-200 dark:border-gray-700'
+                            : 'border-gray-200'
                         }`}
                         style={{ borderLeft: `4px solid ${scheduledClass.courseColor || '#3b82f6'}` }}
                       >
@@ -608,26 +608,26 @@ function AlumnoDashboard() {
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
-                              <h4 className="font-bold text-gray-800 dark:text-gray-100 text-sm">
+                              <h4 className="font-bold text-gray-800 text-sm">
                                 {scheduledClass.courseCode}
                               </h4>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                              <p className="text-xs text-gray-600 truncate">
                                 {scheduledClass.courseName}
                               </p>
                             </div>
                             {isSoon && (
-                              <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-semibold rounded">
+                              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
                                 Pronto
                               </span>
                             )}
                             {isToday && !isSoon && (
-                              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">
+                              <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">
                                 Hoy
                               </span>
                             )}
                           </div>
 
-                          <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+                          <div className="space-y-1 text-xs text-gray-600">
                             <div className="flex items-center gap-1">
                               <Calendar size={12} />
                               <span>
@@ -653,9 +653,9 @@ function AlumnoDashboard() {
 
                         {/* Botón de registrar asistencia */}
                         {canRegisterAttendance && (
-                          <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                          <div className="mt-3 pt-2 border-t border-gray-200">
                             {classroomAttendance.registered ? (
-                              <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 text-xs font-semibold">
+                              <div className="flex items-center justify-center gap-2 text-green-600 text-xs font-semibold">
                                 <CheckCircle size={16} />
                                 <span>
                                   Asistencia registrada ({classroomAttendance.status === 'PRESENT' ? 'A tiempo' : 'Tarde'})
@@ -691,9 +691,9 @@ function AlumnoDashboard() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Calendar className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={40} />
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-semibold mb-1">Sin clases programadas</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Las próximas clases aparecerán aquí</p>
+                  <Calendar className="mx-auto text-gray-300 mb-3" size={40} />
+                  <p className="text-gray-500 text-sm font-semibold mb-1">Sin clases programadas</p>
+                  <p className="text-xs text-gray-400">Las próximas clases aparecerán aquí</p>
                 </div>
               )}
             </div>

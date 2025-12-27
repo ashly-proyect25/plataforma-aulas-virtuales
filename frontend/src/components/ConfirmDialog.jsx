@@ -61,7 +61,7 @@ const ConfirmDialog = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all animate-scale-in">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full transform transition-all animate-scale-in">
         {/* Header */}
         <div className={`bg-gradient-to-r ${styles.headerColor} text-white p-6 rounded-t-xl flex items-center justify-between`}>
           <div className="flex items-center gap-3">
@@ -80,7 +80,7 @@ const ConfirmDialog = ({
 
         {/* Content */}
         <div className="p-6">
-          <p className="text-gray-700 dark:text-gray-300 text-center mb-6">
+          <p className="text-gray-700 text-center mb-6">
             {message}
           </p>
 
@@ -88,7 +88,7 @@ const ConfirmDialog = ({
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-semibold"
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50:bg-gray-700 transition font-semibold"
             >
               {cancelText}
             </button>

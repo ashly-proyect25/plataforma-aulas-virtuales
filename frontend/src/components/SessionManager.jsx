@@ -96,27 +96,27 @@ const SessionManager = () => {
       {/* Overlay */}
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
         {/* Modal */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-fade-in-scale">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-fade-in-scale">
           {/* Icono */}
-          <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Clock size={32} className="text-orange-600 dark:text-orange-400" />
+          <div className="w-16 h-16 bg-orange-100/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Clock size={32} className="text-orange-600" />
           </div>
 
           {/* Título */}
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 text-center mb-2">
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-2">
             Tu sesión está por expirar
           </h2>
 
           {/* Descripción */}
-          <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
+          <p className="text-gray-600 text-center mb-6">
             Has estado en sesión por 3 horas. ¿Deseas continuar trabajando?
           </p>
 
           {/* Advertencia */}
-          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3 mb-6">
+          <div className="bg-orange-50/20 border border-orange-200 rounded-lg p-3 mb-6">
             <div className="flex items-start gap-2">
-              <AlertTriangle size={18} className="text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-orange-800 dark:text-orange-300">
+              <AlertTriangle size={18} className="text-orange-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-orange-800">
                 Si no respondes, tu sesión se cerrará automáticamente después de 30 minutos de inactividad.
               </p>
             </div>
@@ -126,7 +126,7 @@ const SessionManager = () => {
           <div className="flex gap-3">
             <button
               onClick={handleLogout}
-              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-semibold"
+              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50:bg-gray-700 transition font-semibold"
             >
               Cerrar Sesión
             </button>

@@ -3166,15 +3166,15 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
     <div className="space-y-6">
       {/* Próximas Clases Programadas - Carrusel */}
       {scheduledClasses.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg shadow-lg p-6 border border-blue-200 dark:border-blue-800">
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50/20/20 rounded-lg shadow-lg p-6 border border-blue-200">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg">
                 <Calendar className="text-white" size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Próximas Clases</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <h3 className="text-lg font-bold text-gray-800">Próximas Clases</h3>
+                <p className="text-sm text-gray-600">
                   {currentClassIndex + 1} de {scheduledClasses.length}
                 </p>
               </div>
@@ -3185,17 +3185,17 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handlePrevClass}
-                  className="p-2 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg shadow transition"
+                  className="p-2 bg-white hover:bg-gray-100:bg-gray-600 rounded-lg shadow transition"
                   aria-label="Clase anterior"
                 >
-                  <ChevronLeft size={20} className="text-gray-700 dark:text-gray-300" />
+                  <ChevronLeft size={20} className="text-gray-700" />
                 </button>
                 <button
                   onClick={handleNextClass}
-                  className="p-2 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg shadow transition"
+                  className="p-2 bg-white hover:bg-gray-100:bg-gray-600 rounded-lg shadow transition"
                   aria-label="Siguiente clase"
                 >
-                  <ChevronRight size={20} className="text-gray-700 dark:text-gray-300" />
+                  <ChevronRight size={20} className="text-gray-700" />
                 </button>
               </div>
             )}
@@ -3219,39 +3219,39 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                     className="w-full flex-shrink-0"
                   >
                     <div
-                      className={`p-4 bg-white dark:bg-gray-800 rounded-lg border-2 ${
+                      className={`p-4 bg-white rounded-lg border-2 ${
                         isSoon
                           ? 'border-green-500 animate-pulse'
                           : isToday
                           ? 'border-blue-500'
-                          : 'border-gray-200 dark:border-gray-700'
+                          : 'border-gray-200'
                       }`}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h4 className="font-bold text-gray-800 dark:text-gray-100 text-base mb-1">
+                          <h4 className="font-bold text-gray-800 text-base mb-1">
                             {scheduledClass.title}
                           </h4>
                           {scheduledClass.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                            <p className="text-sm text-gray-600 line-clamp-2">
                               {scheduledClass.description}
                             </p>
                           )}
                         </div>
                         {isSoon && (
-                          <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-semibold rounded flex items-center gap-1">
+                          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded flex items-center gap-1">
                             <Clock size={12} />
                             Pronto
                           </span>
                         )}
                         {isToday && !isSoon && (
-                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">
                             Hoy
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <Calendar size={16} />
                           <span>
@@ -3290,7 +3290,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                   className={`h-2 rounded-full transition-all ${
                     index === currentClassIndex
                       ? 'w-8 bg-blue-600'
-                      : 'w-2 bg-gray-300 dark:bg-gray-600'
+                      : 'w-2 bg-gray-300'
                   }`}
                   aria-label={`Ir a clase ${index + 1}`}
                 />
@@ -3302,35 +3302,35 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
       {/* Estado de la clase */}
       {!isLive ? (
-        <div className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-lg shadow-lg p-12 text-center">
-          <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-6 flex items-center justify-center">
-            <VideoOff size={48} className="text-gray-400 dark:text-gray-500" />
+        <div className="bg-gradient-to-br from-cyan-50 to-blue-50/20/20 rounded-lg shadow-lg p-12 text-center">
+          <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <VideoOff size={48} className="text-gray-400" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-3">
+          <h3 className="text-2xl font-bold text-gray-800 mb-3">
             No hay transmisión en este momento
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 mb-6">
             El docente no ha iniciado ninguna clase en vivo. Recibirás una notificación cuando comience.
           </p>
-          <div className="flex items-center justify-center gap-2 text-cyan-600 dark:text-cyan-400">
+          <div className="flex items-center justify-center gap-2 text-cyan-600">
             <Clock size={20} />
             <span className="font-semibold">Esperando al docente...</span>
           </div>
         </div>
       ) : (
-        <div className="bg-gradient-to-br from-green-50 to-cyan-50 dark:from-green-900/20 dark:to-cyan-900/20 rounded-lg shadow-lg p-12 text-center">
+        <div className="bg-gradient-to-br from-green-50 to-cyan-50/20/20 rounded-lg shadow-lg p-12 text-center">
           <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-pink-600 rounded-full mx-auto mb-6 flex items-center justify-center animate-pulse">
             <Video size={48} className="text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-3">
+          <h3 className="text-2xl font-bold text-gray-800 mb-3">
             Clase en Vivo Activa
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 mb-6">
             El docente está transmitiendo en este momento. Únete para participar.
           </p>
           <div className="flex items-center justify-center gap-2 mb-6">
-            <Users size={20} className="text-cyan-600 dark:text-cyan-400" />
-            <span className="font-semibold text-gray-700 dark:text-gray-300">
+            <Users size={20} className="text-cyan-600" />
+            <span className="font-semibold text-gray-700">
               {viewers} estudiante{viewers !== 1 ? 's' : ''} conectado{viewers !== 1 ? 's' : ''}
             </span>
           </div>
@@ -3360,12 +3360,12 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       )}
 
       {/* Instrucciones */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-        <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+      <div className="bg-blue-50/20 border border-blue-200 rounded-lg p-6">
+        <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
           <AlertCircle size={20} />
           Instrucciones
         </h3>
-        <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+        <ul className="space-y-2 text-sm text-blue-800">
           <li>• Asegúrate de tener buena conexión a internet</li>
           <li>• Cuando el docente inicie la clase, podrás unirte haciendo clic en "Unirse a la clase"</li>
           <li>• Podrás ver la transmisión del docente y participar en el chat</li>
@@ -3390,7 +3390,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           <div className={
             isMinimized
               ? "w-full bg-gray-900 rounded-lg overflow-hidden flex flex-col"
-              : `bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full flex flex-col ${isFullscreen ? 'h-screen max-w-none' : 'h-[85vh] max-w-7xl'}`
+              : `bg-white rounded-xl shadow-2xl w-full flex flex-col ${isFullscreen ? 'h-screen max-w-none' : 'h-[85vh] max-w-7xl'}`
           } ref={containerRef}>
             {/* Header del modal */}
             {(
@@ -4446,7 +4446,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
   {/* Chat flotante */}
       {showChat && isJoined && !isMinimized && (
-        <div className="fixed right-4 bottom-4 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-2xl flex flex-col h-96 z-50">
+        <div className="fixed right-4 bottom-4 w-80 bg-white rounded-lg shadow-2xl flex flex-col h-96 z-50">
           <div className="p-4 bg-cyan-600 text-white rounded-t-lg flex items-center justify-between">
             <h3 className="font-bold">Chat de la clase</h3>
             <button onClick={() => setShowChat(false)} className="hover:bg-white/20 p-1 rounded">
@@ -4462,30 +4462,30 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
               </div>
             ) : (
               messages.map((msg) => (
-                <div key={msg.id} className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+                <div key={msg.id} className="bg-gray-100 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">
+                    <span className="font-semibold text-sm text-gray-800">
                       {msg.sender}
                     </span>
                     <span className="text-xs text-gray-500">
                       {new Date(msg.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{msg.text}</p>
+                  <p className="text-sm text-gray-700">{msg.text}</p>
                 </div>
               ))
             )}
             <div ref={chatEndRef} />
           </div>
 
-          <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700">
+          <form onSubmit={handleSendMessage} className="p-4 border-t">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Escribe un mensaje..."
-                className="flex-1 px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+                className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
               />
               <button
                 type="submit"
@@ -4502,7 +4502,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       {/* ✅ MODAL DE PREFERENCIAS AL UNIRSE */}
       {showJoinPreferencesModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
             {/* Header */}
             <div className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white p-6 rounded-t-xl">
               <h3 className="text-xl font-bold">Preferencias de Unión</h3>
@@ -4513,24 +4513,24 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
             {/* Body */}
             <div className="p-6 space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="bg-blue-50/20 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
                   <AlertCircle size={16} className="inline mr-1" />
                   Puedes unirte sin cámara ni micrófono y activarlos después.
                 </p>
               </div>
 
               {/* Opción de Cámara */}
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-lg">
                 <div className="flex items-center gap-3">
                   {joinWithCamera ? (
-                    <Video size={24} className="text-cyan-600 dark:text-cyan-400" />
+                    <Video size={24} className="text-cyan-600" />
                   ) : (
-                    <VideoOff size={24} className="text-gray-400 dark:text-gray-500" />
+                    <VideoOff size={24} className="text-gray-400" />
                   )}
                   <div>
-                    <p className="font-semibold text-gray-800 dark:text-gray-100">Cámara</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="font-semibold text-gray-800">Cámara</p>
+                    <p className="text-xs text-gray-500">
                       {joinWithCamera ? 'Unirse con cámara encendida' : 'Unirse con cámara apagada'}
                     </p>
                   </div>
@@ -4538,7 +4538,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                 <button
                   onClick={() => setJoinWithCamera(!joinWithCamera)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    joinWithCamera ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+                    joinWithCamera ? 'bg-green-600' : 'bg-gray-300'
                   }`}
                 >
                   <span
@@ -4550,16 +4550,16 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
               </div>
 
               {/* Opción de Micrófono */}
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-lg">
                 <div className="flex items-center gap-3">
                   {joinWithAudio ? (
-                    <Mic size={24} className="text-cyan-600 dark:text-cyan-400" />
+                    <Mic size={24} className="text-cyan-600" />
                   ) : (
-                    <MicOff size={24} className="text-gray-400 dark:text-gray-500" />
+                    <MicOff size={24} className="text-gray-400" />
                   )}
                   <div>
-                    <p className="font-semibold text-gray-800 dark:text-gray-100">Micrófono</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="font-semibold text-gray-800">Micrófono</p>
+                    <p className="text-xs text-gray-500">
                       {joinWithAudio ? 'Unirse con micrófono encendido' : 'Unirse con micrófono apagado'}
                     </p>
                   </div>
@@ -4567,7 +4567,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                 <button
                   onClick={() => setJoinWithAudio(!joinWithAudio)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    joinWithAudio ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+                    joinWithAudio ? 'bg-green-600' : 'bg-gray-300'
                   }`}
                 >
                   <span
@@ -4580,10 +4580,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
             </div>
 
             {/* Footer */}
-            <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex gap-3 rounded-b-xl">
+            <div className="bg-gray-50 px-6 py-4 flex gap-3 rounded-b-xl">
               <button
                 onClick={() => setShowJoinPreferencesModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition font-semibold"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100:bg-gray-700 transition font-semibold"
               >
                 Cancelar
               </button>

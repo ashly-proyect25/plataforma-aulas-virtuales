@@ -72,14 +72,14 @@ const StudentVideosTab = ({ course }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
-            <Video size={24} className="text-red-600 dark:text-red-400" />
+          <div className="p-3 bg-red-100 rounded-lg">
+            <Video size={24} className="text-red-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Videos del Curso</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h2 className="text-2xl font-bold text-gray-800">Videos del Curso</h2>
+            <p className="text-sm text-gray-500">
               {videos.length} video{videos.length !== 1 ? 's' : ''} disponible{videos.length !== 1 ? 's' : ''}
             </p>
           </div>
@@ -90,7 +90,7 @@ const StudentVideosTab = ({ course }) => {
       {videos.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {videos.map(video => (
-            <div key={video.id} className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+            <div key={video.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
               {/* Video Thumbnail/Embed */}
               <div className="aspect-video bg-gray-900">
                 <iframe
@@ -103,15 +103,15 @@ const StudentVideosTab = ({ course }) => {
 
               {/* Video Info */}
               <div className="p-4">
-                <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-2">{video.title}</h3>
+                <h3 className="font-bold text-gray-800 mb-2">{video.title}</h3>
 
                 {video.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                     {video.description}
                   </p>
                 )}
 
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-center justify-between text-xs text-gray-500">
                   <div className="flex items-center gap-3">
                     {video.duration && (
                       <span className="flex items-center gap-1">
@@ -134,12 +134,12 @@ const StudentVideosTab = ({ course }) => {
           ))}
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
-          <Video className="mx-auto text-gray-300 dark:text-gray-600 mb-4" size={48} />
-          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <Video className="mx-auto text-gray-300 mb-4" size={48} />
+          <h3 className="text-xl font-bold text-gray-800 mb-2">
             Sin videos disponibles
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             El docente aún no ha agregado videos para este curso
           </p>
         </div>

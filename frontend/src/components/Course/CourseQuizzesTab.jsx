@@ -280,15 +280,15 @@ const CourseQuizzesTab = ({ course }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <HelpCircle size={24} className="text-purple-600 dark:text-purple-400" />
+            <div className="p-3 bg-purple-100/30 rounded-lg">
+              <HelpCircle size={24} className="text-purple-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Quizzes y Evaluaciones</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <h2 className="text-2xl font-bold text-gray-800">Quizzes y Evaluaciones</h2>
+              <p className="text-sm text-gray-500">
                 {quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''} creado{quizzes.length !== 1 ? 's' : ''}
               </p>
             </div>
@@ -314,25 +314,25 @@ const CourseQuizzesTab = ({ course }) => {
       {!loading && quizzes.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {quizzes.map(quiz => (
-            <div key={quiz.id} className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition p-6 border-l-4 border-purple-600">
+            <div key={quiz.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 border-l-4 border-purple-600">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg mb-1">{quiz.title}</h3>
+                  <h3 className="font-bold text-gray-800 text-lg mb-1">{quiz.title}</h3>
                   {quiz.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{quiz.description}</p>
+                    <p className="text-sm text-gray-600 mb-3">{quiz.description}</p>
                   )}
                 </div>
                 <div className="flex gap-1 ml-2">
                   <button
                     onClick={() => handleManageQuestions(quiz)}
-                    className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50 rounded-lg transition"
+                    className="p-2 bg-purple-100/30 text-purple-600 hover:bg-purple-200:bg-purple-900/50 rounded-lg transition"
                     title="Gestionar preguntas"
                   >
                     <Edit2 size={16} />
                   </button>
                   <button
                     onClick={() => handleDeleteQuiz(quiz.id)}
-                    className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-lg transition"
+                    className="p-2 bg-red-100/30 text-red-600 hover:bg-red-200:bg-red-900/50 rounded-lg transition"
                     title="Eliminar"
                   >
                     <Trash2 size={16} />
@@ -341,25 +341,25 @@ const CourseQuizzesTab = ({ course }) => {
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-2 text-gray-600">
                   <Clock size={16} />
                   <span>{quiz.duration} min</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-2 text-gray-600">
                   <Award size={16} />
                   <span>{quiz.passingScore}% mínimo</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-2 text-gray-600">
                   <HelpCircle size={16} />
                   <span>{quiz.questions?.length || 0} preguntas</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-2 text-gray-600">
                   <Users size={16} />
                   <span>{quiz.maxAttempts} intentos</span>
                 </div>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
                 <span className="flex items-center gap-1">
                   <Calendar size={12} />
                   {new Date(quiz.createdAt).toLocaleDateString('es-ES')}
@@ -372,12 +372,12 @@ const CourseQuizzesTab = ({ course }) => {
 
       {/* Empty State */}
       {!loading && quizzes.length === 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
-          <HelpCircle className="mx-auto text-gray-300 dark:text-gray-600 mb-4" size={48} />
-          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <HelpCircle className="mx-auto text-gray-300 mb-4" size={48} />
+          <h3 className="text-xl font-bold text-gray-800 mb-2">
             Sin quizzes creados
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 mb-6">
             Crea evaluaciones para medir el aprendizaje de tus estudiantes
           </p>
           <button
@@ -392,7 +392,7 @@ const CourseQuizzesTab = ({ course }) => {
       {/* Create Quiz Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-3">
@@ -413,30 +413,30 @@ const CourseQuizzesTab = ({ course }) => {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Información del Quiz */}
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-4">
-                <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3">Información del Quiz</h4>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                <h4 className="font-bold text-gray-800 mb-3">Información del Quiz</h4>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Título del Quiz *
                   </label>
                   <input
                     type="text"
                     value={quizForm.title}
                     onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="Ej: Evaluación Unidad 1"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Descripción
                   </label>
                   <textarea
                     value={quizForm.description}
                     onChange={(e) => setQuizForm({ ...quizForm, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                     rows="2"
                     placeholder="Descripción opcional..."
                   />
@@ -444,41 +444,41 @@ const CourseQuizzesTab = ({ course }) => {
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Duración (min)
                     </label>
                     <input
                       type="number"
                       value={quizForm.duration}
                       onChange={(e) => setQuizForm({ ...quizForm, duration: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       min="1"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Nota mínima (%)
                     </label>
                     <input
                       type="number"
                       value={quizForm.passingScore}
                       onChange={(e) => setQuizForm({ ...quizForm, passingScore: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       min="0"
                       max="100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Intentos máx.
                     </label>
                     <input
                       type="number"
                       value={quizForm.maxAttempts}
                       onChange={(e) => setQuizForm({ ...quizForm, maxAttempts: parseInt(e.target.value) || 1 })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       min="1"
                     />
                   </div>
@@ -486,15 +486,15 @@ const CourseQuizzesTab = ({ course }) => {
               </div>
 
               {/* Agregar Pregunta */}
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3">
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-gray-800 dark:text-gray-100">Agregar Pregunta</h4>
+                  <h4 className="font-bold text-gray-800">Agregar Pregunta</h4>
                   <div className="text-sm">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">Puntos acumulados: </span>
+                    <span className="font-semibold text-gray-700">Puntos acumulados: </span>
                     <span className={`font-bold ${
                       getTotalPoints() > 100 ? 'text-red-600' :
                       getTotalPoints() === 100 ? 'text-green-600' :
-                      'text-gray-800 dark:text-gray-100'
+                      'text-gray-800'
                     }`}>
                       {getTotalPoints()} / 100
                     </span>
@@ -505,7 +505,7 @@ const CourseQuizzesTab = ({ course }) => {
                   type="text"
                   value={currentQuestion.question}
                   onChange={(e) => setCurrentQuestion({ ...currentQuestion, question: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Escribe la pregunta..."
                 />
 
@@ -520,7 +520,7 @@ const CourseQuizzesTab = ({ course }) => {
                         className="mt-3 accent-purple-600"
                       />
                       <div className="flex-1">
-                        <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        <label className="block text-xs text-gray-600 mb-1">
                           Opción {index + 1} {currentQuestion.correctAnswer === index && '(Correcta)'}
                         </label>
                         <input
@@ -531,7 +531,7 @@ const CourseQuizzesTab = ({ course }) => {
                             newOptions[index] = e.target.value;
                             setCurrentQuestion({ ...currentQuestion, options: newOptions });
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                           placeholder={`Opción ${index + 1}`}
                         />
                       </div>
@@ -541,12 +541,12 @@ const CourseQuizzesTab = ({ course }) => {
 
                 <div className="flex gap-3">
                   <div className="w-32">
-                    <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Puntos</label>
+                    <label className="block text-xs text-gray-600 mb-1">Puntos</label>
                     <input
                       type="number"
                       value={currentQuestion.points}
                       onChange={(e) => setCurrentQuestion({ ...currentQuestion, points: parseInt(e.target.value) || 1 })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       min="1"
                     />
                   </div>
@@ -565,21 +565,21 @@ const CourseQuizzesTab = ({ course }) => {
               {/* Lista de Preguntas */}
               {questions.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="font-bold text-gray-800 dark:text-gray-100">
+                  <h4 className="font-bold text-gray-800">
                     Preguntas del Quiz ({questions.length})
                   </h4>
                   {questions.map((q, index) => (
-                    <div key={q.id} className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                    <div key={q.id} className="bg-white border border-gray-200 rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <span className="inline-block px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs font-semibold rounded mb-2">
+                          <span className="inline-block px-2 py-0.5 bg-purple-100/30 text-purple-700 text-xs font-semibold rounded mb-2">
                             Pregunta {index + 1} - {q.points} puntos
                           </span>
-                          <p className="font-semibold text-gray-800 dark:text-gray-100">{q.question}</p>
+                          <p className="font-semibold text-gray-800">{q.question}</p>
                         </div>
                         <button
                           onClick={() => removeQuestion(q.id)}
-                          className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 rounded transition"
+                          className="p-1.5 bg-red-100/30 text-red-600 hover:bg-red-200:bg-red-900/50 rounded transition"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -590,8 +590,8 @@ const CourseQuizzesTab = ({ course }) => {
                             key={optIndex}
                             className={`text-sm px-3 py-2 rounded ${
                               optIndex === q.correctAnswer
-                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-semibold'
-                                : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                                ? 'bg-green-100/30 text-green-700 font-semibold'
+                                : 'bg-gray-100 text-gray-600'
                             }`}
                           >
                             {optIndex === q.correctAnswer && <Check size={14} className="inline mr-1" />}
@@ -606,10 +606,10 @@ const CourseQuizzesTab = ({ course }) => {
             </div>
 
             {/* Footer */}
-            <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 flex-shrink-0">
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex gap-3 flex-shrink-0">
               <button
                 onClick={resetForms}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition font-semibold"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100:bg-gray-700 transition font-semibold"
               >
                 Cancelar
               </button>
@@ -638,7 +638,7 @@ const CourseQuizzesTab = ({ course }) => {
       {/* Manage Questions Modal */}
       {showQuestionsModal && selectedQuiz && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 flex items-center justify-between flex-shrink-0">
               <div>
@@ -656,15 +656,15 @@ const CourseQuizzesTab = ({ course }) => {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Agregar Pregunta */}
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3">
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-gray-800 dark:text-gray-100">Agregar Nueva Pregunta</h4>
+                  <h4 className="font-bold text-gray-800">Agregar Nueva Pregunta</h4>
                   <div className="text-sm">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">Puntos acumulados: </span>
+                    <span className="font-semibold text-gray-700">Puntos acumulados: </span>
                     <span className={`font-bold ${
                       getTotalPoints() > 100 ? 'text-red-600' :
                       getTotalPoints() === 100 ? 'text-green-600' :
-                      'text-gray-800 dark:text-gray-100'
+                      'text-gray-800'
                     }`}>
                       {getTotalPoints()} / 100
                     </span>
@@ -675,7 +675,7 @@ const CourseQuizzesTab = ({ course }) => {
                   type="text"
                   value={currentQuestion.question}
                   onChange={(e) => setCurrentQuestion({ ...currentQuestion, question: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Escribe la pregunta..."
                 />
 
@@ -690,7 +690,7 @@ const CourseQuizzesTab = ({ course }) => {
                         className="mt-3 accent-purple-600"
                       />
                       <div className="flex-1">
-                        <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        <label className="block text-xs text-gray-600 mb-1">
                           Opción {index + 1} {currentQuestion.correctAnswer === index && '(Correcta)'}
                         </label>
                         <input
@@ -701,7 +701,7 @@ const CourseQuizzesTab = ({ course }) => {
                             newOptions[index] = e.target.value;
                             setCurrentQuestion({ ...currentQuestion, options: newOptions });
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                           placeholder={`Opción ${index + 1}`}
                         />
                       </div>
@@ -711,12 +711,12 @@ const CourseQuizzesTab = ({ course }) => {
 
                 <div className="flex gap-3">
                   <div className="w-32">
-                    <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Puntos</label>
+                    <label className="block text-xs text-gray-600 mb-1">Puntos</label>
                     <input
                       type="number"
                       value={currentQuestion.points}
                       onChange={(e) => setCurrentQuestion({ ...currentQuestion, points: parseInt(e.target.value) || 1 })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       min="1"
                     />
                   </div>
@@ -735,21 +735,21 @@ const CourseQuizzesTab = ({ course }) => {
               {/* Lista de Preguntas */}
               {questions.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="font-bold text-gray-800 dark:text-gray-100">
+                  <h4 className="font-bold text-gray-800">
                     Preguntas Actuales ({questions.length})
                   </h4>
                   {questions.map((q, index) => (
-                    <div key={q.id} className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                    <div key={q.id} className="bg-white border border-gray-200 rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <span className="inline-block px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs font-semibold rounded mb-2">
+                          <span className="inline-block px-2 py-0.5 bg-purple-100/30 text-purple-700 text-xs font-semibold rounded mb-2">
                             Pregunta {index + 1} - {q.points} puntos
                           </span>
-                          <p className="font-semibold text-gray-800 dark:text-gray-100">{q.question}</p>
+                          <p className="font-semibold text-gray-800">{q.question}</p>
                         </div>
                         <button
                           onClick={() => removeQuestion(q.id)}
-                          className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 rounded transition"
+                          className="p-1.5 bg-red-100/30 text-red-600 hover:bg-red-200:bg-red-900/50 rounded transition"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -760,8 +760,8 @@ const CourseQuizzesTab = ({ course }) => {
                             key={optIndex}
                             className={`text-sm px-3 py-2 rounded ${
                               optIndex === q.correctAnswer
-                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-semibold'
-                                : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                                ? 'bg-green-100/30 text-green-700 font-semibold'
+                                : 'bg-gray-100 text-gray-600'
                             }`}
                           >
                             {optIndex === q.correctAnswer && <Check size={14} className="inline mr-1" />}
@@ -776,10 +776,10 @@ const CourseQuizzesTab = ({ course }) => {
             </div>
 
             {/* Footer */}
-            <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 flex-shrink-0">
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex gap-3 flex-shrink-0">
               <button
                 onClick={resetForms}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition font-semibold"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100:bg-gray-700 transition font-semibold"
               >
                 Cancelar
               </button>

@@ -7,27 +7,17 @@ import {
   Key,
   LogOut,
   ChevronDown,
-  Moon,
-  Sun,
-  Bell,
   HelpCircle,
-  Shield,
-  Palette,
-  Globe,
-  Volume2,
-  Mail,
-  Activity
+  Shield
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/store';
 
 const UserMenu = ({ loginPath = '/login' }) => {
-  const { user, logout, theme, setTheme } = useStore();
+  const { user, logout } = useStore();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
-
-  const darkMode = theme === 'dark';
 
   // Cerrar menú al hacer click fuera
   useEffect(() => {
@@ -68,11 +58,6 @@ const UserMenu = ({ loginPath = '/login' }) => {
     setIsOpen(false);
     const event = new CustomEvent('openHelpModal');
     window.dispatchEvent(event);
-  };
-
-  const toggleDarkMode = () => {
-    const newTheme = darkMode ? 'light' : 'dark';
-    setTheme(newTheme);
   };
 
   const menuItems = [
@@ -178,16 +163,16 @@ const UserMenu = ({ loginPath = '/login' }) => {
           {/* Backdrop transparente */}
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           
-          <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-50 animate-fade-in-down overflow-hidden">
+          <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50 animate-fade-in-down overflow-hidden">
             {/* User Info */}
-            <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div className="px-4 py-3 border-b border-gray-100 bg-white">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-xl shadow-md">
                   {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                  <p className="text-sm font-bold text-gray-800 truncate">{user?.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
               </div>
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 ${getRoleColor()} text-xs font-semibold rounded-full`}>
@@ -197,7 +182,7 @@ const UserMenu = ({ loginPath = '/login' }) => {
             </div>
 
             {/* Menu Items */}
-            <div className="py-1 max-h-96 overflow-y-auto bg-white dark:bg-gray-800">
+            <div className="py-1 max-h-96 overflow-y-auto bg-white">
               {menuItems.map((item, index) => {
                 const Icon = item.icon;
                 return (
@@ -205,52 +190,28 @@ const UserMenu = ({ loginPath = '/login' }) => {
                     <button
                       onClick={item.onClick}
                       className={`w-full flex items-start gap-3 px-4 py-2.5 transition-all duration-150 ${
-                        item.color || 'text-gray-700 dark:text-gray-200'
+                        item.color || 'text-gray-700'
                       } ${
-                        item.hoverColor || 'hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
+                        item.hoverColor || 'hover:bg-gray-100/50'
                       }`}
                     >
                       <Icon size={18} className="mt-0.5 flex-shrink-0" />
                       <div className="flex-1 text-left">
                         <p className="text-sm font-medium">{item.label}</p>
                         {item.description && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.description}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
                         )}
                       </div>
                     </button>
-                    {item.divider && <div className="my-1 border-t border-gray-100 dark:border-gray-700" />}
+                    {item.divider && <div className="my-1 border-t border-gray-100" />}
                   </div>
                 );
               })}
             </div>
 
-            {/* Dark Mode Toggle */}
-            <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
-              <button
-                onClick={toggleDarkMode}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-700/30 transition-colors duration-150"
-              >
-                <div className="flex items-center gap-2.5 text-sm text-gray-700 dark:text-gray-200">
-                  {darkMode ? (
-                    <Moon size={18} className="text-indigo-600 dark:text-indigo-400" />
-                  ) : (
-                    <Sun size={18} className="text-amber-500" />
-                  )}
-                  <span className="font-medium">Modo Oscuro</span>
-                </div>
-                <div className={`w-11 h-6 rounded-full transition-colors duration-200 ${
-                  darkMode ? 'bg-indigo-600' : 'bg-gray-300'
-                } relative`}>
-                  <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform duration-200 shadow-sm ${
-                    darkMode ? 'translate-x-6' : 'translate-x-1'
-                  }`} />
-                </div>
-              </button>
-            </div>
-
             {/* Footer */}
-            <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-b-xl">
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+              <p className="text-xs text-gray-500 text-center">
                 Plataforma de Aulas Virtuales v1.0
               </p>
             </div>

@@ -96,17 +96,17 @@ const DocenteDashboard = () => {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100">
         <div className="text-center">
           <Loader className="animate-spin text-purple-600 mx-auto mb-4" size={40} />
-          <p className="text-gray-600 dark:text-gray-300">Cargando...</p>
+          <p className="text-gray-600">Cargando...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -129,10 +129,10 @@ const DocenteDashboard = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Estadísticas Rápidas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-purple-600">
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">Mis Materias</p>
+                <p className="text-gray-600 text-sm font-semibold">Mis Materias</p>
                 <p className="text-3xl font-bold text-purple-600 mt-1">
                   {loading ? <Loader className="animate-spin" size={32} /> : courses.length}
                 </p>
@@ -141,10 +141,10 @@ const DocenteDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-indigo-600">
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">Total Estudiantes</p>
+                <p className="text-gray-600 text-sm font-semibold">Total Estudiantes</p>
                 <p className="text-3xl font-bold text-indigo-600 mt-1">
                   {loading ? <Loader className="animate-spin" size={32} /> :
                     courses.reduce((sum, course) => sum + (course._count?.enrollments || 0), 0)}
@@ -154,10 +154,10 @@ const DocenteDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-pink-600">
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-pink-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">Total Clases</p>
+                <p className="text-gray-600 text-sm font-semibold">Total Clases</p>
                 <p className="text-3xl font-bold text-pink-600 mt-1">
                   {loading ? <Loader className="animate-spin" size={32} /> :
                     courses.reduce((sum, course) => sum + (course._count?.classrooms || 0), 0)}
@@ -170,13 +170,13 @@ const DocenteDashboard = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6 flex gap-3">
-            <AlertCircle size={20} className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="bg-red-50/20 border border-red-200 rounded-lg p-4 mb-6 flex gap-3">
+            <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-red-700 dark:text-red-400">{error}</p>
+              <p className="text-sm font-semibold text-red-700">{error}</p>
               <button
                 onClick={fetchMyCourses}
-                className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 mt-1 font-semibold"
+                className="text-xs text-red-600 hover:text-red-800:text-red-300 mt-1 font-semibold"
               >
                 Intentar de nuevo
               </button>
@@ -192,8 +192,8 @@ const DocenteDashboard = () => {
         ) : courses.length > 0 ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Mis Materias Asignadas</h2>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <h2 className="text-2xl font-bold text-gray-800">Mis Materias Asignadas</h2>
+              <span className="text-sm text-gray-600">
                 {courses.length} {courses.length === 1 ? 'materia' : 'materias'}
               </span>
             </div>
@@ -201,7 +201,7 @@ const DocenteDashboard = () => {
             {courses.map(course => (
               <div
                 key={course.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-xl transition-shadow duration-200 border-l-4 cursor-pointer group"
+                className="bg-white rounded-lg shadow-sm hover:shadow-xl transition-shadow duration-200 border-l-4 cursor-pointer group"
                 style={{ borderLeftColor: course.color }}
                 onClick={() => handleCourseClick(course)}
               >
@@ -216,16 +216,16 @@ const DocenteDashboard = () => {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                          <h3 className="text-lg font-bold text-gray-800">
                             {course.code}
                           </h3>
-                          <span className="text-xs font-semibold px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">
+                          <span className="text-xs font-semibold px-2 py-1 bg-indigo-100 text-indigo-700 rounded">
                             {course.credits} créditos
                           </span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-300">{course.title}</p>
+                        <p className="text-gray-600">{course.title}</p>
                         {course.description && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-1">
                             {course.description}
                           </p>
                         )}
@@ -238,17 +238,17 @@ const DocenteDashboard = () => {
                       <p className="text-2xl font-bold text-indigo-600">
                         {course._count?.enrollments || 0}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Estudiantes</p>
+                      <p className="text-xs text-gray-600">Estudiantes</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-purple-600">
                         {course._count?.classrooms || 0}
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Clases</p>
+                      <p className="text-xs text-gray-600">Clases</p>
                     </div>
                     <ChevronRight
                       size={24}
-                      className="text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-1 transition-all"
+                      className="text-gray-400 group-hover:text-gray-600:text-gray-300 group-hover:translate-x-1 transition-all"
                     />
                   </div>
                 </div>
@@ -256,12 +256,12 @@ const DocenteDashboard = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
-            <GraduationCap className="mx-auto text-gray-300 dark:text-gray-600 mb-4" size={48} />
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+          <div className="bg-white rounded-lg shadow p-12 text-center">
+            <GraduationCap className="mx-auto text-gray-300 mb-4" size={48} />
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
               Sin materias asignadas
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-600 mb-6">
               El administrador aún no te ha asignado ninguna materia.
             </p>
             <button

@@ -145,22 +145,6 @@ export const useStore = create(
     isSidebarOpen: !state.isSidebarOpen
   })),
 
-  // ==================== THEME STATE ====================
-  theme: localStorage.getItem('theme') || 'light',
-  setTheme: (newTheme) => {
-    set({ theme: newTheme });
-    localStorage.setItem('theme', newTheme);
-
-    // Aplicar tema al documento
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-
-    console.log('✅ [STORE] Tema cambiado a:', newTheme);
-  },
-
   // ==================== CLASSROOM STATE ====================
   currentClassroom: null,
   participants: [],
@@ -216,7 +200,6 @@ export const useStore = create(
         isAuthenticated: state.isAuthenticated,
         lastActivity: state.lastActivity,
         sessionStartTime: state.sessionStartTime,
-        theme: state.theme,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {

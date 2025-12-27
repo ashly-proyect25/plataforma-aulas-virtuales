@@ -89,7 +89,7 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 flex items-center justify-between">
           <div>
@@ -105,31 +105,31 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
         </div>
 
         {/* Estadísticas */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 bg-gray-50 dark:bg-gray-900/50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center border-2 border-gray-200 dark:border-gray-700">
-            <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{stats.total}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Total</p>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 bg-gray-50/50">
+          <div className="bg-white rounded-lg p-3 text-center border-2 border-gray-200">
+            <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+            <p className="text-xs text-gray-600">Total</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center border-2 border-green-200 dark:border-green-700">
+          <div className="bg-white rounded-lg p-3 text-center border-2 border-green-200">
             <p className="text-2xl font-bold text-green-600">{stats.live}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">En vivo</p>
+            <p className="text-xs text-gray-600">En vivo</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center border-2 border-blue-200 dark:border-blue-700">
+          <div className="bg-white rounded-lg p-3 text-center border-2 border-blue-200">
             <p className="text-2xl font-bold text-blue-600">{stats.completed}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Finalizadas</p>
+            <p className="text-xs text-gray-600">Finalizadas</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center border-2 border-red-200 dark:border-red-700">
+          <div className="bg-white rounded-lg p-3 text-center border-2 border-red-200">
             <p className="text-2xl font-bold text-red-600">{stats.missed}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">No iniciadas</p>
+            <p className="text-xs text-gray-600">No iniciadas</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center border-2 border-yellow-200 dark:border-yellow-700">
+          <div className="bg-white rounded-lg p-3 text-center border-2 border-yellow-200">
             <p className="text-2xl font-bold text-yellow-600">{stats.scheduled}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Programadas</p>
+            <p className="text-xs text-gray-600">Programadas</p>
           </div>
         </div>
 
         {/* Filtros y búsqueda */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 space-y-3">
+        <div className="p-4 border-b border-gray-200 space-y-3">
           {/* Búsqueda */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -138,19 +138,19 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
               placeholder="Buscar por título o descripción..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
 
           {/* Filtros */}
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <Filter size={16} className="text-gray-600 dark:text-gray-400" />
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Estado:</span>
+              <Filter size={16} className="text-gray-600" />
+              <span className="text-sm font-semibold text-gray-700">Estado:</span>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm focus:ring-2 focus:ring-purple-500"
+                className="px-3 py-1 border border-gray-300 rounded-lg bg-white text-gray-800 text-sm focus:ring-2 focus:ring-purple-500"
               >
                 <option value="all">Todas</option>
                 <option value="live">En vivo</option>
@@ -161,11 +161,11 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Ordenar por:</span>
+              <span className="text-sm font-semibold text-gray-700">Ordenar por:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm focus:ring-2 focus:ring-purple-500"
+                className="px-3 py-1 border border-gray-300 rounded-lg bg-white text-gray-800 text-sm focus:ring-2 focus:ring-purple-500"
               >
                 <option value="date">Fecha</option>
                 <option value="status">Estado</option>
@@ -186,23 +186,23 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
                 return (
                   <div
                     key={scheduledClass.id}
-                    className="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                    className="bg-white rounded-lg p-4 border-2 border-gray-200 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                          <h3 className="text-lg font-bold text-gray-800">
                             {scheduledClass.title}
                           </h3>
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
                               status.color === 'green'
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                                ? 'bg-green-100 text-green-700'
                                 : status.color === 'blue'
-                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                                ? 'bg-blue-100 text-blue-700'
                                 : status.color === 'yellow'
-                                ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
-                                : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-red-100 text-red-700'
                             }`}
                           >
                             <StatusIcon size={12} />
@@ -211,13 +211,13 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
                         </div>
 
                         {scheduledClass.description && (
-                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                          <p className="text-gray-600 text-sm mb-3">
                             {scheduledClass.description}
                           </p>
                         )}
 
                         <div className="flex flex-wrap gap-4 text-sm">
-                          <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                          <div className="flex items-center gap-2 text-gray-700">
                             <Calendar size={16} className="text-purple-600" />
                             <span>
                               {new Date(scheduledClass.date).toLocaleDateString('es-ES', {
@@ -228,7 +228,7 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
                               })}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                          <div className="flex items-center gap-2 text-gray-700">
                             <Clock size={16} className="text-purple-600" />
                             <span>{scheduledClass.time} ({scheduledClass.duration} min)</span>
                           </div>
@@ -236,7 +236,7 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
 
                         {scheduledClass.roomCode && (
                           <div className="mt-2">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                            <span className="text-xs text-gray-500">
                               Código de sala: <span className="font-mono font-semibold">{scheduledClass.roomCode}</span>
                             </span>
                           </div>
@@ -248,7 +248,7 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
               })}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
               <AlertCircle size={48} className="mb-4" />
               <p className="text-lg font-semibold">No se encontraron clases</p>
               <p className="text-sm">Intenta cambiar los filtros o la búsqueda</p>
@@ -257,9 +257,9 @@ const ClassRecordsModal = ({ isOpen, onClose, scheduledClasses }) => {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900/50">
+        <div className="border-t border-gray-200 p-4 bg-gray-50/50">
           <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               Mostrando {filteredAndSortedClasses.length} de {scheduledClasses.length} clases
             </p>
             <button
