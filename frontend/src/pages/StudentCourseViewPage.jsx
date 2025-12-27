@@ -116,12 +116,12 @@ const StudentCourseViewPage = () => {
           }`}>
             <button
               onClick={() => navigate('/alumno/dashboard')}
-              className={`flex items-center gap-2 px-3 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition text-gray-900 dark:text-white ${
+              className={`flex items-center gap-2 px-3 rounded-lg bg-white hover:bg-gray-100 transition text-gray-900 shadow-md ${
                 isScrolled ? 'py-1 text-xs' : 'py-1.5 text-sm'
               }`}
             >
-              <ArrowLeft size={isScrolled ? 16 : 18} />
-              <span className="font-semibold">Volver</span>
+              <ArrowLeft size={isScrolled ? 16 : 18} className="text-gray-900" />
+              <span className="font-semibold text-gray-900">Volver</span>
             </button>
             <UserMenu loginPath="/login/alumno" />
           </div>
