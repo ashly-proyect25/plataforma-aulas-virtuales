@@ -177,7 +177,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   // ✅ JOIN PREFERENCES: Modal and settings for joining with camera/mic
   const [showJoinPreferencesModal, setShowJoinPreferencesModal] = useState(false);
   const [joinWithCamera, setJoinWithCamera] = useState(false);
-  const [joinWithAudio, setJoinWithAudio] = useState(false);
+  const [joinWithAudio, setJoinWithAudio] = useState(true);
 
   const videoRef = useRef(null);
   const myVideoRef = useRef(null); // ✅ Video del estudiante (principal o panel)
