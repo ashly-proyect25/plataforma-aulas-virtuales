@@ -981,8 +981,25 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         if (pc) {
           console.log(`🔄 [STUDENT-P2P] Renegociando conexión existente con ${fromViewerId}, estado: ${pc.signalingState}`);
 
-          // ✅ CRITICAL: Verificar estado de señalización antes de procesar
-          if (pc.signalingState !== 'stable' && pc.signalingState !== 'have-remote-offer') {
+          // ✅ POLITE/IMPOLITE PATTERN para resolver GLARE
+          const myId = socketRef.current?.id || '';
+          const isPolite = myId < fromViewerId;
+          console.log(`🤝 [STUDENT-P2P-GLARE] Negociación: isPolite=${isPolite} (myId: ${myId}, peerId: ${fromViewerId})`);
+
+          // ✅ CRITICAL: Manejar GLARE (ofertas simultáneas)
+          if (pc.signalingState === 'have-local-offer') {
+            console.warn(`🔄 [STUDENT-P2P-GLARE] GLARE detectado! Ambos enviamos offers. isPolite=${isPolite}`);
+
+            if (!isPolite) {
+              // Soy IMPOLITE: ignoro la offer entrante y espero mi answer
+              console.log(`🛑 [STUDENT-P2P-GLARE] Soy IMPOLITE, ignorando offer de ${fromViewerId}`);
+              return;
+            } else {
+              // Soy POLITE: hago rollback de mi offer y acepto la entrante
+              console.log(`🔄 [STUDENT-P2P-GLARE] Soy POLITE, haciendo rollback de mi offer`);
+              await pc.setLocalDescription({ type: 'rollback' });
+            }
+          } else if (pc.signalingState !== 'stable' && pc.signalingState !== 'have-remote-offer') {
             console.warn(`⚠️ [STUDENT-P2P] Conexión en estado ${pc.signalingState}, ignorando offer`);
             return;
           }
@@ -2207,8 +2224,27 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         }
       });
 
-      // Si hay peer connection (siempre que se una con cámara o audio), enviar offer al docente
+      // ✅ FIX RACE CONDITION: Esperar confirmación del backend antes de enviar offer
+      // Esto previene que el offer llegue antes de que el estudiante esté en la lista de viewers
       if (studentPeerConnectionRef.current) {
+        console.log('⏳ [STUDENT-JOIN] Esperando confirmación del backend...');
+
+        await new Promise((resolve) => {
+          const readyHandler = () => {
+            console.log('✅ [STUDENT-JOIN] Confirmación recibida, listo para enviar offer');
+            socketRef.current.off('viewer-ready-to-connect', readyHandler);
+            resolve();
+          };
+          socketRef.current.on('viewer-ready-to-connect', readyHandler);
+
+          // Timeout de seguridad: si no recibimos confirmación en 3 segundos, proceder de todos modos
+          setTimeout(() => {
+            console.warn('⚠️ [STUDENT-JOIN] Timeout esperando confirmación, enviando offer de todos modos');
+            socketRef.current.off('viewer-ready-to-connect', readyHandler);
+            resolve();
+          }, 3000);
+        });
+
         console.log('📤 [STUDENT-JOIN] Creando y enviando offer al docente...');
         const offer = await studentPeerConnectionRef.current.createOffer();
         await studentPeerConnectionRef.current.setLocalDescription(offer);

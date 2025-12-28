@@ -348,6 +348,10 @@ io.on('connection', (socket) => {
       });
       console.log(`📢 [VIEWER] Notificación 'streaming-started' enviada a viewer ${socket.id} (cámara: ${currentCameraState}, screenShare: ${currentScreenSharingState})`);
 
+      // ✅ FIX RACE CONDITION: Confirmar que el estudiante está listo para enviar offers
+      socket.emit('viewer-ready-to-connect');
+      console.log(`✅ [VIEWER-READY] Estudiante ${socket.id} listo para enviar offer al docente`);
+
       // También enviar eventos separados por retrocompatibilidad
       socket.emit('teacher-camera-status', { cameraEnabled: currentCameraState });
       console.log(`📹 [VIEWER] Initial camera state (${currentCameraState}) sent to viewer ${socket.id}`);
