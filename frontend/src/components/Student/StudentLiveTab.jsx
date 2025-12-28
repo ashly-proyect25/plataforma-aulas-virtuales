@@ -188,6 +188,94 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
     }
   }, [isMinimized, teacherScreenStream, hasStream, teacherStreamVersion]);
 
+  // ✅ FIX AUDIO: Reproducir audio del docente en elemento separado para asegurar que funcione
+  useEffect(() => {
+    if (!teacherStreamRef.current && !teacherScreenStream) {
+      // No hay stream del docente, limpiar audio
+      if (teacherAudioRef.current) {
+        teacherAudioRef.current.srcObject = null;
+        teacherAudioRef.current = null;
+      }
+      return;
+    }
+
+    const streamToUse = teacherScreenStream || teacherStreamRef.current;
+    if (!streamToUse) return;
+
+    const audioTracks = streamToUse.getAudioTracks();
+    if (audioTracks.length === 0) {
+      console.log('⚠️ [STUDENT-AUDIO-FIX] No hay audio tracks en el stream del docente');
+      return;
+    }
+
+    console.log(`🔊 [STUDENT-AUDIO-FIX] Creando elemento de audio para docente con ${audioTracks.length} tracks`);
+
+    // Crear o reutilizar elemento de audio
+    if (!teacherAudioRef.current) {
+      teacherAudioRef.current = new Audio();
+      teacherAudioRef.current.autoplay = true;
+    }
+
+    teacherAudioRef.current.srcObject = streamToUse;
+    teacherAudioRef.current.play()
+      .then(() => {
+        console.log('✅ [STUDENT-AUDIO-FIX] Audio del docente reproduciéndose correctamente');
+      })
+      .catch(err => {
+        console.warn('⚠️ [STUDENT-AUDIO-FIX] Error reproduciendo audio del docente:', err);
+      });
+  }, [teacherStreamRef.current, teacherScreenStream, teacherStreamVersion]);
+
+  // ✅ FIX AUDIO P2P: Reproducir audio de peer students en elementos separados
+  useEffect(() => {
+    console.log('🔊 [STUDENT-P2P-AUDIO-FIX] Actualizando audio de peer students...', Object.keys(peerStudentStreams));
+
+    // Crear/actualizar elementos de audio para cada peer student
+    Object.keys(peerStudentStreams).forEach(viewerId => {
+      const stream = peerStudentStreams[viewerId];
+      if (!stream) return;
+
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        console.log(`⚠️ [STUDENT-P2P-AUDIO-FIX] No hay audio tracks para peer ${viewerId}`);
+        return;
+      }
+
+      console.log(`🔊 [STUDENT-P2P-AUDIO-FIX] Configurando audio para peer ${viewerId} con ${audioTracks.length} tracks`);
+
+      // Crear o reutilizar elemento de audio
+      if (!peerAudioRefs.current[viewerId]) {
+        peerAudioRefs.current[viewerId] = new Audio();
+        peerAudioRefs.current[viewerId].autoplay = true;
+      }
+
+      const audioEl = peerAudioRefs.current[viewerId];
+
+      // Solo actualizar si es un stream diferente
+      if (audioEl.srcObject !== stream) {
+        audioEl.srcObject = stream;
+        audioEl.play()
+          .then(() => {
+            console.log(`✅ [STUDENT-P2P-AUDIO-FIX] Audio de peer ${viewerId} reproduciéndose correctamente`);
+          })
+          .catch(err => {
+            console.warn(`⚠️ [STUDENT-P2P-AUDIO-FIX] Error reproduciendo audio de peer ${viewerId}:`, err);
+          });
+      }
+    });
+
+    // Limpiar elementos de audio de peers que ya no están
+    Object.keys(peerAudioRefs.current).forEach(viewerId => {
+      if (!peerStudentStreams[viewerId]) {
+        console.log(`🗑️ [STUDENT-P2P-AUDIO-FIX] Limpiando audio de peer ${viewerId} que se desconectó`);
+        if (peerAudioRefs.current[viewerId]) {
+          peerAudioRefs.current[viewerId].srcObject = null;
+          delete peerAudioRefs.current[viewerId];
+        }
+      }
+    });
+  }, [peerStudentStreams]);
+
   // ✅ JOIN PREFERENCES: Modal and settings for joining with camera/mic
   const [showJoinPreferencesModal, setShowJoinPreferencesModal] = useState(false);
   const [joinWithCamera, setJoinWithCamera] = useState(false);
@@ -210,6 +298,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   const [peerStudentScreenStreams, setPeerStudentScreenStreams] = useState({}); // Object<viewerId, MediaStream> - streams de pantalla compartida
   const [peerStudentCameraStates, setPeerStudentCameraStates] = useState({}); // Object<viewerId, boolean> - estado de cámara de peers
   const [peerStudentScreenSharingStates, setPeerStudentScreenSharingStates] = useState({}); // Object<viewerId, boolean> - estado de screen sharing de peers
+
+  // ✅ FIX AUDIO: Refs para elementos de audio separados (para reproducir audio de peers)
+  const peerAudioRefs = useRef({}); // Object<viewerId, HTMLAudioElement>
+  const teacherAudioRef = useRef(null); // HTMLAudioElement para audio del docente
 
   // ✅ Ref para isMuted para evitar stale closure en socket listeners
   const isMutedRef = useRef(isMuted);
@@ -2329,6 +2421,19 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+
+    // ✅ FIX AUDIO: Limpiar elementos de audio
+    if (teacherAudioRef.current) {
+      teacherAudioRef.current.srcObject = null;
+      teacherAudioRef.current = null;
+    }
+
+    Object.keys(peerAudioRefs.current).forEach(viewerId => {
+      if (peerAudioRefs.current[viewerId]) {
+        peerAudioRefs.current[viewerId].srcObject = null;
+        delete peerAudioRefs.current[viewerId];
+      }
+    });
 
     // ✅ Limpiar estado de clase en vivo del store
     clearActiveLiveClass();
