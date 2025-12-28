@@ -224,7 +224,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       .catch(err => {
         console.warn('⚠️ [STUDENT-AUDIO-FIX] Error reproduciendo audio del docente:', err);
       });
-  }, [teacherStreamRef.current, teacherScreenStream, teacherStreamVersion]);
+  }, [teacherScreenStream, teacherStreamVersion]); // ✅ FIX: No usar .current en dependencias
 
   // ✅ FIX AUDIO P2P: Reproducir audio de peer students en elementos separados
   useEffect(() => {
