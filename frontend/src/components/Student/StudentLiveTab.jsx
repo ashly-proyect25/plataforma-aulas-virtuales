@@ -141,6 +141,9 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   // ✅ SCREEN SHARE BLOCK: Track if teacher has blocked screen sharing for students
   const [isScreenShareBlocked, setIsScreenShareBlocked] = useState(false);
 
+  // ✅ Estado para forzar re-render cuando cambia el stream del docente
+  const [teacherStreamVersion, setTeacherStreamVersion] = useState(0);
+
   // ✅ Effect to refresh video when minimize state changes or screen share changes
   useEffect(() => {
     if (videoRef.current && hasStream) {
@@ -150,29 +153,40 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         const videoEl = videoRef.current;
 
         console.log(`📺 [STUDENT-USEEFFECT] Asignando ${teacherScreenStream ? 'PANTALLA COMPARTIDA' : 'CÁMARA'} al videoRef`);
+        console.log(`🎵 [STUDENT-USEEFFECT-AUDIO] Stream tiene ${streamToShow.getAudioTracks().length} audio tracks`);
 
-        // Solo reasignar si el stream es diferente al actual
-        if (videoEl.srcObject !== streamToShow) {
-          videoEl.srcObject = streamToShow;
-          videoEl.setAttribute('playsinline', 'true');
-          videoEl.setAttribute('autoplay', 'true');
-          videoEl.muted = false;
+        // ✅ FIX AUDIO: Logs de audio tracks
+        streamToShow.getAudioTracks().forEach((track, idx) => {
+          console.log(`🎵 [STUDENT-USEEFFECT-AUDIO] Audio track ${idx}:`, {
+            id: track.id,
+            label: track.label,
+            enabled: track.enabled,
+            muted: track.muted,
+            readyState: track.readyState
+          });
+        });
 
-          videoEl.play()
-            .then(() => {
-              console.log('✅ [STUDENT-USEEFFECT] Video reproduciéndose correctamente');
-              setNeedsUserInteraction(false);
-            })
-            .catch(err => {
-              console.warn('⚠️ [STUDENT-USEEFFECT] Error al reproducir video:', err);
-              setNeedsUserInteraction(true);
-            });
-        } else {
-          console.log('⏭️ [STUDENT-USEEFFECT] Stream ya asignado, no es necesario reasignar');
-        }
+        // ✅ SIEMPRE reasignar para asegurar que el audio se reproduce
+        videoEl.srcObject = streamToShow;
+        videoEl.setAttribute('playsinline', 'true');
+        videoEl.setAttribute('autoplay', 'true');
+        videoEl.muted = false; // ✅ CRITICAL: false para escuchar audio
+
+        console.log(`🔊 [STUDENT-USEEFFECT-AUDIO] Video element muted: ${videoEl.muted}`);
+
+        videoEl.play()
+          .then(() => {
+            console.log('✅ [STUDENT-USEEFFECT] Video/Audio reproduciéndose correctamente');
+            console.log(`🔊 [STUDENT-USEEFFECT-AUDIO] Video volume: ${videoEl.volume}`);
+            setNeedsUserInteraction(false);
+          })
+          .catch(err => {
+            console.warn('⚠️ [STUDENT-USEEFFECT] Error al reproducir video/audio:', err);
+            setNeedsUserInteraction(true);
+          });
       }
     }
-  }, [isMinimized, teacherScreenStream, hasStream]);
+  }, [isMinimized, teacherScreenStream, hasStream, teacherStreamVersion]);
 
   // ✅ JOIN PREFERENCES: Modal and settings for joining with camera/mic
   const [showJoinPreferencesModal, setShowJoinPreferencesModal] = useState(false);
@@ -640,17 +654,27 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
       // ✅ CRITICAL FIX: Si tengo stream activo Y hay estudiantes con los que NO tengo conexión, enviar offer dirigido
       // Esto maneja el caso donde me uno DESPUÉS de que otros estudiantes ya activaron su cámara
+      console.log(`📋 [STUDENT-P2P-VIEWERS] Mi stream: ${!!myStreamRef.current}, estudiantes: ${viewers.length}`);
       if (myStreamRef.current) {
         const myTracks = myStreamRef.current.getTracks();
         const hasActiveTracks = myTracks.some(track => track.enabled && track.readyState === 'live');
 
+        console.log(`📋 [STUDENT-P2P-VIEWERS] Tracks activos: ${hasActiveTracks}, tracks: ${myTracks.map(t => `${t.kind}:${t.enabled}`).join(', ')}`);
+
         if (hasActiveTracks) {
+          console.log(`📋 [STUDENT-P2P-VIEWERS] Revisando ${viewers.length} estudiantes para crear conexiones...`);
           for (const viewer of viewers) {
             // No enviar offer a mí mismo
-            if (viewer.id === socketRef.current?.id) continue;
+            if (viewer.id === socketRef.current?.id) {
+              console.log(`⏭️ [STUDENT-P2P-VIEWERS] Saltando ${viewer.name} (soy yo)`);
+              continue;
+            }
 
             // Si ya tengo conexión P2P con este estudiante, skip
-            if (peerStudentsRef.current.has(viewer.id)) continue;
+            if (peerStudentsRef.current.has(viewer.id)) {
+              console.log(`⏭️ [STUDENT-P2P-VIEWERS] Ya tengo conexión con ${viewer.name} (${viewer.id})`);
+              continue;
+            }
 
             console.log(`🆕 [STUDENT-P2P-INIT] Detectado estudiante sin conexión: ${viewer.name} (${viewer.id}), creando oferta dirigida...`);
 
@@ -947,7 +971,8 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
     // ✅ STUDENT P2P: Recibir offer de otro estudiante
     socket.on('peer-student-offer', async ({ fromViewerId, offer, viewerInfo }) => {
-      console.log(`📥 [STUDENT-P2P] Offer recibido de estudiante ${fromViewerId}:`, viewerInfo?.name);
+      console.log(`📥 [STUDENT-P2P-OFFER] Offer recibido de estudiante ${fromViewerId}:`, viewerInfo?.name);
+      console.log(`📥 [STUDENT-P2P-OFFER] Offer SDP contains ${(offer.sdp.match(/m=video/g) || []).length} video, ${(offer.sdp.match(/m=audio/g) || []).length} audio`);
 
       try {
         let pc = peerStudentsRef.current.get(fromViewerId);
@@ -996,11 +1021,15 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         });
 
         // ✅ Si tengo mi propio stream, agregarlo a la conexión P2P
-        if (myStream) {
-          myStream.getTracks().forEach(track => {
-            pc.addTrack(track, myStream);
-            console.log(`➕ [STUDENT-P2P] Mi track agregado (${track.kind}) para responder a ${fromViewerId}`);
+        if (myStreamRef.current) {
+          const myTracks = myStreamRef.current.getTracks();
+          console.log(`➕ [STUDENT-P2P-OFFER] Agregando mis ${myTracks.length} tracks a la conexión con ${fromViewerId}`);
+          myTracks.forEach(track => {
+            pc.addTrack(track, myStreamRef.current);
+            console.log(`➕ [STUDENT-P2P-OFFER] Mi track agregado: ${track.kind}, enabled: ${track.enabled}, readyState: ${track.readyState}`);
           });
+        } else {
+          console.log(`ℹ️ [STUDENT-P2P-OFFER] No tengo stream propio para agregar a la conexión`);
         }
 
         // Manejar stream remoto
@@ -1975,6 +2004,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                 teacherStreamRef.current = cameraStream;
                 setTeacherScreenStream(screenStream);
                 setIsTeacherScreenSharing(true);
+                setTeacherStreamVersion(v => v + 1); // ✅ FIX: Forzar re-render para reproducir audio
 
                 console.log('✅ [STUDENT-DUAL] Streams separados exitosamente');
                 console.log('📺 [STUDENT-DUAL] El useEffect asignará la pantalla compartida al videoRef automáticamente');
@@ -2012,6 +2042,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
                   teacherStreamRef.current = stream;
                   setIsTeacherScreenSharing(false);
+                  setTeacherStreamVersion(v => v + 1); // ✅ FIX: Forzar re-render para reproducir audio
                 }
 
                 console.log('📺 [STUDENT-DUAL] El useEffect asignará el stream al videoRef automáticamente');
@@ -2021,6 +2052,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                 teacherStreamRef.current = stream;
                 setTeacherScreenStream(null);
                 setIsTeacherScreenSharing(false);
+                setTeacherStreamVersion(v => v + 1); // ✅ FIX: Forzar re-render para reproducir audio
                 console.log('📺 [STUDENT-DUAL] El useEffect asignará el stream de audio al videoRef automáticamente');
               }
 
