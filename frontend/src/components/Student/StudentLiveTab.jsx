@@ -674,10 +674,23 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
               // Manejar stream remoto
               pc.ontrack = (event) => {
                 console.log(`📺 [STUDENT-P2P-INIT] Stream recibido de ${viewer.id}:`, event.streams[0]);
+                console.log(`🎵 [STUDENT-P2P-INIT] Tracks en stream: video=${event.streams[0].getVideoTracks().length}, audio=${event.streams[0].getAudioTracks().length}`);
+
                 if (event.streams[0]) {
                   const stream = event.streams[0];
                   const videoTracks = stream.getVideoTracks();
                   const audioTracks = stream.getAudioTracks();
+
+                  // ✅ FIX AUDIO: Log audio tracks para debugging
+                  audioTracks.forEach((track, idx) => {
+                    console.log(`🎵 [STUDENT-P2P-INIT] Audio track ${idx}:`, {
+                      id: track.id,
+                      label: track.label,
+                      enabled: track.enabled,
+                      muted: track.muted,
+                      readyState: track.readyState
+                    });
+                  });
 
                   // ✅ DUAL STREAM: Detectar si es transmisión dual (cámara + pantalla)
                   if (videoTracks.length >= 2) {
@@ -756,6 +769,38 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                     candidate: event.candidate
                   });
                 }
+              };
+
+              // ✅ FIX ANTI-FREEZE: Manejar estados de conexión ICE
+              pc.oniceconnectionstatechange = () => {
+                console.log(`🔌 [STUDENT-P2P-ICE] Estado ICE con ${viewer.id}: ${pc.iceConnectionState}`);
+
+                if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+                  console.warn(`⚠️ [STUDENT-P2P-ICE] Conexión ${pc.iceConnectionState} con ${viewer.id}`);
+
+                  // ✅ NO cerrar ni limpiar inmediatamente - dar tiempo para reconexión
+                  // Solo limpiar streams de UI para evitar freeze visual
+                  if (pc.iceConnectionState === 'failed') {
+                    console.log(`🧹 [STUDENT-P2P-ICE] Limpiando streams de ${viewer.id} por fallo de conexión`);
+                    setPeerStudentStreams(prev => {
+                      const newStreams = { ...prev };
+                      delete newStreams[viewer.id];
+                      return newStreams;
+                    });
+                    setPeerStudentScreenStreams(prev => {
+                      const newStreams = { ...prev };
+                      delete newStreams[viewer.id];
+                      return newStreams;
+                    });
+                  }
+                } else if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+                  console.log(`✅ [STUDENT-P2P-ICE] Conexión establecida con ${viewer.id}`);
+                }
+              };
+
+              // ✅ FIX: Manejar estado de conexión general
+              pc.onconnectionstatechange = () => {
+                console.log(`🔗 [STUDENT-P2P-CONN] Estado de conexión con ${viewer.id}: ${pc.connectionState}`);
               };
 
               // Guardar peer connection
@@ -969,6 +1014,17 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
             console.log(`📺 [STUDENT-P2P-DUAL] Stream de estudiante ${fromViewerId}: ${videoTracks.length} video tracks, ${audioTracks.length} audio tracks`);
 
+            // ✅ FIX AUDIO: Log audio tracks para debugging
+            audioTracks.forEach((track, idx) => {
+              console.log(`🎵 [STUDENT-P2P-DUAL] Audio track ${idx} de ${fromViewerId}:`, {
+                id: track.id,
+                label: track.label,
+                enabled: track.enabled,
+                muted: track.muted,
+                readyState: track.readyState
+              });
+            });
+
             // ✅ DUAL STREAM: Detectar si es transmisión dual (cámara + pantalla)
             if (videoTracks.length >= 2) {
               console.log('🎥 [STUDENT-P2P-DUAL] Transmisión dual detectada');
@@ -1048,6 +1104,37 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
               candidate: event.candidate
             });
           }
+        };
+
+        // ✅ FIX ANTI-FREEZE: Manejar estados de conexión ICE
+        pc.oniceconnectionstatechange = () => {
+          console.log(`🔌 [STUDENT-P2P-ICE-RECV] Estado ICE con ${fromViewerId}: ${pc.iceConnectionState}`);
+
+          if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+            console.warn(`⚠️ [STUDENT-P2P-ICE-RECV] Conexión ${pc.iceConnectionState} con ${fromViewerId}`);
+
+            // Solo limpiar streams de UI para evitar freeze visual
+            if (pc.iceConnectionState === 'failed') {
+              console.log(`🧹 [STUDENT-P2P-ICE-RECV] Limpiando streams de ${fromViewerId} por fallo de conexión`);
+              setPeerStudentStreams(prev => {
+                const newStreams = { ...prev };
+                delete newStreams[fromViewerId];
+                return newStreams;
+              });
+              setPeerStudentScreenStreams(prev => {
+                const newStreams = { ...prev };
+                delete newStreams[fromViewerId];
+                return newStreams;
+              });
+            }
+          } else if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+            console.log(`✅ [STUDENT-P2P-ICE-RECV] Conexión establecida con ${fromViewerId}`);
+          }
+        };
+
+        // ✅ FIX: Manejar estado de conexión general
+        pc.onconnectionstatechange = () => {
+          console.log(`🔗 [STUDENT-P2P-CONN-RECV] Estado de conexión con ${fromViewerId}: ${pc.connectionState}`);
         };
 
         // Guardar peer connection
@@ -2756,15 +2843,20 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           }
 
           // ✅ También agregar audio a conexiones P2P con otros estudiantes
+          console.log(`🎤 [STUDENT-P2P-AUDIO] Distribuyendo audio a ${peerStudentsRef.current.size} estudiantes conectados`);
           peerStudentsRef.current.forEach(async (pc, viewerId) => {
+            console.log(`🎤 [STUDENT-P2P-AUDIO] Procesando estudiante ${viewerId}, estado: ${pc.connectionState}`);
             if (pc.connectionState !== 'closed') {
-              const sender = pc.getSenders().find(s => s.track === null || s.track?.kind === 'audio');
+              const senders = pc.getSenders();
+              console.log(`🎤 [STUDENT-P2P-AUDIO] Senders actuales para ${viewerId}:`, senders.map(s => `${s.track?.kind || 'null'}`));
+
+              const sender = senders.find(s => s.track === null || s.track?.kind === 'audio');
               let needsRenegotiation = false;
 
               if (sender) {
                 try {
                   await sender.replaceTrack(newAudioTrack);
-                  console.log(`🎤 [STUDENT-P2P] Audio track agregado a estudiante ${viewerId}`);
+                  console.log(`🎤 [STUDENT-P2P-AUDIO] Audio track REEMPLAZADO para estudiante ${viewerId}`);
                   needsRenegotiation = true;
                 } catch (err) {
                   console.warn(`Could not replace track for student ${viewerId}:`, err);
@@ -2772,7 +2864,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
               } else {
                 try {
                   pc.addTrack(newAudioTrack, myStream);
-                  console.log(`🎤 [STUDENT-P2P] Audio track agregado a estudiante ${viewerId} (nuevo sender)`);
+                  console.log(`🎤 [STUDENT-P2P-AUDIO] Audio track AGREGADO como nuevo sender para estudiante ${viewerId}`);
                   needsRenegotiation = true;
                 } catch (err) {
                   console.warn(`Could not add track for student ${viewerId}:`, err);
