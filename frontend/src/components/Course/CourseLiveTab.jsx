@@ -884,9 +884,18 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       let stream;
 
       // Siempre solicitar video para tener el track disponible para dual streaming
+      // ✅ OPTIMIZACIÓN: Limitar resolución para mejorar rendimiento P2P
       stream = await navigator.mediaDevices.getUserMedia({
-        video: true, // Siempre solicitar video
-        audio: startWithAudio
+        video: {
+          width: { ideal: 640, max: 1280 },
+          height: { ideal: 480, max: 720 },
+          frameRate: { ideal: 24, max: 30 }
+        },
+        audio: startWithAudio ? {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } : false
       });
 
       console.log('✅ [TEACHER-DUAL] Stream base obtenido con video (para transmisión dual)');
@@ -1313,8 +1322,13 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         }
 
         // Solo si tenemos el lock, pedimos permiso al navegador
+        // ✅ OPTIMIZACIÓN: Limitar resolución de pantalla compartida para mejor rendimiento P2P
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
+          video: {
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            frameRate: { ideal: 15, max: 30 }
+          },
           audio: false
         });
 

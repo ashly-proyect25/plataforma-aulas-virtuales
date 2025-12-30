@@ -517,6 +517,16 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       if (studentPeerConnectionRef.current) {
         studentPeerConnectionRef.current.close();
       }
+      // ✅ CRÍTICO: Cerrar conexiones P2P con estudiantes (MEMORY LEAK FIX)
+      if (peerStudentsRef.current) {
+        console.log(`🗑️ [NAV-GUARD-CLEANUP] Cerrando ${peerStudentsRef.current.size} conexiones P2P`);
+        peerStudentsRef.current.forEach((pc, viewerId) => {
+          if (pc && pc.close) {
+            pc.close();
+          }
+        });
+        peerStudentsRef.current.clear();
+      }
       if (myStream) {
         myStream.getTracks().forEach(track => track.stop());
       }
@@ -1725,6 +1735,16 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       if (studentPeerConnectionRef.current) {
         studentPeerConnectionRef.current.close();
       }
+      // ✅ CRÍTICO: Cerrar conexiones P2P con estudiantes (MEMORY LEAK FIX)
+      if (peerStudentsRef.current) {
+        console.log(`🗑️ [UNMOUNT-CLEANUP] Cerrando ${peerStudentsRef.current.size} conexiones P2P`);
+        peerStudentsRef.current.forEach((pc, viewerId) => {
+          if (pc && pc.close) {
+            pc.close();
+          }
+        });
+        peerStudentsRef.current.clear();
+      }
     };
   }, []);
 
@@ -2254,9 +2274,18 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         console.log('🎥 [STUDENT-JOIN] Solicitando permisos de cámara/micrófono...');
 
         // Siempre solicitar video para tener el track disponible para dual streaming
+        // ✅ OPTIMIZACIÓN: Limitar resolución para mejorar rendimiento P2P
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: true, // Siempre solicitar video
-          audio: joinWithAudio
+          video: {
+            width: { ideal: 640, max: 1280 },
+            height: { ideal: 480, max: 720 },
+            frameRate: { ideal: 24, max: 30 }
+          },
+          audio: joinWithAudio ? {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          } : false
         });
         console.log('✅ [STUDENT-JOIN] Stream obtenido con video (para dual stream)');
 
@@ -2406,6 +2435,36 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       studentPeerConnectionRef.current = null;
     }
 
+    // ✅ CRÍTICO: Cerrar todas las conexiones P2P con otros estudiantes (MEMORY LEAK FIX)
+    if (peerStudentsRef.current && peerStudentsRef.current.size > 0) {
+      console.log(`🗑️ [CLEANUP] Cerrando ${peerStudentsRef.current.size} conexiones P2P con estudiantes`);
+      peerStudentsRef.current.forEach((pc, viewerId) => {
+        if (pc && pc.close) {
+          console.log(`🛑 [CLEANUP] Cerrando peer connection con estudiante ${viewerId}`);
+          pc.close();
+        }
+      });
+      peerStudentsRef.current.clear();
+    }
+
+    // ✅ CRÍTICO: Detener todos los streams de otros estudiantes
+    Object.values(peerStudentStreams).forEach(stream => {
+      if (stream && stream.getTracks) {
+        console.log(`🛑 [CLEANUP] Deteniendo tracks de stream P2P`);
+        stream.getTracks().forEach(track => track.stop());
+      }
+    });
+    setPeerStudentStreams({});
+
+    // ✅ CRÍTICO: Detener todos los screen streams de otros estudiantes
+    Object.values(peerStudentScreenStreams).forEach(stream => {
+      if (stream && stream.getTracks) {
+        console.log(`🛑 [CLEANUP] Deteniendo tracks de screen share P2P`);
+        stream.getTracks().forEach(track => track.stop());
+      }
+    });
+    setPeerStudentScreenStreams({});
+
     socketRef.current.emit('leave-viewer', { courseId: course.id });
     setIsJoined(false);
     setHasStream(false);
@@ -2477,9 +2536,18 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
         if (cameraTrack && cameraTrack.readyState === 'ended') {
           // El track fue detenido completamente, necesitamos crear uno nuevo
+          // ✅ OPTIMIZACIÓN: Limitar resolución para mejorar rendimiento P2P
           const newStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: !isMuted
+            video: {
+              width: { ideal: 640, max: 1280 },
+              height: { ideal: 480, max: 720 },
+              frameRate: { ideal: 24, max: 30 }
+            },
+            audio: !isMuted ? {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            } : false
           });
           const newVideoTrack = newStream.getVideoTracks()[0];
           console.log('📹 [STUDENT-DUAL] Nueva cámara obtenida (track anterior terminado)');
@@ -2523,8 +2591,13 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         } else {
           // No hay stream existente, crear uno nuevo
           console.log('📹 [STUDENT-DUAL] Creando nuevo stream de cámara');
+          // ✅ OPTIMIZACIÓN: Limitar resolución para mejorar rendimiento P2P
           const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
+            video: {
+              width: { ideal: 640, max: 1280 },
+              height: { ideal: 480, max: 720 },
+              frameRate: { ideal: 24, max: 30 }
+            },
             audio: !isMuted
           });
 
@@ -3126,8 +3199,13 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       }
 
       // Solo si tenemos el lock, pedimos permiso al navegador
+      // ✅ OPTIMIZACIÓN: Limitar resolución de pantalla compartida para mejor rendimiento P2P
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
+        video: {
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 15, max: 30 }
+        },
         audio: false
       });
 
