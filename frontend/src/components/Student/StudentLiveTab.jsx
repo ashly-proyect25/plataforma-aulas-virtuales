@@ -102,7 +102,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   // Estados de paginación para panel de participantes (móvil)
   const [currentPage, setCurrentPage] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const ITEMS_PER_PAGE_MOBILE = 2; // Mostrar 2 participantes por página en móvil
+  const ITEMS_PER_PAGE_MOBILE = 1; // Mostrar 1 participante por página en móvil
 
   // Detectar cambios de tamaño de pantalla
   useEffect(() => {
@@ -117,11 +117,20 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   useEffect(() => {
     if (showStreamModal && !isMinimized) {
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
     } else {
       document.body.style.overflow = 'unset';
+      document.body.style.position = 'unset';
+      document.body.style.width = 'auto';
+      document.body.style.height = 'auto';
     }
     return () => {
       document.body.style.overflow = 'unset';
+      document.body.style.position = 'unset';
+      document.body.style.width = 'auto';
+      document.body.style.height = 'auto';
     };
   }, [showStreamModal, isMinimized]);
 
@@ -2999,28 +3008,24 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
             }
 
             // ✅ También remover audio de conexiones P2P con otros estudiantes
-            peerStudentsRef.current.forEach(async (pc, viewerId) => {
-              if (pc.connectionState !== 'closed') {
+            const peerEntries = Array.from(peerStudentsRef.current.entries());
+            for (const [viewerId, pc] of peerEntries) {
+              if (pc.connectionState !== 'closed' && pc.connectionState !== 'failed') {
                 const sender = pc.getSenders().find(s => s.track?.kind === 'audio');
                 if (sender) {
                   try {
                     await sender.replaceTrack(null);
                     console.log(`🔇 [STUDENT-P2P] Audio track removido de estudiante ${viewerId}`);
 
-                    // ✅ CRITICAL FIX: Renegociar después de remover audio
-                    const offer = await pc.createOffer();
-                    await pc.setLocalDescription(offer);
-                    socketRef.current.emit('student-offer', {
-                      offer,
-                      targetViewerId: viewerId
-                    });
-                    console.log(`📤 [STUDENT-P2P] Offer de renegociación enviado a ${viewerId} (audio desactivado)`);
+                    // ✅ CRITICAL FIX: NO renegociar al remover - replaceTrack(null) es suficiente
+                    // Solo necesitamos renegociar si AGREGAMOS tracks nuevos
+                    console.log(`✅ [STUDENT-P2P] Audio removido sin renegociación para ${viewerId}`);
                   } catch (err) {
                     console.warn(`Could not remove track for student ${viewerId}:`, err);
                   }
                 }
               }
-            });
+            }
 
             // Remove from stream
             myStream.removeTrack(audioTrack);
@@ -3107,24 +3112,40 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
           // ✅ También agregar audio a conexiones P2P con otros estudiantes
           console.log(`🎤 [STUDENT-P2P-AUDIO] Distribuyendo audio a ${peerStudentsRef.current.size} estudiantes conectados`);
-          peerStudentsRef.current.forEach(async (pc, viewerId) => {
+
+          // ✅ CRITICAL FIX: Procesar conexiones P2P de forma secuencial para evitar race conditions
+          const peerEntries = Array.from(peerStudentsRef.current.entries());
+          for (const [viewerId, pc] of peerEntries) {
             console.log(`🎤 [STUDENT-P2P-AUDIO] Procesando estudiante ${viewerId}, estado: ${pc.connectionState}`);
-            if (pc.connectionState !== 'closed') {
+            if (pc.connectionState !== 'closed' && pc.connectionState !== 'failed') {
               const senders = pc.getSenders();
               console.log(`🎤 [STUDENT-P2P-AUDIO] Senders actuales para ${viewerId}:`, senders.map(s => `${s.track?.kind || 'null'}`));
 
-              const sender = senders.find(s => s.track === null || s.track?.kind === 'audio');
+              const audioSender = senders.find(s => s.track?.kind === 'audio');
+              const nullSender = senders.find(s => s.track === null);
+
               let needsRenegotiation = false;
 
-              if (sender) {
+              if (audioSender) {
+                // Ya existe un sender de audio, reemplazar el track
                 try {
-                  await sender.replaceTrack(newAudioTrack);
+                  await audioSender.replaceTrack(newAudioTrack);
                   console.log(`🎤 [STUDENT-P2P-AUDIO] Audio track REEMPLAZADO para estudiante ${viewerId}`);
-                  needsRenegotiation = true;
+                  needsRenegotiation = false; // replaceTrack no requiere renegociación
                 } catch (err) {
                   console.warn(`Could not replace track for student ${viewerId}:`, err);
                 }
+              } else if (nullSender) {
+                // Existe un sender vacío, reemplazar con audio
+                try {
+                  await nullSender.replaceTrack(newAudioTrack);
+                  console.log(`🎤 [STUDENT-P2P-AUDIO] Audio track REEMPLAZADO (sender vacío) para estudiante ${viewerId}`);
+                  needsRenegotiation = false;
+                } catch (err) {
+                  console.warn(`Could not replace null track for student ${viewerId}:`, err);
+                }
               } else {
+                // No existe sender de audio, agregar uno nuevo
                 try {
                   pc.addTrack(newAudioTrack, myStream);
                   console.log(`🎤 [STUDENT-P2P-AUDIO] Audio track AGREGADO como nuevo sender para estudiante ${viewerId}`);
@@ -3134,22 +3155,33 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                 }
               }
 
-              // ✅ CRITICAL FIX: Renegociar después de agregar audio
+              // ✅ CRITICAL FIX: Renegociar SOLO si agregamos un nuevo track
               if (needsRenegotiation) {
                 try {
-                  const offer = await pc.createOffer();
-                  await pc.setLocalDescription(offer);
-                  socketRef.current.emit('student-offer', {
-                    offer,
-                    targetViewerId: viewerId
-                  });
-                  console.log(`📤 [STUDENT-P2P] Offer de renegociación enviado a ${viewerId} (audio activado)`);
+                  console.log(`🔄 [STUDENT-P2P-AUDIO] Esperando a que signaling esté en estado stable para ${viewerId}...`);
+                  // Esperar a que el signaling esté en estado stable
+                  if (pc.signalingState !== 'stable') {
+                    console.warn(`⚠️ [STUDENT-P2P-AUDIO] Signaling state no es stable (${pc.signalingState}), esperando...`);
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                  }
+
+                  if (pc.signalingState === 'stable') {
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    socketRef.current.emit('student-offer', {
+                      offer,
+                      targetViewerId: viewerId
+                    });
+                    console.log(`📤 [STUDENT-P2P] Offer de renegociación enviado a ${viewerId} (audio activado)`);
+                  } else {
+                    console.warn(`⚠️ [STUDENT-P2P-AUDIO] No se pudo renegociar con ${viewerId}, signaling state: ${pc.signalingState}`);
+                  }
                 } catch (err) {
                   console.warn(`Could not renegotiate with student ${viewerId}:`, err);
                 }
               }
             }
-          });
+          }
         }
 
         setIsMuted(false);
@@ -4102,28 +4134,33 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                       />
                     </div>
 
-                    {/* Panel de participantes - Ancho responsive con scroll */}
+                    {/* Panel de participantes - Diseño con paginación en móvil, scroll en desktop */}
                     <div className="flex flex-col gap-2 w-full md:w-auto" style={{
                       width: isMobile ? '100%' : (isFullscreen ? '320px' : '280px'),
                       minWidth: isMobile ? '100%' : (isFullscreen ? '320px' : '280px'),
-                      height: isMobile ? '400px' : 'auto',
-                      maxHeight: isMobile ? '400px' : 'auto'
+                      height: isMobile ? 'auto' : 'auto',
+                      maxHeight: isMobile ? 'none' : 'auto'
                     }}>
-                      {/* Contenedor SOLO para los recuadros de participantes */}
-                      <div className="flex flex-col gap-2 overflow-x-hidden pr-1" style={{
-                        flex: 1,
+                      {/* Contenedor SOLO para los recuadros de participantes - SIN SCROLL en móvil, CON SCROLL en desktop */}
+                      <div className={`flex gap-2 flex-col ${isMobile ? 'overflow-hidden' : 'overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800'}`} style={{
+                        flex: isMobile ? 'none' : 1,
                         overflowY: isMobile ? 'hidden' : 'auto',
                         maxHeight: isMobile ? 'none' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
-                        WebkitOverflowScrolling: 'touch' // ✅ iOS FIX: Smooth scroll en iOS
-                      }}
-                      className={!isMobile ? 'scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800' : ''}>
+                        WebkitOverflowScrolling: isMobile ? 'auto' : 'touch', // ✅ iOS FIX
+                        touchAction: isMobile ? 'pan-y pinch-zoom' : 'auto' // ✅ iOS FIX: Permitir solo scroll vertical en móvil
+                      }}>
                         {/* Todos los recuadros de participantes van aquí */}
 
                       {/* ✅ DUAL STREAM: Cuando hay pantalla compartida Y NO está pinneada, mostrar CÁMARA en panel lateral */}
                       {teacherScreenStream && !pinnedParticipant && teacherStreamRef.current && (
                         <div
                           className="bg-gray-800 rounded-lg overflow-hidden relative group cursor-pointer border-2 border-cyan-500"
-                          style={{ height: isFullscreen ? '180px' : '157px', minHeight: isFullscreen ? '180px' : '157px', width: '100%' }}
+                          style={{
+                            height: isFullscreen ? '180px' : '157px',
+                            minHeight: isFullscreen ? '180px' : '157px',
+                            width: '100%',
+                            flexShrink: 0
+                          }}
                           onDoubleClick={() => {
                             console.log('🖱️ [STUDENT-DUAL] Doble clic en cámara del docente - mostrando cámara en principal');
                             handleSwapVideo('teacher-camera');

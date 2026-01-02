@@ -2632,13 +2632,12 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             maxHeight: isMobile ? '400px' : 'auto'
           }}>
             {/* Contenedor SOLO para los recuadros de participantes */}
-            <div className="flex flex-col gap-2 overflow-x-hidden pr-1" style={{
+            <div className={`flex flex-col gap-2 overflow-x-hidden pr-1 ${!isMobile ? 'scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800' : ''}`} style={{
               flex: 1,
               overflowY: isMobile ? 'hidden' : 'auto',
               maxHeight: isMobile ? 'none' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
               WebkitOverflowScrolling: 'touch' // ✅ iOS FIX: Smooth scroll en iOS
-            }}
-            className={!isMobile ? 'scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800' : ''}>
+            }}>
               {/* Todos los recuadros de participantes van aquí */}
             {/* ✅ CUANDO UN ESTUDIANTE ESTÁ PINNEADO (compartiendo pantalla): Mostrar cámara del docente Y cámara del estudiante */}
             {pinnedParticipant && studentSharingScreen[pinnedParticipant] && (
