@@ -3693,10 +3693,8 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           }
           style={isMinimized ? {
             left: `${minimizedPosition.x}px`,
-            top: `${minimizedPosition.y}px`,
-            cursor: isDragging ? 'grabbing' : 'grab'
+            top: `${minimizedPosition.y}px`
           } : {}}
-          onMouseDown={handleMouseDown}
         >
           <div className={
             isMinimized
@@ -3705,7 +3703,11 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           } ref={containerRef}>
             {/* Header del modal */}
             {(
-            <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-3 flex items-center justify-between flex-shrink-0">
+            <div
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-3 flex items-center justify-between flex-shrink-0"
+              onMouseDown={handleMouseDown}
+              style={isMinimized ? { cursor: isDragging ? 'grabbing' : 'grab' } : {}}
+            >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                 <span className="font-bold text-sm">{isMinimized ? course.code.substring(0, 10) : `CLASE EN VIVO - ${course.code}`}</span>
@@ -4597,40 +4599,40 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                   </div>
 
                   {/* Controles */}
-                  <div className="bg-gray-800 p-3 flex items-center justify-between">
-                    {/* Indicador de participantes (solo visual) */}
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-700 rounded-lg">
-                      <Users size={18} className="text-cyan-400" />
-                      <span className="text-white text-sm font-semibold">{viewers} participantes</span>
+                  <div className="bg-gray-800 p-2 md:p-3 flex items-center justify-between gap-2 flex-wrap md:flex-nowrap">
+                    {/* Indicador de participantes (solo visual) - Oculto en móvil pequeño */}
+                    <div className="hidden sm:flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 bg-gray-700 rounded-lg">
+                      <Users size={16} className="text-cyan-400 md:w-[18px] md:h-[18px]" />
+                      <span className="text-white text-xs md:text-sm font-semibold">{viewers} participantes</span>
                     </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-1 md:gap-2 flex-wrap md:flex-nowrap">
                   {/* Controles de video/audio del estudiante */}
                   <button
                     onClick={toggleMute}
                     disabled={isForceMuted && isMuted}
-                    className={`p-3 rounded-lg transition ${
+                    className={`p-2 md:p-3 rounded-lg transition ${
                       isMuted ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-700 hover:bg-gray-600'
                     } text-white ${isForceMuted && isMuted ? 'opacity-50 cursor-not-allowed' : ''}`}
                     title={isForceMuted && isMuted ? 'El docente te ha silenciado' : (isMuted ? 'Activar micrófono' : 'Silenciar')}
                   >
-                    {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+                    {isMuted ? <MicOff className="w-4 h-4 md:w-5 md:h-5" /> : <Mic className="w-4 h-4 md:w-5 md:h-5" />}
                   </button>
 
                   <button
                     onClick={toggleCamera}
-                    className={`p-3 rounded-lg transition ${
+                    className={`p-2 md:p-3 rounded-lg transition ${
                       !isCameraEnabled ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-700 hover:bg-gray-600'
                     } text-white`}
                     title={isCameraEnabled ? 'Desactivar cámara' : 'Activar cámara'}
                   >
-                    {isCameraEnabled ? <Video size={20} /> : <VideoOff size={20} />}
+                    {isCameraEnabled ? <Video className="w-4 h-4 md:w-5 md:h-5" /> : <VideoOff className="w-4 h-4 md:w-5 md:h-5" />}
                   </button>
 
                   <button
                     onClick={isScreenSharing ? stopScreenShare : requestScreenShare}
                     disabled={screenSharePending || isScreenShareBlocked}
-                    className={`p-3 rounded-lg transition ${
+                    className={`p-2 md:p-3 rounded-lg transition ${
                       isScreenSharing ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
                     } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
                     title={
@@ -4642,37 +4644,37 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                     }
                   >
                     {screenSharePending ? (
-                      <Loader size={20} className="animate-spin" />
+                      <Loader className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
                     ) : isScreenSharing ? (
-                      <MonitorOff size={20} />
+                      <MonitorOff className="w-4 h-4 md:w-5 md:h-5" />
                     ) : (
-                      <Monitor size={20} />
+                      <Monitor className="w-4 h-4 md:w-5 md:h-5" />
                     )}
                   </button>
 
-                  <div className="h-10 w-px bg-gray-600 mx-1"></div>
+                  <div className="hidden md:block h-10 w-px bg-gray-600 mx-1"></div>
 
                   {/* Controles de Pizarra */}
                   <button
                     onClick={() => setShowWhiteboard(!showWhiteboard)}
-                    className={`p-3 rounded-lg transition ${
+                    className={`p-2 md:p-3 rounded-lg transition ${
                       showWhiteboard ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-700 hover:bg-gray-600'
                     } text-white`}
                     title="Activar/Desactivar Pizarra"
                   >
-                    <Paintbrush size={20} />
+                    <Paintbrush className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
 
                   {showWhiteboard && (
                     <>
                       <button
                         onClick={() => setDrawTool('pen')}
-                        className={`p-3 rounded-lg transition-all ${
+                        className={`p-2 md:p-3 rounded-lg transition-all ${
                           drawTool === 'pen' ? 'bg-blue-500 ring-2 ring-blue-300' : 'bg-gray-700 hover:bg-gray-600'
                         } text-white`}
                         title="Lápiz"
                       >
-                        <Paintbrush size={20} />
+                        <Paintbrush className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
 
                       <input
@@ -4682,26 +4684,26 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                           setDrawColor(e.target.value);
                           setDrawTool('pen');
                         }}
-                        className="w-10 h-10 rounded cursor-pointer"
+                        className="w-8 h-8 md:w-10 md:h-10 rounded cursor-pointer"
                         title="Seleccionar color"
                       />
 
                       <button
                         onClick={() => setDrawTool('eraser')}
-                        className={`p-3 rounded-lg transition-all ${
+                        className={`p-2 md:p-3 rounded-lg transition-all ${
                           drawTool === 'eraser' ? 'bg-yellow-500 ring-2 ring-yellow-300' : 'bg-gray-700 hover:bg-gray-600'
                         } text-white`}
                         title="Borrador"
                       >
-                        <Eraser size={20} />
+                        <Eraser className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
 
                       <button
                         onClick={clearWhiteboard}
-                        className="p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+                        className="p-2 md:p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
                         title="Limpiar pizarra"
                       >
-                        <Trash2 size={20} />
+                        <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                     </>
                   )}

@@ -2354,10 +2354,8 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           }
           style={isMinimized ? {
             left: `${minimizedPosition.x}px`,
-            top: `${minimizedPosition.y}px`,
-            cursor: isDragging ? 'grabbing' : 'grab'
+            top: `${minimizedPosition.y}px`
           } : {}}
-          onMouseDown={handleMouseDown}
         >
           <div className={
             isMinimized
@@ -2366,7 +2364,11 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           } ref={containerRef}>
             {/* Header del modal */}
             {(
-            <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white p-3 flex items-center justify-between flex-shrink-0">
+            <div
+              className="bg-gradient-to-r from-red-500 to-pink-600 text-white p-3 flex items-center justify-between flex-shrink-0"
+              onMouseDown={handleMouseDown}
+              style={isMinimized ? { cursor: isDragging ? 'grabbing' : 'grab' } : {}}
+            >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                 <span className="font-bold text-sm">{isMinimized ? course.code.substring(0, 10) : `EN VIVO - ${course.code}`}</span>
@@ -3068,36 +3070,36 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         </div>
 
         {/* Controles */}
-        <div className="bg-gray-800 p-3 flex items-center justify-between">
-          <div className="flex gap-2">
+        <div className="bg-gray-800 p-2 md:p-3 flex items-center justify-between gap-2 flex-wrap md:flex-nowrap">
+          <div className="flex gap-1 md:gap-2 flex-wrap md:flex-nowrap">
             <button
               onClick={toggleMute}
-              className={`p-3 rounded-lg transition ${
+              className={`p-2 md:p-3 rounded-lg transition ${
                 isMuted ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-700 hover:bg-gray-600'
               } text-white`}
               title={isMuted ? 'Activar micrófono' : 'Silenciar'}
             >
-              {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+              {isMuted ? <MicOff className="w-4 h-4 md:w-5 md:h-5" /> : <Mic className="w-4 h-4 md:w-5 md:h-5" />}
             </button>
 
             <button
               onClick={toggleVideo}
-              className={`p-3 rounded-lg transition ${
+              className={`p-2 md:p-3 rounded-lg transition ${
                 !isVideoEnabled ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-700 hover:bg-gray-600'
               } text-white`}
               title={isVideoEnabled ? 'Desactivar cámara' : 'Activar cámara'}
             >
-              {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
+              {isVideoEnabled ? <Video className="w-4 h-4 md:w-5 md:h-5" /> : <VideoOff className="w-4 h-4 md:w-5 md:h-5" />}
             </button>
 
             <button
               onClick={toggleScreenShare}
-              className={`p-3 rounded-lg transition ${
+              className={`p-2 md:p-3 rounded-lg transition ${
                 isScreenSharing ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
               } text-white`}
               title="Compartir pantalla"
             >
-              {isScreenSharing ? <MonitorOff size={20} /> : <Monitor size={20} />}
+              {isScreenSharing ? <MonitorOff className="w-4 h-4 md:w-5 md:h-5" /> : <Monitor className="w-4 h-4 md:w-5 md:h-5" />}
             </button>
 
             <button
@@ -3105,10 +3107,10 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                 socketRef.current.emit('mute-all-students', { courseId: course.id });
                 showToastMessage('Todos los estudiantes han sido silenciados', 'info');
               }}
-              className="p-3 rounded-lg transition bg-orange-500 hover:bg-orange-600 text-white"
+              className="p-2 md:p-3 rounded-lg transition bg-orange-500 hover:bg-orange-600 text-white"
               title="Silenciar a todos los estudiantes"
             >
-              <MicOff size={20} />
+              <MicOff className="w-4 h-4 md:w-5 md:h-5" />
             </button>
 
             <button
@@ -3116,13 +3118,13 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                 socketRef.current.emit('unmute-all-students', { courseId: course.id });
                 showToastMessage('Los estudiantes ahora pueden activar su micrófono', 'success');
               }}
-              className="p-3 rounded-lg transition bg-green-500 hover:bg-green-600 text-white"
+              className="p-2 md:p-3 rounded-lg transition bg-green-500 hover:bg-green-600 text-white"
               title="Permitir que los estudiantes activen su micrófono"
             >
-              <Mic size={20} />
+              <Mic className="w-4 h-4 md:w-5 md:h-5" />
             </button>
 
-            <div className="h-8 w-px bg-gray-600 mx-1"></div>
+            <div className="hidden md:block h-8 w-px bg-gray-600 mx-1"></div>
 
             <button
               onClick={() => {
@@ -3150,28 +3152,28 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               <Monitor size={20} />
             </button>
 
-            <div className="h-8 w-px bg-gray-600 mx-1"></div>
+            <div className="hidden md:block h-8 w-px bg-gray-600 mx-1"></div>
 
             <button
               onClick={() => setShowWhiteboard(!showWhiteboard)}
-              className={`p-3 rounded-lg transition ${
+              className={`p-2 md:p-3 rounded-lg transition ${
                 showWhiteboard ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-700 hover:bg-gray-600'
               } text-white`}
               title="Activar/Desactivar Pizarra"
             >
-              <Paintbrush size={20} />
+              <Paintbrush className="w-4 h-4 md:w-5 md:h-5" />
             </button>
 
             {showWhiteboard && (
               <>
                 <button
                   onClick={() => setDrawTool('pen')}
-                  className={`p-3 rounded-lg transition-all ${
+                  className={`p-2 md:p-3 rounded-lg transition-all ${
                     drawTool === 'pen' ? 'bg-blue-500 ring-2 ring-blue-300' : 'bg-gray-700 hover:bg-gray-600'
                   } text-white`}
                   title="Lápiz"
                 >
-                  <Paintbrush size={20} />
+                  <Paintbrush className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
 
                 <input
@@ -3181,26 +3183,26 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                     setDrawColor(e.target.value);
                     setDrawTool('pen');
                   }}
-                  className="w-10 h-10 rounded cursor-pointer"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded cursor-pointer"
                   title="Seleccionar color"
                 />
 
                 <button
                   onClick={() => setDrawTool('eraser')}
-                  className={`p-3 rounded-lg transition-all ${
+                  className={`p-2 md:p-3 rounded-lg transition-all ${
                     drawTool === 'eraser' ? 'bg-yellow-500 ring-2 ring-yellow-300' : 'bg-gray-700 hover:bg-gray-600'
                   } text-white`}
                   title="Borrador"
                 >
-                  <Eraser size={20} />
+                  <Eraser className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
 
                 <button
                   onClick={clearWhiteboard}
-                  className="p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+                  className="p-2 md:p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
                   title="Limpiar pizarra"
                 >
-                  <Trash2 size={20} />
+                  <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </>
             )}
@@ -3208,36 +3210,37 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             {/* Botón de descarga SIEMPRE visible cuando hay pizarra activa o contenido */}
             <button
               onClick={downloadWhiteboard}
-              className="p-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition"
+              className="p-2 md:p-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition"
               title="Descargar pizarra"
             >
-              <Download size={20} />
+              <Download className="w-4 h-4 md:w-5 md:h-5" />
             </button>
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={() => setShowChat(!showChat)}
-              className={`p-3 rounded-lg transition ${
+              className={`p-2 md:p-3 rounded-lg transition ${
                 showChat ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
               } text-white`}
             >
-              <MessageCircle size={20} />
+              <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
             </button>
 
             <button
               onClick={toggleFullscreen}
-              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition"
+              className="p-2 md:p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition"
             >
-              {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+              {isFullscreen ? <Minimize className="w-4 h-4 md:w-5 md:h-5" /> : <Maximize className="w-4 h-4 md:w-5 md:h-5" />}
             </button>
 
             <button
               onClick={handleStopStreamingClick}
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold flex items-center gap-2"
+              className="px-4 py-2 md:px-6 md:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold flex items-center gap-2"
             >
-              <Square size={20} />
-              Finalizar Clase
+              <Square className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Finalizar Clase</span>
+              <span className="sm:hidden">Finalizar</span>
             </button>
           </div>
         </div>
