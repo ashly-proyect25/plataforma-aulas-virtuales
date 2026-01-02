@@ -97,6 +97,10 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   const handleMouseDown = (e) => {
     if (!isMinimized) return;
     if (e.target.closest('.no-drag')) return; // No arrastrar si se hace clic en botones
+
+    // ✅ iOS FIX: NO capturar eventos touch para evitar conflictos con gestos de navegación de iOS
+    if (e.type.includes('touch')) return;
+
     setIsDragging(true);
     setDragOffset({
       x: e.clientX - minimizedPosition.x,
@@ -768,6 +772,11 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       if (!studentAudioRefs.current[viewerId]) {
         studentAudioRefs.current[viewerId] = new Audio();
         studentAudioRefs.current[viewerId].autoplay = true;
+        // ✅ iOS FIX: Atributos necesarios para Safari/iOS
+        studentAudioRefs.current[viewerId].playsInline = true;
+        studentAudioRefs.current[viewerId].setAttribute('playsinline', 'true');
+        studentAudioRefs.current[viewerId].setAttribute('webkit-playsinline', 'true');
+        studentAudioRefs.current[viewerId].muted = false;
       }
 
       const audioEl = studentAudioRefs.current[viewerId];
@@ -781,6 +790,16 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           })
           .catch(err => {
             console.warn(`⚠️ [TEACHER-AUDIO-FIX] Error reproduciendo audio de estudiante ${viewerId}:`, err);
+
+            // ✅ iOS FIX: Reintentar si es error de autoplay
+            if (err.name === 'NotAllowedError') {
+              console.log(`📱 [TEACHER-AUDIO-FIX-iOS] Autoplay bloqueado para estudiante ${viewerId}, reintentando...`);
+              setTimeout(() => {
+                audioEl.play().catch(e =>
+                  console.warn(`⚠️ [TEACHER-AUDIO-FIX-iOS] Segundo intento falló para estudiante ${viewerId}:`, e)
+                );
+              }, 500);
+            }
           });
       }
     });
@@ -2580,7 +2599,8 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           }}>
             {/* Contenedor con scroll SOLO para los recuadros de participantes */}
             <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{
-              maxHeight: window.innerWidth < 768 ? '250px' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)')
+              maxHeight: window.innerWidth < 768 ? '250px' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
+              WebkitOverflowScrolling: 'touch' // ✅ iOS FIX: Smooth scroll en iOS
             }}>
               {/* Todos los recuadros de participantes van aquí */}
             {/* ✅ CUANDO UN ESTUDIANTE ESTÁ PINNEADO (compartiendo pantalla): Mostrar cámara del docente Y cámara del estudiante */}

@@ -85,6 +85,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   const handleMouseDown = (e) => {
     if (!isMinimized) return;
     if (e.target.closest('.no-drag')) return; // No arrastrar si se hace clic en botones
+
+    // ✅ iOS FIX: NO capturar eventos touch para evitar conflictos con gestos de navegación de iOS
+    if (e.type.includes('touch')) return;
+
     setIsDragging(true);
     setDragOffset({
       x: e.clientX - minimizedPosition.x,
@@ -265,16 +269,37 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
     if (!teacherAudioRef.current) {
       teacherAudioRef.current = new Audio();
       teacherAudioRef.current.autoplay = true;
+      // ✅ iOS FIX: Atributos necesarios para Safari/iOS
+      teacherAudioRef.current.playsInline = true;
+      teacherAudioRef.current.setAttribute('playsinline', 'true');
+      teacherAudioRef.current.setAttribute('webkit-playsinline', 'true');
+      teacherAudioRef.current.muted = false; // Asegurar que no esté muted
     }
 
     teacherAudioRef.current.srcObject = streamToUse;
-    teacherAudioRef.current.play()
-      .then(() => {
-        console.log('✅ [STUDENT-AUDIO-FIX] Audio del docente reproduciéndose correctamente');
-      })
-      .catch(err => {
-        console.warn('⚠️ [STUDENT-AUDIO-FIX] Error reproduciendo audio del docente:', err);
-      });
+
+    // ✅ iOS FIX: Intentar play múltiples veces para iOS
+    const tryPlay = () => {
+      teacherAudioRef.current.play()
+        .then(() => {
+          console.log('✅ [STUDENT-AUDIO-FIX] Audio del docente reproduciéndose correctamente');
+        })
+        .catch(err => {
+          console.warn('⚠️ [STUDENT-AUDIO-FIX] Error reproduciendo audio del docente:', err);
+
+          // ✅ iOS FIX: Si falla, intentar de nuevo en 500ms (para iOS que requiere interacción)
+          if (err.name === 'NotAllowedError') {
+            console.log('📱 [STUDENT-AUDIO-FIX-iOS] Autoplay bloqueado, reintentando...');
+            setTimeout(() => {
+              teacherAudioRef.current.play().catch(e =>
+                console.warn('⚠️ [STUDENT-AUDIO-FIX-iOS] Segundo intento falló:', e)
+              );
+            }, 500);
+          }
+        });
+    };
+
+    tryPlay();
   }, [teacherScreenStream, teacherStreamVersion]);
 
   // ✅ FIX AUDIO P2P: Reproducir audio de peer students en elementos separados
@@ -298,6 +323,11 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       if (!peerAudioRefs.current[viewerId]) {
         peerAudioRefs.current[viewerId] = new Audio();
         peerAudioRefs.current[viewerId].autoplay = true;
+        // ✅ iOS FIX: Atributos necesarios para Safari/iOS
+        peerAudioRefs.current[viewerId].playsInline = true;
+        peerAudioRefs.current[viewerId].setAttribute('playsinline', 'true');
+        peerAudioRefs.current[viewerId].setAttribute('webkit-playsinline', 'true');
+        peerAudioRefs.current[viewerId].muted = false;
       }
 
       const audioEl = peerAudioRefs.current[viewerId];
@@ -311,6 +341,16 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           })
           .catch(err => {
             console.warn(`⚠️ [STUDENT-P2P-AUDIO-FIX] Error reproduciendo audio de peer ${viewerId}:`, err);
+
+            // ✅ iOS FIX: Reintentar si es error de autoplay
+            if (err.name === 'NotAllowedError') {
+              console.log(`📱 [STUDENT-P2P-AUDIO-FIX-iOS] Autoplay bloqueado para peer ${viewerId}, reintentando...`);
+              setTimeout(() => {
+                audioEl.play().catch(e =>
+                  console.warn(`⚠️ [STUDENT-P2P-AUDIO-FIX-iOS] Segundo intento falló para peer ${viewerId}:`, e)
+                );
+              }, 500);
+            }
           });
       }
     });
@@ -1841,8 +1881,11 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   const startDrawing = (e) => {
     if (!showWhiteboard) return;
 
-    // ✅ CRITICAL FIX: Prevenir arrastre de imagen y comportamiento por defecto
-    e.preventDefault();
+    // ✅ iOS FIX: NO prevenir default en eventos touch para permitir scroll
+    // Solo prevenir en eventos mouse
+    if (e.type === 'mousedown') {
+      e.preventDefault();
+    }
     e.stopPropagation();
 
     setIsDrawing(true);
@@ -1887,8 +1930,11 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   const draw = (e) => {
     if (!isDrawing || !showWhiteboard) return;
 
-    // ✅ CRITICAL FIX: Prevenir arrastre de imagen
-    e.preventDefault();
+    // ✅ iOS FIX: NO prevenir default en eventos touch para permitir scroll
+    // Solo prevenir en eventos mouse
+    if (e.type === 'mousemove') {
+      e.preventDefault();
+    }
     e.stopPropagation();
 
     const canvas = canvasRef.current;
@@ -4018,7 +4064,8 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                     }}>
                       {/* Contenedor con scroll SOLO para los recuadros de participantes */}
                       <div className="flex-1 flex flex-col md:flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{
-                        maxHeight: window.innerWidth < 768 ? '250px' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)')
+                        maxHeight: window.innerWidth < 768 ? '250px' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
+                        WebkitOverflowScrolling: 'touch' // ✅ iOS FIX: Smooth scroll en iOS
                       }}>
                         {/* Todos los recuadros de participantes van aquí */}
 
@@ -4725,7 +4772,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ WebkitOverflowScrolling: 'touch' }}>
             {messages.length === 0 ? (
               <div className="text-center text-gray-400 text-sm py-8">
                 <MessageCircle className="mx-auto mb-2 opacity-50" size={32} />
