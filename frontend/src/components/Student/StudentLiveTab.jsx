@@ -3876,19 +3876,49 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                             <Play size={64} className="text-white mb-4" />
                             <p className="text-white text-lg mb-4">El navegador bloqueó la reproducción automática</p>
                             <button
-                              onClick={() => {
+                              onClick={async () => {
+                                console.log('🔘 [STUDENT-IOS-FIX] Usuario presionó reproducir manualmente');
+
+                                // ✅ CRITICAL FIX iOS: Reproducir video principal
                                 if (videoRef.current) {
-                                  videoRef.current.play()
-                                    .then(() => {
-                                      console.log('✅ [STUDENT] Video iniciado manualmente');
-                                      setNeedsUserInteraction(false);
-                                      showToastMessage('Transmisión iniciada', 'success');
-                                    })
-                                    .catch(err => {
-                                      console.error('❌ [STUDENT] Error al reproducir manualmente:', err);
-                                      showToastMessage('No se pudo reproducir el video', 'error');
-                                    });
+                                  try {
+                                    await videoRef.current.play();
+                                    console.log('✅ [STUDENT-IOS-FIX] Video principal reproduciendo');
+                                  } catch (err) {
+                                    console.error('❌ [STUDENT-IOS-FIX] Error al reproducir video:', err);
+                                  }
                                 }
+
+                                // ✅ CRITICAL FIX iOS: Activar elemento de audio del docente
+                                if (teacherAudioRef.current) {
+                                  try {
+                                    await teacherAudioRef.current.play();
+                                    console.log('✅ [STUDENT-IOS-FIX] Audio del docente reproduciendo');
+                                  } catch (err) {
+                                    console.error('❌ [STUDENT-IOS-FIX] Error al reproducir audio docente:', err);
+                                  }
+                                }
+
+                                // ✅ CRITICAL FIX iOS: Activar elementos de audio P2P de estudiantes
+                                const audioPromises = [];
+                                Object.keys(peerAudioRefs.current).forEach(viewerId => {
+                                  const audioEl = peerAudioRefs.current[viewerId];
+                                  if (audioEl) {
+                                    console.log(`🔊 [STUDENT-IOS-FIX] Activando audio P2P de ${viewerId}`);
+                                    audioPromises.push(
+                                      audioEl.play()
+                                        .then(() => console.log(`✅ [STUDENT-IOS-FIX] Audio P2P ${viewerId} activado`))
+                                        .catch(err => console.warn(`⚠️ [STUDENT-IOS-FIX] Error audio P2P ${viewerId}:`, err))
+                                    );
+                                  }
+                                });
+
+                                // Esperar a que todos los audios se activen
+                                await Promise.allSettled(audioPromises);
+
+                                setNeedsUserInteraction(false);
+                                showToastMessage('Transmisión iniciada', 'success');
+                                console.log('✅ [STUDENT-IOS-FIX] Todos los medios activados');
                               }}
                               className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition font-semibold flex items-center gap-2"
                             >
@@ -4760,7 +4790,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                   {/* Controles */}
                   <div className="bg-gray-800 p-2 md:p-3 flex items-center justify-between gap-2 flex-wrap md:flex-nowrap">
                     {/* Indicador de participantes (solo visual) - Oculto en móvil pequeño */}
-                    <div className="hidden sm:flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 bg-gray-700 rounded-lg">
+                    <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-700 rounded-lg">
                       <Users size={16} className="text-cyan-400 md:w-[18px] md:h-[18px]" />
                       <span className="text-white text-xs md:text-sm font-semibold">{viewers} participantes</span>
                     </div>
