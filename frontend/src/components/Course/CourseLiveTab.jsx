@@ -2056,18 +2056,18 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 onClick={() => setShowScheduleModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base"
               >
-                <Calendar size={20} />
-                Programar Clase
+                <Calendar size={18} className="sm:w-5 sm:h-5" />
+                <span>Programar Clase</span>
               </button>
               <button
                 onClick={handleStartStreamingClick}
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg transition font-semibold disabled:opacity-50"
+                className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg transition font-semibold disabled:opacity-50 text-sm sm:text-base"
               >
                 {loading ? (
                   <>

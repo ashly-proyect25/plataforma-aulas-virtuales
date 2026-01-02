@@ -4366,9 +4366,35 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                         </div>
                       )}
 
-                      {/* MIS FRAMES - Mostrar cuando NO estoy pinneado (aparecer en panel siempre excepto cuando YO estoy en principal) */}
-                      {pinnedParticipant !== 'me' && (
-                        <>
+                      {/* ✅ PANEL DE PARTICIPANTES COMBINADO - Incluye "Tú" y otros estudiantes con paginación en móvil */}
+                      {(() => {
+                        // Crear array de participantes para paginación
+                        const allParticipants = [];
+
+                        // Agregar "Tú" si no estás pinneado
+                        if (pinnedParticipant !== 'me') {
+                          allParticipants.push({ type: 'me', id: 'me' });
+                        }
+
+                        // Agregar otros estudiantes
+                        const filteredViewers = viewersList.filter(viewer => viewer.id !== socketRef.current?.id);
+                        filteredViewers.forEach(viewer => {
+                          allParticipants.push({ type: 'peer', data: viewer });
+                        });
+
+                        // En móvil, aplicar paginación al array completo
+                        const participantsToShow = isMobile
+                          ? allParticipants.slice(
+                              currentPage * ITEMS_PER_PAGE_MOBILE,
+                              (currentPage + 1) * ITEMS_PER_PAGE_MOBILE
+                            )
+                          : allParticipants;
+
+                        return participantsToShow.map((participant, index) => {
+                          // Renderizar "Tú"
+                          if (participant.type === 'me') {
+                            return (
+                              <div key="me">
                           {/* Si está compartiendo pantalla, mostrar DOS recuadros: pantalla compartida y cámara */}
                           {isScreenSharing ? (
                             <>
@@ -4490,22 +4516,13 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition rounded-lg"></div>
                             </div>
                           )}
-                        </>
-                      )}
+                              </div>
+                            );
+                          }
 
-                      {/* ✅ OTROS ESTUDIANTES - Mostrar todos los demás alumnos conectados CON VIDEO */}
-                      {(() => {
-                        const filteredViewers = viewersList.filter(viewer => viewer.id !== socketRef.current?.id);
-
-                        // En móvil, aplicar paginación
-                        const viewersToShow = isMobile
-                          ? filteredViewers.slice(
-                              currentPage * ITEMS_PER_PAGE_MOBILE,
-                              (currentPage + 1) * ITEMS_PER_PAGE_MOBILE
-                            )
-                          : filteredViewers;
-
-                        return viewersToShow.map((viewer, index) => {
+                          // Renderizar otros estudiantes (peers)
+                          if (participant.type === 'peer') {
+                            const viewer = participant.data;
                           const isThisViewerPinned = pinnedParticipant === viewer.id;
                           const peerCameraStream = peerStudentStreams[viewer.id];
                           const peerScreenStream = peerStudentScreenStreams[viewer.id];
@@ -4686,48 +4703,57 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition rounded-lg"></div>
                             </div>
                           );
+                          }
+
+                          return null; // No renderizar nada para tipos desconocidos
                         });
                       })()}
                       </div>
                       {/* Fin del contenedor */}
 
                       {/* Botones de paginación - Solo en móvil */}
-                      {isMobile && viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length > ITEMS_PER_PAGE_MOBILE && (
-                        <div className="flex items-center justify-center gap-2 mt-2 pb-2">
-                          <button
-                            onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-                            disabled={currentPage === 0}
-                            className={`p-2 rounded-lg transition ${
-                              currentPage === 0
-                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white'
-                            }`}
-                            title="Página anterior"
-                          >
-                            <ChevronLeft className="w-5 h-5" />
-                          </button>
+                      {(() => {
+                        // Calcular total de participantes para paginación
+                        let totalParticipants = viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length;
+                        if (pinnedParticipant !== 'me') {
+                          totalParticipants += 1; // Incluir "Tú"
+                        }
+                        const totalPages = Math.ceil(totalParticipants / ITEMS_PER_PAGE_MOBILE);
 
-                          <span className="text-white text-sm font-semibold px-3">
-                            {currentPage + 1} / {Math.ceil(viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length / ITEMS_PER_PAGE_MOBILE)}
-                          </span>
+                        return isMobile && totalParticipants > ITEMS_PER_PAGE_MOBILE && (
+                          <div className="flex items-center justify-center gap-2 mt-2 pb-2">
+                            <button
+                              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                              disabled={currentPage === 0}
+                              className={`p-2 rounded-lg transition ${
+                                currentPage === 0
+                                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                              }`}
+                              title="Página anterior"
+                            >
+                              <ChevronLeft className="w-5 h-5" />
+                            </button>
 
-                          <button
-                            onClick={() => setCurrentPage(Math.min(
-                              Math.ceil(viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length / ITEMS_PER_PAGE_MOBILE) - 1,
-                              currentPage + 1
-                            ))}
-                            disabled={currentPage >= Math.ceil(viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length / ITEMS_PER_PAGE_MOBILE) - 1}
-                            className={`p-2 rounded-lg transition ${
-                              currentPage >= Math.ceil(viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length / ITEMS_PER_PAGE_MOBILE) - 1
-                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white'
-                            }`}
-                            title="Página siguiente"
-                          >
-                            <ChevronRight className="w-5 h-5" />
-                          </button>
-                        </div>
-                      )}
+                            <span className="text-white text-sm font-semibold px-3">
+                              {currentPage + 1} / {totalPages}
+                            </span>
+
+                            <button
+                              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                              disabled={currentPage >= totalPages - 1}
+                              className={`p-2 rounded-lg transition ${
+                                currentPage >= totalPages - 1
+                                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                              }`}
+                              title="Página siguiente"
+                            >
+                              <ChevronRight className="w-5 h-5" />
+                            </button>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
 

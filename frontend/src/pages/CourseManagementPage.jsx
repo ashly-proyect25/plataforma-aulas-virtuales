@@ -124,55 +124,56 @@ const CourseManagementPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100">
-      {/* Header - Compacto */}
+      {/* Header - Compacto y responsive */}
       <header className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg sticky top-0 z-40 py-3">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-3 md:px-4">
           <div className="flex items-center justify-between mb-2">
             <button
               onClick={() => navigate('/docente')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition text-sm"
+              className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition text-xs md:text-sm"
             >
-              <ArrowLeft size={18} className="text-white" strokeWidth={2} />
-              <span className="font-semibold text-white">Volver</span>
+              <ArrowLeft size={16} className="text-white md:w-[18px] md:h-[18px]" strokeWidth={2} />
+              <span className="font-semibold text-white hidden sm:inline">Volver</span>
             </button>
             <UserMenu loginPath="/login/docente" />
           </div>
 
-          {/* Course Info */}
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg p-2 bg-white/20 backdrop-blur-sm border border-white/30">
-              <BookOpen size={24} className="text-white" strokeWidth={2.5} />
+          {/* Course Info - Responsive */}
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="rounded-lg p-1.5 md:p-2 bg-white/20 backdrop-blur-sm border border-white/30">
+              <BookOpen size={20} className="text-white md:w-6 md:h-6" strokeWidth={2.5} />
             </div>
-            <div className="flex-1">
-              <h1 className="font-bold text-lg">{course.code}</h1>
-              <p className="text-purple-100 text-sm">{course.title}</p>
+            <div className="flex-1 min-w-0">
+              <h1 className="font-bold text-sm md:text-lg truncate">{course.code}</h1>
+              <p className="text-purple-100 text-xs md:text-sm truncate">{course.title}</p>
             </div>
             <div className="text-right">
               <p className="text-purple-200 text-xs">Créditos</p>
-              <p className="font-bold text-lg">{course.credits}</p>
+              <p className="font-bold text-base md:text-lg">{course.credits}</p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Tabs Navigation */}
-      <div className="bg-white border-b border-gray-200 sticky top-[100px] z-30 shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto">
+      {/* Tabs Navigation - Responsive */}
+      <div className="bg-white border-b border-gray-200 sticky top-[100px] md:top-[108px] z-30 shadow-sm">
+        <div className="container mx-auto px-2 md:px-4">
+          <div className="flex gap-0.5 md:gap-1 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {tabs.map(tab => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-4 font-semibold text-sm transition border-b-2 flex items-center gap-2 whitespace-nowrap ${
+                  className={`px-3 md:px-6 py-2.5 md:py-4 font-semibold text-xs md:text-sm transition border-b-2 flex flex-col md:flex-row items-center gap-1 md:gap-2 whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'border-b-purple-600 text-purple-600'
-                      : 'border-b-transparent text-gray-600 hover:text-gray-800'
+                      ? 'border-b-purple-600 text-purple-600 bg-purple-50/50'
+                      : 'border-b-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50'
                   }`}
                 >
-                  <Icon size={18} />
-                  {tab.label}
+                  <Icon size={16} className="md:w-[18px] md:h-[18px]" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden text-[10px]">{tab.label.split(' ')[0]}</span>
                 </button>
               );
             })}
@@ -180,8 +181,8 @@ const CourseManagementPage = () => {
         </div>
       </div>
 
-      {/* Content */}
-      <main className="container mx-auto px-4 py-8">
+      {/* Content - Responsive */}
+      <main className="container mx-auto px-3 md:px-4 py-4 md:py-8">
         <div style={{ display: activeTab === 'info' ? 'block' : 'none' }}>
           {activeTab === 'info' && <CourseInfoTab course={course} />}
         </div>
