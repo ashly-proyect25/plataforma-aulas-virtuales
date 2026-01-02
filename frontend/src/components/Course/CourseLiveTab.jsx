@@ -1090,23 +1090,48 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             console.log('🎤 [TEACHER] Audio track agregado a streamRef existente');
           }
 
-          // Replace in peer connections
-          Object.values(peerConnectionsRef.current).forEach(async (pc) => {
+          // ✅ CRITICAL FIX: Agregar/reemplazar en peer connections con renegociación
+          const viewerIds = Object.keys(peerConnectionsRef.current);
+          for (const viewerId of viewerIds) {
+            const pc = peerConnectionsRef.current[viewerId];
+
+            if (pc.connectionState === 'closed' || pc.connectionState === 'failed') {
+              console.warn(`⚠️ [TEACHER-AUDIO] Peer connection con ${viewerId} está ${pc.connectionState}, saltando`);
+              continue;
+            }
+
             const sender = pc.getSenders().find(s => s.track === null || s.track?.kind === 'audio');
             if (sender) {
               await sender.replaceTrack(newAudioTrack);
-              console.log('🎤 [TEACHER] Audio track reemplazado en peer connection');
+              console.log(`🎤 [TEACHER-AUDIO] Audio track reemplazado para viewer ${viewerId}`);
             } else {
               // If no sender exists, add the track
               pc.addTrack(newAudioTrack, streamRef.current);
-              console.log('🎤 [TEACHER] Audio track agregado a peer connection (nuevo sender)');
+              console.log(`🎤 [TEACHER-AUDIO] Audio track agregado para viewer ${viewerId} (nuevo sender)`);
             }
-          });
 
-          // ✅ CRITICAL: Reasignar stream al videoRef para que React detecte el cambio
-          if (videoRef.current) {
+            // ✅ CRITICAL: Renegociar para que el cambio se propague
+            try {
+              if (pc.signalingState === 'stable') {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                socketRef.current.emit('offer', { viewerId, offer });
+                console.log(`📤 [TEACHER-AUDIO] Offer de renegociación enviado a viewer ${viewerId} (audio activado)`);
+              } else {
+                console.warn(`⚠️ [TEACHER-AUDIO] No se puede renegociar con ${viewerId}, signalingState: ${pc.signalingState}`);
+              }
+            } catch (error) {
+              console.error(`❌ [TEACHER-AUDIO] Error renegociando con ${viewerId}:`, error);
+            }
+          }
+
+          // ✅ CRITICAL FIX: NO reasignar videoRef si está compartiendo pantalla
+          // porque videoRef debe mostrar la pantalla, NO la cámara
+          if (videoRef.current && !isScreenSharing && !isScreenSharingRef.current) {
             videoRef.current.srcObject = streamRef.current;
-            console.log('🎤 [TEACHER] Stream reasignado a videoRef para reflejar nuevo audio');
+            console.log('🎤 [TEACHER-AUDIO] Stream reasignado a videoRef (no hay pantalla compartida)');
+          } else if (isScreenSharing || isScreenSharingRef.current) {
+            console.log('🎤 [TEACHER-AUDIO] No se actualiza videoRef porque está mostrando pantalla compartida');
           }
 
           setIsMuted(false);
