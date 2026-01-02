@@ -5,7 +5,7 @@ import {
   Video, VideoOff, Mic, MicOff, Monitor, MonitorOff, Users, Loader,
   Maximize, Minimize, MessageCircle, Send, X, Paintbrush, Eraser,
   Download, Trash2, Calendar, Clock, Play, Square, UserCircle,
-  AlertCircle, CheckCircle, Plus, Minimize2, List
+  AlertCircle, CheckCircle, Plus, Minimize2, List, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import io from 'socket.io-client';
 import ConfirmDialog from '../ConfirmDialog';
@@ -146,6 +146,10 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
   // Estados para intercambio de videos (pin to main)
   const [pinnedParticipant, setPinnedParticipant] = useState(null); // null = docente, o el ID del estudiante
+
+  // Estados de paginación para panel de participantes (móvil)
+  const [currentPage, setCurrentPage] = useState(0);
+  const ITEMS_PER_PAGE_MOBILE = 2; // Mostrar 2 participantes por página en móvil
 
   // Referencias
   const videoRef = useRef(null);
@@ -956,7 +960,11 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       // Siempre solicitar video para tener el track disponible para dual streaming
       stream = await navigator.mediaDevices.getUserMedia({
         video: true, // Siempre solicitar video
-        audio: startWithAudio
+        audio: startWithAudio ? {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } : false
       });
 
       console.log('✅ [TEACHER-DUAL] Stream base obtenido con video (para transmisión dual)');
@@ -1096,7 +1104,13 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       } else {
         // ENABLE: Get new audio stream
         try {
-          const newStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const newStream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          });
           const newAudioTrack = newStream.getAudioTracks()[0];
           console.log('🎤 [TEACHER] Nuevo micrófono obtenido');
 
@@ -1246,7 +1260,10 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             console.log('📹 [TEACHER-DUAL] Solicitando nueva cámara...');
-            const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const newStream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: false
+            });
             const newVideoTrack = newStream.getVideoTracks()[0];
             console.log('✅ [TEACHER-DUAL] Nueva cámara obtenida:', newVideoTrack.label);
 
@@ -2599,9 +2616,9 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             minWidth: window.innerWidth < 768 ? '100%' : (isFullscreen ? '320px' : '280px'),
             maxHeight: window.innerWidth < 768 ? '300px' : 'auto'
           }}>
-            {/* Contenedor con scroll SOLO para los recuadros de participantes */}
-            <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{
-              maxHeight: window.innerWidth < 768 ? '250px' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
+            {/* Contenedor SOLO para los recuadros de participantes */}
+            <div className="flex flex-col gap-2 md:overflow-y-auto overflow-x-hidden pr-1 md:scrollbar-thin md:scrollbar-thumb-gray-600 md:scrollbar-track-gray-800" style={{
+              maxHeight: window.innerWidth < 768 ? 'auto' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
               WebkitOverflowScrolling: 'touch' // ✅ iOS FIX: Smooth scroll en iOS
             }}>
               {/* Todos los recuadros de participantes van aquí */}
@@ -2887,7 +2904,18 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
 
             {/* Estudiantes */}
-            {viewersList.map((viewer, index) => {
+            {(() => {
+              const isMobile = window.innerWidth < 768;
+
+              // En móvil, aplicar paginación
+              const viewersToShow = isMobile
+                ? viewersList.slice(
+                    currentPage * ITEMS_PER_PAGE_MOBILE,
+                    (currentPage + 1) * ITEMS_PER_PAGE_MOBILE
+                  )
+                : viewersList;
+
+              return viewersToShow.map((viewer, index) => {
               const hasCamera = studentCameraStreams[viewer.id] || studentStreams[viewer.id];
               const hasScreen = studentScreenStreams[viewer.id];
               const isPinned = pinnedParticipant === viewer.id;
@@ -3055,7 +3083,8 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition rounded-lg"></div>
                 </div>
               );
-            })}
+            });
+            })()}
 
             {viewersList.length === 0 && !pinnedParticipant && (
               <div className="bg-gray-800 rounded-lg flex items-center justify-center" style={{ height: isFullscreen ? '180px' : '157px', minHeight: isFullscreen ? '180px' : '157px', width: '100%' }}>
@@ -3065,7 +3094,45 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               </div>
             )}
             </div>
-            {/* Fin del contenedor con scroll */}
+            {/* Fin del contenedor */}
+
+            {/* Botones de paginación - Solo en móvil */}
+            {window.innerWidth < 768 && viewersList.length > ITEMS_PER_PAGE_MOBILE && (
+              <div className="flex items-center justify-center gap-2 mt-2 pb-2">
+                <button
+                  onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                  disabled={currentPage === 0}
+                  className={`p-2 rounded-lg transition ${
+                    currentPage === 0
+                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                  title="Página anterior"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                <span className="text-white text-sm font-semibold px-3">
+                  {currentPage + 1} / {Math.ceil(viewersList.length / ITEMS_PER_PAGE_MOBILE)}
+                </span>
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(
+                    Math.ceil(viewersList.length / ITEMS_PER_PAGE_MOBILE) - 1,
+                    currentPage + 1
+                  ))}
+                  disabled={currentPage >= Math.ceil(viewersList.length / ITEMS_PER_PAGE_MOBILE) - 1}
+                  className={`p-2 rounded-lg transition ${
+                    currentPage >= Math.ceil(viewersList.length / ITEMS_PER_PAGE_MOBILE) - 1
+                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                  title="Página siguiente"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

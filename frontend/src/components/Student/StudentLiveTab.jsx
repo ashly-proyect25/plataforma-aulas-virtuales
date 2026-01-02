@@ -99,6 +99,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   // Estados para intercambio de videos (pin to main)
   const [pinnedParticipant, setPinnedParticipant] = useState(null); // null = docente, 'me' = yo, o ID de otro estudiante
 
+  // Estados de paginación para panel de participantes (móvil)
+  const [currentPage, setCurrentPage] = useState(0);
+  const ITEMS_PER_PAGE_MOBILE = 2; // Mostrar 2 participantes por página en móvil
+
   // Estados de pizarra
   const [showWhiteboard, setShowWhiteboard] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -2302,7 +2306,11 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         // Siempre solicitar video para tener el track disponible para dual streaming
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true, // Siempre solicitar video
-          audio: joinWithAudio
+          audio: joinWithAudio ? {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          } : false
         });
         console.log('✅ [STUDENT-JOIN] Stream obtenido con video (para dual stream)');
 
@@ -2525,7 +2533,11 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           // El track fue detenido completamente, necesitamos crear uno nuevo
           const newStream = await navigator.mediaDevices.getUserMedia({
             video: true,
-            audio: !isMuted
+            audio: !isMuted ? {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            } : false
           });
           const newVideoTrack = newStream.getVideoTracks()[0];
           console.log('📹 [STUDENT-DUAL] Nueva cámara obtenida (track anterior terminado)');
@@ -2571,7 +2583,11 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           console.log('📹 [STUDENT-DUAL] Creando nuevo stream de cámara');
           const stream = await navigator.mediaDevices.getUserMedia({
             video: true,
-            audio: !isMuted
+            audio: !isMuted ? {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            } : false
           });
 
           // ✅ Si estamos compartiendo pantalla, agregar track de cámara al stream existente
@@ -2999,7 +3015,13 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         showToastMessage('Micrófono silenciado', 'info');
       } else {
         // ENABLE: Activar micrófono
-        const newStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const newStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
         const newAudioTrack = newStream.getAudioTracks()[0];
         console.log('🎤 [STUDENT] Nuevo micrófono obtenido');
 
@@ -4064,9 +4086,9 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                       minWidth: window.innerWidth < 768 ? '100%' : (isFullscreen ? '320px' : '280px'),
                       maxHeight: window.innerWidth < 768 ? '300px' : 'auto'
                     }}>
-                      {/* Contenedor con scroll SOLO para los recuadros de participantes */}
-                      <div className="flex-1 flex flex-col md:flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{
-                        maxHeight: window.innerWidth < 768 ? '250px' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
+                      {/* Contenedor SOLO para los recuadros de participantes */}
+                      <div className="flex-1 flex flex-col md:flex-col gap-2 md:overflow-y-auto overflow-x-hidden pr-1 md:scrollbar-thin md:scrollbar-thumb-gray-600 md:scrollbar-track-gray-800" style={{
+                        maxHeight: window.innerWidth < 768 ? 'auto' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
                         WebkitOverflowScrolling: 'touch' // ✅ iOS FIX: Smooth scroll en iOS
                       }}>
                         {/* Todos los recuadros de participantes van aquí */}
@@ -4409,9 +4431,19 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                       )}
 
                       {/* ✅ OTROS ESTUDIANTES - Mostrar todos los demás alumnos conectados CON VIDEO */}
-                      {viewersList
-                        .filter(viewer => viewer.id !== socketRef.current?.id)
-                        .map((viewer, index) => {
+                      {(() => {
+                        const filteredViewers = viewersList.filter(viewer => viewer.id !== socketRef.current?.id);
+                        const isMobile = window.innerWidth < 768;
+
+                        // En móvil, aplicar paginación
+                        const viewersToShow = isMobile
+                          ? filteredViewers.slice(
+                              currentPage * ITEMS_PER_PAGE_MOBILE,
+                              (currentPage + 1) * ITEMS_PER_PAGE_MOBILE
+                            )
+                          : filteredViewers;
+
+                        return viewersToShow.map((viewer, index) => {
                           const isThisViewerPinned = pinnedParticipant === viewer.id;
                           const peerCameraStream = peerStudentStreams[viewer.id];
                           const peerScreenStream = peerStudentScreenStreams[viewer.id];
@@ -4592,9 +4624,48 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition rounded-lg"></div>
                             </div>
                           );
-                        })}
+                        });
+                      })()}
                       </div>
-                      {/* Fin del contenedor con scroll */}
+                      {/* Fin del contenedor */}
+
+                      {/* Botones de paginación - Solo en móvil */}
+                      {window.innerWidth < 768 && viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length > ITEMS_PER_PAGE_MOBILE && (
+                        <div className="flex items-center justify-center gap-2 mt-2 pb-2">
+                          <button
+                            onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                            disabled={currentPage === 0}
+                            className={`p-2 rounded-lg transition ${
+                              currentPage === 0
+                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            }`}
+                            title="Página anterior"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+
+                          <span className="text-white text-sm font-semibold px-3">
+                            {currentPage + 1} / {Math.ceil(viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length / ITEMS_PER_PAGE_MOBILE)}
+                          </span>
+
+                          <button
+                            onClick={() => setCurrentPage(Math.min(
+                              Math.ceil(viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length / ITEMS_PER_PAGE_MOBILE) - 1,
+                              currentPage + 1
+                            ))}
+                            disabled={currentPage >= Math.ceil(viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length / ITEMS_PER_PAGE_MOBILE) - 1}
+                            className={`p-2 rounded-lg transition ${
+                              currentPage >= Math.ceil(viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length / ITEMS_PER_PAGE_MOBILE) - 1
+                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            }`}
+                            title="Página siguiente"
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
