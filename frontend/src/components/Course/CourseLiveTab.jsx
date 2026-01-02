@@ -152,6 +152,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   const peerConnectionsRef = useRef({});
   const studentPeerConnectionsRef = useRef({}); // Para videos de estudiantes
   const studentVideoRefs = useRef({}); // Referencias a elementos de video de estudiantes
+  const studentAudioRefs = useRef({}); // ✅ FIX AUDIO: Referencias a elementos de audio separados para estudiantes
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const chatEndRef = useRef(null);
@@ -742,6 +743,56 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         console.log(`🔄 [TEACHER] Actualizando stream para estudiante ${viewerId}`);
         videoElement.srcObject = stream;
         videoElement.play().catch(err => console.log('Autoplay prevented:', err));
+      }
+    });
+  }, [studentStreams]);
+
+  // ✅ FIX AUDIO: Reproducir audio de estudiantes en elementos Audio() separados
+  useEffect(() => {
+    console.log('🔊 [TEACHER-AUDIO-FIX] Actualizando audio de estudiantes...', Object.keys(studentStreams));
+
+    // Crear/actualizar elementos de audio para cada estudiante
+    Object.keys(studentStreams).forEach(viewerId => {
+      const stream = studentStreams[viewerId];
+      if (!stream) return;
+
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        console.log(`⚠️ [TEACHER-AUDIO-FIX] No hay audio tracks para estudiante ${viewerId}`);
+        return;
+      }
+
+      console.log(`🔊 [TEACHER-AUDIO-FIX] Configurando audio para estudiante ${viewerId} con ${audioTracks.length} tracks`);
+
+      // Crear o reutilizar elemento de audio
+      if (!studentAudioRefs.current[viewerId]) {
+        studentAudioRefs.current[viewerId] = new Audio();
+        studentAudioRefs.current[viewerId].autoplay = true;
+      }
+
+      const audioEl = studentAudioRefs.current[viewerId];
+
+      // Solo actualizar si es un stream diferente
+      if (audioEl.srcObject !== stream) {
+        audioEl.srcObject = stream;
+        audioEl.play()
+          .then(() => {
+            console.log(`✅ [TEACHER-AUDIO-FIX] Audio de estudiante ${viewerId} reproduciéndose correctamente`);
+          })
+          .catch(err => {
+            console.warn(`⚠️ [TEACHER-AUDIO-FIX] Error reproduciendo audio de estudiante ${viewerId}:`, err);
+          });
+      }
+    });
+
+    // Limpiar elementos de audio de estudiantes que ya no están
+    Object.keys(studentAudioRefs.current).forEach(viewerId => {
+      if (!studentStreams[viewerId]) {
+        console.log(`🗑️ [TEACHER-AUDIO-FIX] Limpiando audio de estudiante ${viewerId} que se desconectó`);
+        if (studentAudioRefs.current[viewerId]) {
+          studentAudioRefs.current[viewerId].srcObject = null;
+          delete studentAudioRefs.current[viewerId];
+        }
       }
     });
   }, [studentStreams]);
@@ -2267,7 +2318,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           <div className={
             isMinimized
               ? "w-full bg-gray-900 rounded-lg overflow-hidden flex flex-col"
-              : `bg-white rounded-xl shadow-2xl w-full flex flex-col ${isFullscreen ? 'h-screen max-w-none' : 'h-[85vh] max-w-7xl'}`
+              : `bg-white rounded-xl shadow-2xl w-full flex flex-col ${isFullscreen ? 'h-screen max-w-none' : 'h-screen md:h-[85vh] max-w-7xl'}`
           } ref={containerRef}>
             {/* Header del modal */}
             {(
@@ -2321,7 +2372,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               <div className="flex-1 overflow-auto bg-gray-900">
                 {/* Sala estilo Zoom */}
       <div className="bg-gray-900 rounded-lg overflow-hidden shadow-2xl">
-        <div className="flex gap-2 p-2" style={{ minHeight: isFullscreen ? '800px' : '500px' }}>
+        <div className="flex flex-col md:flex-row gap-2 p-2" style={{ minHeight: isFullscreen ? '800px' : '500px' }}>
           {/* Video principal - Flex-grow para ocupar espacio restante */}
           <div
             className="flex-1 relative bg-black rounded-lg overflow-hidden cursor-pointer"
@@ -2496,10 +2547,16 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             />
           </div>
 
-          {/* Panel de participantes - Ancho fijo con scroll */}
-          <div className="flex flex-col gap-2" style={{ width: isFullscreen ? '320px' : '280px', minWidth: isFullscreen ? '320px' : '280px' }}>
+          {/* Panel de participantes - Ancho responsive con scroll */}
+          <div className="flex flex-col gap-2 w-full md:w-auto" style={{
+            width: window.innerWidth < 768 ? '100%' : (isFullscreen ? '320px' : '280px'),
+            minWidth: window.innerWidth < 768 ? '100%' : (isFullscreen ? '320px' : '280px'),
+            maxHeight: window.innerWidth < 768 ? '300px' : 'auto'
+          }}>
             {/* Contenedor con scroll SOLO para los recuadros de participantes */}
-            <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{ maxHeight: isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)' }}>
+            <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{
+              maxHeight: window.innerWidth < 768 ? '250px' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)')
+            }}>
               {/* Todos los recuadros de participantes van aquí */}
             {/* ✅ CUANDO UN ESTUDIANTE ESTÁ PINNEADO (compartiendo pantalla): Mostrar cámara del docente Y cámara del estudiante */}
             {pinnedParticipant && studentSharingScreen[pinnedParticipant] && (
