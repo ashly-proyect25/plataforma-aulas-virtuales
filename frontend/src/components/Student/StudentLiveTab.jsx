@@ -101,7 +101,29 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
   // Estados de paginación para panel de participantes (móvil)
   const [currentPage, setCurrentPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const ITEMS_PER_PAGE_MOBILE = 2; // Mostrar 2 participantes por página en móvil
+
+  // Detectar cambios de tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Bloquear scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (showStreamModal && !isMinimized) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showStreamModal, isMinimized]);
 
   // Estados de pizarra
   const [showWhiteboard, setShowWhiteboard] = useState(false);
@@ -4081,16 +4103,20 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                     </div>
 
                     {/* Panel de participantes - Ancho responsive con scroll */}
-                    <div className="flex flex-col gap-2 h-full w-full md:w-auto" style={{
-                      width: window.innerWidth < 768 ? '100%' : (isFullscreen ? '320px' : '280px'),
-                      minWidth: window.innerWidth < 768 ? '100%' : (isFullscreen ? '320px' : '280px'),
-                      maxHeight: window.innerWidth < 768 ? '300px' : 'auto'
+                    <div className="flex flex-col gap-2 w-full md:w-auto" style={{
+                      width: isMobile ? '100%' : (isFullscreen ? '320px' : '280px'),
+                      minWidth: isMobile ? '100%' : (isFullscreen ? '320px' : '280px'),
+                      height: isMobile ? '400px' : 'auto',
+                      maxHeight: isMobile ? '400px' : 'auto'
                     }}>
                       {/* Contenedor SOLO para los recuadros de participantes */}
-                      <div className="flex-1 flex flex-col md:flex-col gap-2 md:overflow-y-auto overflow-x-hidden pr-1 md:scrollbar-thin md:scrollbar-thumb-gray-600 md:scrollbar-track-gray-800" style={{
-                        maxHeight: window.innerWidth < 768 ? 'auto' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
+                      <div className="flex flex-col gap-2 overflow-x-hidden pr-1" style={{
+                        flex: 1,
+                        overflowY: isMobile ? 'hidden' : 'auto',
+                        maxHeight: isMobile ? 'none' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
                         WebkitOverflowScrolling: 'touch' // ✅ iOS FIX: Smooth scroll en iOS
-                      }}>
+                      }}
+                      className={!isMobile ? 'scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800' : ''}>
                         {/* Todos los recuadros de participantes van aquí */}
 
                       {/* ✅ DUAL STREAM: Cuando hay pantalla compartida Y NO está pinneada, mostrar CÁMARA en panel lateral */}
@@ -4433,7 +4459,6 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                       {/* ✅ OTROS ESTUDIANTES - Mostrar todos los demás alumnos conectados CON VIDEO */}
                       {(() => {
                         const filteredViewers = viewersList.filter(viewer => viewer.id !== socketRef.current?.id);
-                        const isMobile = window.innerWidth < 768;
 
                         // En móvil, aplicar paginación
                         const viewersToShow = isMobile
@@ -4630,7 +4655,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                       {/* Fin del contenedor */}
 
                       {/* Botones de paginación - Solo en móvil */}
-                      {window.innerWidth < 768 && viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length > ITEMS_PER_PAGE_MOBILE && (
+                      {isMobile && viewersList.filter(viewer => viewer.id !== socketRef.current?.id).length > ITEMS_PER_PAGE_MOBILE && (
                         <div className="flex items-center justify-center gap-2 mt-2 pb-2">
                           <button
                             onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}

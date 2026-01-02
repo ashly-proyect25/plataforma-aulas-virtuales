@@ -149,7 +149,29 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
   // Estados de paginación para panel de participantes (móvil)
   const [currentPage, setCurrentPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const ITEMS_PER_PAGE_MOBILE = 2; // Mostrar 2 participantes por página en móvil
+
+  // Detectar cambios de tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Bloquear scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (showStreamModal && !isMinimized) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showStreamModal, isMinimized]);
 
   // Referencias
   const videoRef = useRef(null);
@@ -960,11 +982,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       // Siempre solicitar video para tener el track disponible para dual streaming
       stream = await navigator.mediaDevices.getUserMedia({
         video: true, // Siempre solicitar video
-        audio: startWithAudio ? {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        } : false
+        audio: startWithAudio // ✅ Sin procesamiento de audio para evitar artefactos/pitidos en docente
       });
 
       console.log('✅ [TEACHER-DUAL] Stream base obtenido con video (para transmisión dual)');
@@ -1105,11 +1123,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         // ENABLE: Get new audio stream
         try {
           const newStream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
+            audio: true // ✅ Sin procesamiento de audio para evitar artefactos/pitidos en docente
           });
           const newAudioTrack = newStream.getAudioTracks()[0];
           console.log('🎤 [TEACHER] Nuevo micrófono obtenido');
@@ -2612,15 +2626,19 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
           {/* Panel de participantes - Ancho responsive con scroll */}
           <div className="flex flex-col gap-2 w-full md:w-auto" style={{
-            width: window.innerWidth < 768 ? '100%' : (isFullscreen ? '320px' : '280px'),
-            minWidth: window.innerWidth < 768 ? '100%' : (isFullscreen ? '320px' : '280px'),
-            maxHeight: window.innerWidth < 768 ? '300px' : 'auto'
+            width: isMobile ? '100%' : (isFullscreen ? '320px' : '280px'),
+            minWidth: isMobile ? '100%' : (isFullscreen ? '320px' : '280px'),
+            height: isMobile ? '400px' : 'auto',
+            maxHeight: isMobile ? '400px' : 'auto'
           }}>
             {/* Contenedor SOLO para los recuadros de participantes */}
-            <div className="flex flex-col gap-2 md:overflow-y-auto overflow-x-hidden pr-1 md:scrollbar-thin md:scrollbar-thumb-gray-600 md:scrollbar-track-gray-800" style={{
-              maxHeight: window.innerWidth < 768 ? 'auto' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
+            <div className="flex flex-col gap-2 overflow-x-hidden pr-1" style={{
+              flex: 1,
+              overflowY: isMobile ? 'hidden' : 'auto',
+              maxHeight: isMobile ? 'none' : (isFullscreen ? 'calc(100vh - 200px)' : 'calc(85vh - 200px)'),
               WebkitOverflowScrolling: 'touch' // ✅ iOS FIX: Smooth scroll en iOS
-            }}>
+            }}
+            className={!isMobile ? 'scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800' : ''}>
               {/* Todos los recuadros de participantes van aquí */}
             {/* ✅ CUANDO UN ESTUDIANTE ESTÁ PINNEADO (compartiendo pantalla): Mostrar cámara del docente Y cámara del estudiante */}
             {pinnedParticipant && studentSharingScreen[pinnedParticipant] && (
@@ -2905,8 +2923,6 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
             {/* Estudiantes */}
             {(() => {
-              const isMobile = window.innerWidth < 768;
-
               // En móvil, aplicar paginación
               const viewersToShow = isMobile
                 ? viewersList.slice(
@@ -3097,7 +3113,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             {/* Fin del contenedor */}
 
             {/* Botones de paginación - Solo en móvil */}
-            {window.innerWidth < 768 && viewersList.length > ITEMS_PER_PAGE_MOBILE && (
+            {isMobile && viewersList.length > ITEMS_PER_PAGE_MOBILE && (
               <div className="flex items-center justify-center gap-2 mt-2 pb-2">
                 <button
                   onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
