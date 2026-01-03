@@ -16,6 +16,31 @@ import { useStore } from '../../store/store';
 import ScheduledClassesCarousel from './ScheduledClassesCarousel';
 import ClassRecordsModal from './ClassRecordsModal';
 
+// ✅ iOS FIX: Función para forzar H.264 codec (compatibilidad con Safari iOS)
+const forceH264Codec = (sdp) => {
+  console.log('🔧 [iOS-FIX] Modificando SDP para forzar H.264...');
+  const sdpLines = sdp.split('\r\n');
+  const mLineIndex = sdpLines.findIndex(line => line.startsWith('m=video'));
+  if (mLineIndex === -1) return sdp;
+
+  const h264PayloadType = sdpLines.find(line =>
+    line.includes('rtpmap') && line.toLowerCase().includes('h264')
+  );
+  if (!h264PayloadType) return sdp;
+
+  const h264Payload = h264PayloadType.match(/(\d+)\s+H264/i)?.[1];
+  if (!h264Payload) return sdp;
+
+  const mLine = sdpLines[mLineIndex];
+  const parts = mLine.split(' ');
+  const otherPayloads = parts.slice(3).filter(p => p !== h264Payload);
+  const newMLine = `${parts[0]} ${parts[1]} ${parts[2]} ${h264Payload} ${otherPayloads.join(' ')}`;
+  sdpLines[mLineIndex] = newMLine;
+
+  console.log('✅ [iOS-FIX] SDP modificado - H.264 priorizado');
+  return sdpLines.join('\r\n');
+};
+
 const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   const { activeLiveClass, setActiveLiveClass, updateActiveLiveClass, clearActiveLiveClass } = useStore();
 
@@ -750,6 +775,10 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await pc.createAnswer();
+
+      // ✅ iOS FIX: Forzar H.264 codec
+      answer.sdp = forceH264Codec(answer.sdp);
+
       await pc.setLocalDescription(answer);
 
       socketRef.current.emit('student-answer', { viewerId, answer });
@@ -945,6 +974,10 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
     console.log(`📤 [TEACHER] Total de ${tracks.length} tracks agregados al peer de viewer ${viewerId}`);
 
     const offer = await pc.createOffer();
+
+    // ✅ iOS FIX: Forzar H.264 codec para compatibilidad con Safari iOS
+    offer.sdp = forceH264Codec(offer.sdp);
+
     await pc.setLocalDescription(offer);
     console.log(`📤 [TEACHER] Offer creado con ${tracks.length} tracks`);
 
@@ -1161,6 +1194,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             try {
               if (pc.signalingState === 'stable') {
                 const offer = await pc.createOffer();
+                offer.sdp = forceH264Codec(offer.sdp);
                 await pc.setLocalDescription(offer);
                 socketRef.current.emit('offer', { viewerId, offer });
                 console.log(`📤 [TEACHER-AUDIO] Offer de renegociación enviado a viewer ${viewerId} (audio activado)`);
@@ -1234,6 +1268,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             if (pc.connectionState !== 'closed' && pc.connectionState !== 'failed') {
               try {
                 const offer = await pc.createOffer();
+                offer.sdp = forceH264Codec(offer.sdp);
                 await pc.setLocalDescription(offer);
                 socketRef.current.emit('offer', { viewerId, offer });
                 console.log(`📤 [TEACHER-DUAL] Offer de renegociación enviado a viewer ${viewerId} (cámara desactivada)`);
@@ -1320,6 +1355,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               // ✅ CRITICAL FIX: Renegociar para actualizar el stream en el estudiante
               try {
                 const offer = await pc.createOffer();
+                offer.sdp = forceH264Codec(offer.sdp);
                 await pc.setLocalDescription(offer);
                 socketRef.current.emit('offer', { viewerId, offer });
                 console.log(`📤 [TEACHER-DUAL] Offer de renegociación enviado a viewer ${viewerId} (cámara reactivada)`);
@@ -1368,6 +1404,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             if (pc.connectionState !== 'closed' && pc.connectionState !== 'failed') {
               try {
                 const offer = await pc.createOffer();
+                offer.sdp = forceH264Codec(offer.sdp);
                 await pc.setLocalDescription(offer);
                 socketRef.current.emit('offer', { viewerId, offer });
                 console.log(`📤 [TEACHER-DUAL] Offer de renegociación enviado a viewer ${viewerId} (cámara activada)`);
@@ -1530,6 +1567,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             // Renegociar para enviar el nuevo track
             console.log(`📤 [TEACHER-DUAL] Creando offer para ${viewerId}...`);
             const offer = await pc.createOffer();
+            offer.sdp = forceH264Codec(offer.sdp);
             await pc.setLocalDescription(offer);
             socketRef.current.emit('offer', { viewerId, offer });
             console.log(`✅ [TEACHER-DUAL] Offer enviado con transmisión dual a viewer ${viewerId}`);
@@ -1641,6 +1679,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
               // Renegociar para actualizar
               console.log(`📤 [TEACHER-DUAL] Creando offer para ${viewerId}...`);
               const offer = await pc.createOffer();
+              offer.sdp = forceH264Codec(offer.sdp);
               await pc.setLocalDescription(offer);
               socketRef.current.emit('offer', { viewerId, offer });
               console.log(`✅ [TEACHER-DUAL] Offer enviado con solo cámara a viewer ${viewerId}`);

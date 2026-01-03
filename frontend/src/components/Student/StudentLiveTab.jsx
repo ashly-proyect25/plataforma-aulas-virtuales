@@ -13,6 +13,55 @@ import Toast from '../Toast';
 import { useNavigationGuard } from '../../hooks/useNavigationGuard';
 import { getAuthToken } from '../../utils/getAuthToken';
 
+// ✅ iOS FIX: Función para forzar H.264 codec (compatibilidad con Safari iOS)
+// Safari iOS no soporta VP9, solo H.264 y VP8
+const forceH264Codec = (sdp) => {
+  console.log('🔧 [iOS-FIX] Modificando SDP para forzar H.264...');
+
+  // Separar SDP en líneas
+  const sdpLines = sdp.split('\r\n');
+  const mLineIndex = sdpLines.findIndex(line => line.startsWith('m=video'));
+
+  if (mLineIndex === -1) {
+    console.warn('⚠️ [iOS-FIX] No se encontró m=video en SDP');
+    return sdp;
+  }
+
+  // Buscar payload type de H.264
+  const h264PayloadType = sdpLines.find(line =>
+    line.includes('rtpmap') && line.toLowerCase().includes('h264')
+  );
+
+  if (!h264PayloadType) {
+    console.warn('⚠️ [iOS-FIX] No se encontró H.264 en SDP');
+    return sdp;
+  }
+
+  // Extraer el payload number de H.264 (ej: "a=rtpmap:96 H264/90000" -> 96)
+  const h264Payload = h264PayloadType.match(/(\d+)\s+H264/i)?.[1];
+
+  if (!h264Payload) {
+    console.warn('⚠️ [iOS-FIX] No se pudo extraer payload de H.264');
+    return sdp;
+  }
+
+  // Modificar m=video line para priorizar H.264
+  const mLine = sdpLines[mLineIndex];
+  const parts = mLine.split(' ');
+
+  // Filtrar el H.264 payload de la lista
+  const otherPayloads = parts.slice(3).filter(p => p !== h264Payload);
+
+  // Reconstruir con H.264 primero
+  const newMLine = `${parts[0]} ${parts[1]} ${parts[2]} ${h264Payload} ${otherPayloads.join(' ')}`;
+  sdpLines[mLineIndex] = newMLine;
+
+  const modifiedSdp = sdpLines.join('\r\n');
+  console.log('✅ [iOS-FIX] SDP modificado - H.264 priorizado');
+
+  return modifiedSdp;
+};
+
 const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   const { user, activeLiveClass, setActiveLiveClass, updateActiveLiveClass, clearActiveLiveClass } = useStore();
 
@@ -1181,6 +1230,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           }
 
           const answer = await pc.createAnswer();
+
+          // ✅ iOS FIX: Forzar H.264 codec
+          answer.sdp = forceH264Codec(answer.sdp);
+
           await pc.setLocalDescription(answer);
 
           // Enviar answer
@@ -1356,6 +1409,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         // Procesar offer y crear answer
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await pc.createAnswer();
+
+        // ✅ iOS FIX: Forzar H.264 codec
+        answer.sdp = forceH264Codec(answer.sdp);
+
         await pc.setLocalDescription(answer);
 
         // Enviar answer
@@ -2314,6 +2371,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
       console.log(`📝 [STUDENT] Creando answer (current state: ${pc.signalingState})...`);
       const answer = await pc.createAnswer();
+
+      // ✅ iOS FIX: Forzar H.264 codec para compatibilidad con Safari iOS
+      answer.sdp = forceH264Codec(answer.sdp);
+
       await pc.setLocalDescription(answer);
       console.log('✅ [STUDENT] Answer creado y configurado como LocalDescription');
 
@@ -2424,6 +2485,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
         console.log('📤 [STUDENT-JOIN] Creando y enviando offer al docente...');
         const offer = await studentPeerConnectionRef.current.createOffer();
+
+        // ✅ iOS FIX: Forzar H.264 codec para compatibilidad con Safari iOS
+        offer.sdp = forceH264Codec(offer.sdp);
+
         await studentPeerConnectionRef.current.setLocalDescription(offer);
         socketRef.current.emit('student-offer', { offer });
         console.log('✅ [STUDENT-JOIN] Offer enviado al docente');
@@ -2890,6 +2955,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
                 // Crear y enviar offer dirigido
                 const peerOffer = await peerPc.createOffer();
+
+                // ✅ iOS FIX: Forzar H.264 codec
+                peerOffer.sdp = forceH264Codec(peerOffer.sdp);
+
                 await peerPc.setLocalDescription(peerOffer);
 
                 console.log(`📤 [STUDENT-CAMERA-P2P] ENVIANDO offer a ${viewer.name} (${viewer.id})`);
