@@ -11,8 +11,8 @@ import {
   Clock,
   GraduationCap
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/store';
+import { useNavigateSafe } from '../hooks/useNavigateSafe';
 import api from '../services/api';
 import UserMenu from '../components/UserMenu';
 import ChangePasswordModal from '../components/ChangePasswordModal';
@@ -21,7 +21,7 @@ import SettingsModal from '../components/SettingsModal';
 import HelpModal from '../components/HelpModal';
 
 const DocenteDashboard = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigateSafe();
   const { user, isAuthenticated } = useStore();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);

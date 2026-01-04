@@ -14,7 +14,8 @@ import {
   X,
   Calendar
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useNavigateSafe } from '../hooks/useNavigateSafe';
 import { useStore } from '../store/store';
 import api from '../services/api';
 import UserMenu from '../components/UserMenu';
@@ -36,7 +37,7 @@ import MinimizedLiveClass from '../components/MinimizedLiveClass';
 
 const CourseManagementPage = () => {
   const { courseId } = useParams();
-  const navigate = useNavigate();
+  const navigate = useNavigateSafe();
   const { user, activeLiveClass, updateActiveLiveClass, clearActiveLiveClass } = useStore();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);

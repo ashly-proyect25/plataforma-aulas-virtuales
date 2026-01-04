@@ -1,12 +1,12 @@
 // frontend/src/components/SessionManager.jsx
 
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/store';
+import { useNavigateSafe } from '../hooks/useNavigateSafe';
 import { Clock, AlertTriangle } from 'lucide-react';
 
 const SessionManager = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigateSafe();
   const {
     isAuthenticated,
     lastActivity,

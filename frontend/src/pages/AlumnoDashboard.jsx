@@ -15,7 +15,7 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateSafe } from '../hooks/useNavigateSafe';
 import { useStore } from '../store/store';
 import api from '../services/api';
 import UserMenu from '../components/UserMenu';
@@ -26,7 +26,7 @@ import HelpModal from '../components/HelpModal';
 import Toast from '../components/Toast';
 
 function AlumnoDashboard() {
-  const navigate = useNavigate();
+  const navigate = useNavigateSafe();
   const { user, isAuthenticated } = useStore();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);

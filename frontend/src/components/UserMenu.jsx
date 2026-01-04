@@ -10,12 +10,12 @@ import {
   HelpCircle,
   Shield
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateSafe } from '../hooks/useNavigateSafe';
 import { useStore } from '../store/store';
 
 const UserMenu = ({ loginPath = '/login' }) => {
   const { user, logout } = useStore();
-  const navigate = useNavigate();
+  const navigate = useNavigateSafe();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
