@@ -20,20 +20,9 @@ export const useStore = create(
     try {
       console.log('📍 [STORE] Iniciando login para:', username);
 
-      // ✅ CRÍTICO: Limpiar TODA la sesión anterior ANTES de hacer login
-      console.log('🧹 [STORE] Limpiando sesión anterior...');
-      set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isLoading: true,
-        lastActivity: Date.now(),
-        sessionStartTime: Date.now(),
-        showSessionRenewalModal: false,
-        currentClassroom: null,
-        participants: [],
-        messages: []
-      });
+      // ✅ Solo marcamos isLoading, sin limpiar el estado anterior
+      // Esto evita re-renders innecesarios que causan el error de DOM
+      set({ isLoading: true });
 
       const response = await authAPI.login(username, password);
       console.log('📍 [STORE] Respuesta completa:', response);
@@ -51,7 +40,11 @@ export const useStore = create(
         isAuthenticated: true,
         isLoading: false,
         lastActivity: now,
-        sessionStartTime: now
+        sessionStartTime: now,
+        showSessionRenewalModal: false,
+        currentClassroom: null,
+        participants: [],
+        messages: []
       });
 
       console.log('✅ [STORE] Login completado:', user.username, '/', user.role);
@@ -64,13 +57,8 @@ export const useStore = create(
       console.error('❌ [STORE] Error response:', error.response);
       console.error('❌ [STORE] Error data:', error.response?.data);
 
-      // ✅ En caso de error, limpiar el estado
-      set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isLoading: false
-      });
+      // ✅ En caso de error, solo marcar isLoading como false
+      set({ isLoading: false });
 
       const errorMessage = error.response?.data?.error ||
                           error.response?.data?.message ||
