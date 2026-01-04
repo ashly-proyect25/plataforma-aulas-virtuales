@@ -2462,27 +2462,28 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         }
       });
 
-      // ✅ FIX RACE CONDITION: Esperar confirmación del backend antes de enviar offer
-      // Esto previene que el offer llegue antes de que el estudiante esté en la lista de viewers
+      // ✅ CRITICAL FIX: Esperar confirmación y preparar para recibir stream del docente
+      // SIEMPRE necesitamos estar listos para recibir, incluso sin cámara/audio
+      console.log('⏳ [STUDENT-JOIN] Esperando confirmación del backend...');
+
+      await new Promise((resolve) => {
+        const readyHandler = () => {
+          console.log('✅ [STUDENT-JOIN] Confirmación recibida del backend');
+          socketRef.current.off('viewer-ready-to-connect', readyHandler);
+          resolve();
+        };
+        socketRef.current.on('viewer-ready-to-connect', readyHandler);
+
+        // Timeout de seguridad
+        setTimeout(() => {
+          console.warn('⚠️ [STUDENT-JOIN] Timeout esperando confirmación');
+          socketRef.current.off('viewer-ready-to-connect', readyHandler);
+          resolve();
+        }, 3000);
+      });
+
+      // ✅ FIX: Enviar offer al docente SOLO si tenemos cámara/audio para compartir
       if (studentPeerConnectionRef.current) {
-        console.log('⏳ [STUDENT-JOIN] Esperando confirmación del backend...');
-
-        await new Promise((resolve) => {
-          const readyHandler = () => {
-            console.log('✅ [STUDENT-JOIN] Confirmación recibida, listo para enviar offer');
-            socketRef.current.off('viewer-ready-to-connect', readyHandler);
-            resolve();
-          };
-          socketRef.current.on('viewer-ready-to-connect', readyHandler);
-
-          // Timeout de seguridad: si no recibimos confirmación en 3 segundos, proceder de todos modos
-          setTimeout(() => {
-            console.warn('⚠️ [STUDENT-JOIN] Timeout esperando confirmación, enviando offer de todos modos');
-            socketRef.current.off('viewer-ready-to-connect', readyHandler);
-            resolve();
-          }, 3000);
-        });
-
         console.log('📤 [STUDENT-JOIN] Creando y enviando offer al docente...');
         const offer = await studentPeerConnectionRef.current.createOffer();
 
@@ -2492,6 +2493,8 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         await studentPeerConnectionRef.current.setLocalDescription(offer);
         socketRef.current.emit('student-offer', { offer });
         console.log('✅ [STUDENT-JOIN] Offer enviado al docente');
+      } else {
+        console.log('ℹ️ [STUDENT-JOIN] No hay stream propio para enviar (solo espectador)');
       }
 
       // Iniciar keep-alive cada 4 minutos
