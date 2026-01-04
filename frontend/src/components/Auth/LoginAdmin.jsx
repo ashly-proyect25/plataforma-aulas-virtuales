@@ -41,20 +41,17 @@ function LoginAdmin() {
         return;
       }
 
-      // Verificar si hay una URL para redirigir después del login
-      const redirectPath = localStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        localStorage.removeItem('redirectAfterLogin');
-        setTimeout(() => {
-          navigate(redirectPath, { replace: true });
-        }, 100);
-        return;
-      }
-
-      // ✅ AGREGAR ESTO:
+      // ✅ CRÍTICO: Navegar en el siguiente tick para evitar conflictos con React
       setTimeout(() => {
-        navigate('/admin/dashboard', { replace: true });
-      }, 500);
+        // Verificar si hay una URL para redirigir después del login
+        const redirectPath = localStorage.getItem('redirectAfterLogin');
+        if (redirectPath) {
+          localStorage.removeItem('redirectAfterLogin');
+          navigate(redirectPath, { replace: true });
+        } else {
+          navigate('/admin/dashboard', { replace: true });
+        }
+      }, 0);
     } else {
       setError(result.error);
     }

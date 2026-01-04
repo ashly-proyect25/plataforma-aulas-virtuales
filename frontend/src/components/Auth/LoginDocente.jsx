@@ -38,24 +38,28 @@ function LoginDocente() {
     if (result.success) {
       console.log('✅ [LOGIN-DOCENTE] Login exitoso, rol:', result.user.role);
 
-      // Verificar si hay una URL para redirigir después del login
-      const redirectPath = localStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        localStorage.removeItem('redirectAfterLogin');
-        navigate(redirectPath);
-        return;
-      }
+      // ✅ CRÍTICO: Navegar en el siguiente tick para evitar conflictos con React
+      // Esto permite que React termine de actualizar el estado antes de navegar
+      setTimeout(() => {
+        // Verificar si hay una URL para redirigir después del login
+        const redirectPath = localStorage.getItem('redirectAfterLogin');
+        if (redirectPath) {
+          localStorage.removeItem('redirectAfterLogin');
+          navigate(redirectPath, { replace: true });
+          return;
+        }
 
-      // ✅ CORRECTO: Redirigir según el rol del usuario
-      if (result.user.role === 'TEACHER') {
-        navigate('/docente/dashboard');
-      } else if (result.user.role === 'ADMIN') {
-        navigate('/admin/dashboard');
-      } else if (result.user.role === 'STUDENT') {
-        navigate('/alumno/dashboard');
-      } else {
-        setError('Rol de usuario no reconocido');
-      }
+        // ✅ CORRECTO: Redirigir según el rol del usuario
+        if (result.user.role === 'TEACHER') {
+          navigate('/docente/dashboard', { replace: true });
+        } else if (result.user.role === 'ADMIN') {
+          navigate('/admin/dashboard', { replace: true });
+        } else if (result.user.role === 'STUDENT') {
+          navigate('/alumno/dashboard', { replace: true });
+        } else {
+          setError('Rol de usuario no reconocido');
+        }
+      }, 0);
     } else {
       console.error('❌ [LOGIN-DOCENTE] Login falló:', result.error);
       setError(result.error);

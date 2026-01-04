@@ -41,14 +41,17 @@ function LoginAlumno() {
         return;
       }
 
-      // Verificar si hay una URL para redirigir después del login
-      const redirectPath = localStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        localStorage.removeItem('redirectAfterLogin');
-        navigate(redirectPath);
-      } else {
-        navigate('/alumno/dashboard');
-      }
+      // ✅ CRÍTICO: Navegar en el siguiente tick para evitar conflictos con React
+      setTimeout(() => {
+        // Verificar si hay una URL para redirigir después del login
+        const redirectPath = localStorage.getItem('redirectAfterLogin');
+        if (redirectPath) {
+          localStorage.removeItem('redirectAfterLogin');
+          navigate(redirectPath, { replace: true });
+        } else {
+          navigate('/alumno/dashboard', { replace: true });
+        }
+      }, 0);
     } else {
       setError(result.error);
     }
