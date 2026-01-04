@@ -2492,6 +2492,87 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         await studentPeerConnectionRef.current.setLocalDescription(offer);
         socketRef.current.emit('student-offer', { offer });
         console.log('✅ [STUDENT-JOIN] Offer enviado al docente');
+
+        // ✅ CRITICAL FIX: Crear conexiones P2P con otros estudiantes al unirse
+        // Esto permite que el audio/video llegue a todos sin esperar a activar la cámara
+        console.log('🔗 [STUDENT-JOIN-P2P] Creando conexiones P2P con otros estudiantes...');
+
+        // Esperar un poco para que viewersList se actualice
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        if (viewersList && viewersList.length > 0) {
+          console.log(`🔗 [STUDENT-JOIN-P2P] Hay ${viewersList.length} viewers en la clase`);
+
+          for (const viewer of viewersList) {
+            // Saltar si soy yo mismo
+            if (viewer.email === user?.email) {
+              console.log(`⏭️ [STUDENT-JOIN-P2P] Saltando mi propio viewer: ${viewer.email}`);
+              continue;
+            }
+
+            // Si ya existe conexión, saltarla
+            if (peerStudentsRef.current.has(viewer.id)) {
+              console.log(`ℹ️ [STUDENT-JOIN-P2P] Ya existe conexión con ${viewer.name}`);
+              continue;
+            }
+
+            console.log(`🆕 [STUDENT-JOIN-P2P] Creando conexión P2P con ${viewer.name} (${viewer.id})`);
+
+            try {
+              const peerPc = new RTCPeerConnection({
+                iceServers: [
+                  { urls: 'stun:stun.l.google.com:19302' },
+                  { urls: 'stun:stun1.l.google.com:19302' },
+                  { urls: 'stun:stun2.l.google.com:19302' }
+                ],
+                iceCandidatePoolSize: 10
+              });
+
+              // Agregar tracks del stream al peer
+              stream.getTracks().forEach(track => {
+                console.log(`➕ [STUDENT-JOIN-P2P] Agregando track ${track.kind} (enabled: ${track.enabled}) para ${viewer.name}`);
+                peerPc.addTrack(track, stream);
+              });
+
+              // Manejar stream remoto
+              peerPc.ontrack = (event) => {
+                console.log(`📺 [STUDENT-JOIN-P2P] Stream recibido de ${viewer.id}`);
+                if (event.streams[0]) {
+                  setPeerStudentStreams(prev => ({ ...prev, [viewer.id]: event.streams[0] }));
+                }
+              };
+
+              // ICE candidates
+              peerPc.onicecandidate = (event) => {
+                if (event.candidate) {
+                  socketRef.current.emit('peer-student-ice-candidate', {
+                    toViewerId: viewer.id,
+                    candidate: event.candidate
+                  });
+                }
+              };
+
+              // Guardar peer connection
+              peerStudentsRef.current.set(viewer.id, peerPc);
+
+              // Crear y enviar offer
+              const peerOffer = await peerPc.createOffer();
+              peerOffer.sdp = forceH264Codec(peerOffer.sdp);
+              await peerPc.setLocalDescription(peerOffer);
+
+              socketRef.current.emit('student-offer', {
+                offer: peerOffer,
+                targetViewerId: viewer.id
+              });
+
+              console.log(`✅ [STUDENT-JOIN-P2P] Offer P2P enviado a ${viewer.name}`);
+            } catch (error) {
+              console.error(`❌ [STUDENT-JOIN-P2P] Error creando conexión con ${viewer.id}:`, error);
+            }
+          }
+        } else {
+          console.log('ℹ️ [STUDENT-JOIN-P2P] No hay otros viewers en la clase todavía');
+        }
       }
 
       // Iniciar keep-alive cada 4 minutos
@@ -3179,7 +3260,79 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
             }
           }
 
-          // ✅ También agregar audio a conexiones P2P con otros estudiantes
+          // ✅ CRITICAL FIX: Crear conexiones P2P con otros estudiantes si no existen
+          // Esto permite que el audio llegue a todos sin necesidad de activar la cámara
+          console.log(`🎤 [STUDENT-P2P-AUDIO] Verificando conexiones P2P...`);
+          console.log(`🎤 [STUDENT-P2P-AUDIO] Conexiones existentes: ${peerStudentsRef.current.size}`);
+          console.log(`🎤 [STUDENT-P2P-AUDIO] Viewers en la clase: ${viewersList.length}`);
+
+          // Crear conexiones P2P con viewers que no tengan conexión todavía
+          if (viewersList && viewersList.length > 0) {
+            for (const viewer of viewersList) {
+              // Saltar si soy yo mismo
+              if (viewer.email === user?.email) continue;
+
+              // Si ya existe conexión, saltarla
+              if (peerStudentsRef.current.has(viewer.id)) {
+                console.log(`ℹ️ [STUDENT-P2P-AUDIO] Ya existe conexión con ${viewer.name}`);
+                continue;
+              }
+
+              console.log(`🆕 [STUDENT-P2P-AUDIO] Creando nueva conexión P2P con ${viewer.name} (${viewer.id})`);
+
+              try {
+                const peerPc = new RTCPeerConnection({
+                  iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' }
+                  ],
+                  iceCandidatePoolSize: 10
+                });
+
+                // Agregar el audio track a la conexión
+                console.log(`➕ [STUDENT-P2P-AUDIO] Agregando audio track para ${viewer.name}`);
+                peerPc.addTrack(newAudioTrack, myStream);
+
+                // Manejar stream remoto
+                peerPc.ontrack = (event) => {
+                  console.log(`📺 [STUDENT-P2P-AUDIO] Stream recibido de ${viewer.id}:`, event.streams[0]);
+                  if (event.streams[0]) {
+                    setPeerStudentStreams(prev => ({ ...prev, [viewer.id]: event.streams[0] }));
+                  }
+                };
+
+                // ICE candidates
+                peerPc.onicecandidate = (event) => {
+                  if (event.candidate) {
+                    socketRef.current.emit('peer-student-ice-candidate', {
+                      toViewerId: viewer.id,
+                      candidate: event.candidate
+                    });
+                  }
+                };
+
+                // Guardar peer connection
+                peerStudentsRef.current.set(viewer.id, peerPc);
+
+                // Crear y enviar offer
+                const peerOffer = await peerPc.createOffer();
+                peerOffer.sdp = forceH264Codec(peerOffer.sdp);
+                await peerPc.setLocalDescription(peerOffer);
+
+                socketRef.current.emit('student-offer', {
+                  offer: peerOffer,
+                  targetViewerId: viewer.id
+                });
+
+                console.log(`✅ [STUDENT-P2P-AUDIO] Offer enviado a ${viewer.name}`);
+              } catch (error) {
+                console.error(`❌ [STUDENT-P2P-AUDIO] Error creando conexión con ${viewer.id}:`, error);
+              }
+            }
+          }
+
+          // ✅ También agregar audio a conexiones P2P EXISTENTES con otros estudiantes
           console.log(`🎤 [STUDENT-P2P-AUDIO] Distribuyendo audio a ${peerStudentsRef.current.size} estudiantes conectados`);
 
           // ✅ CRITICAL FIX: Procesar conexiones P2P de forma secuencial para evitar race conditions
