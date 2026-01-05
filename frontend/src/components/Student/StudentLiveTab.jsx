@@ -4972,38 +4972,38 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                   {/* Botón de descarga SIEMPRE visible cuando hay pizarra o contenido */}
                   <button
                     onClick={downloadWhiteboard}
-                    className="p-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition"
+                    className="p-2 md:p-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition"
                     title="Descargar pizarra"
                   >
-                    <Download size={20} />
+                    <Download className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
 
-                  <div className="h-10 w-px bg-gray-600 mx-1"></div>
+                  <div className="hidden md:block h-10 w-px bg-gray-600 mx-1"></div>
 
                   <button
                     onClick={() => setShowChat(!showChat)}
-                    className={`p-3 rounded-lg transition ${
+                    className={`p-2 md:p-3 rounded-lg transition ${
                       showChat ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-gray-700 hover:bg-gray-600'
                     } text-white`}
                   >
-                    <MessageCircle size={20} />
+                    <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
 
                   <button
                     onClick={toggleFullscreen}
-                    className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition"
+                    className="p-2 md:p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition"
                     title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
                   >
-                    {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                    {isFullscreen ? <Minimize className="w-4 h-4 md:w-5 md:h-5" /> : <Maximize className="w-4 h-4 md:w-5 md:h-5" />}
                   </button>
 
                   {/* Botón de Salir */}
                   <button
                     onClick={leaveClass}
-                    className="p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+                    className="p-2 md:p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
                     title="Salir de la clase"
                   >
-                    <LogOut size={20} />
+                    <LogOut className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                 </div>
                   </div>
