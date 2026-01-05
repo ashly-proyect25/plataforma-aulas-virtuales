@@ -16,92 +16,118 @@ import {
 
 const HelpModal = ({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('getting-started');
+  const [activeCategory, setActiveCategory] = useState('about');
 
   const categories = [
-    { id: 'getting-started', label: 'Primeros Pasos', icon: Book },
+    { id: 'about', label: 'Acerca del Proyecto', icon: Book },
+    { id: 'features', label: 'Funcionalidades', icon: Video },
     { id: 'faq', label: 'Preguntas Frecuentes', icon: MessageCircle },
     { id: 'contact', label: 'Contacto', icon: Mail }
   ];
 
   const helpContent = {
-    'getting-started': [
+    'about': {
+      title: 'Plataforma de Aulas Virtuales',
+      subtitle: 'Proyecto de Tesis',
+      author: 'Ashly Ortega',
+      description: 'Sistema integral de gestión de clases virtuales en tiempo real diseñado para facilitar la educación a distancia mediante herramientas de comunicación interactiva, transmisión de video, pizarra colaborativa y gestión de cursos.',
+      objectives: [
+        'Proporcionar un entorno virtual completo para la enseñanza y aprendizaje en línea',
+        'Facilitar la comunicación en tiempo real entre docentes y estudiantes',
+        'Ofrecer herramientas colaborativas para mejorar la experiencia educativa',
+        'Garantizar accesibilidad desde cualquier dispositivo con conexión a internet'
+      ]
+    },
+    'features': [
       {
-        title: 'Configurar tu Perfil',
-        description: 'Aprende a personalizar tu información y preferencias',
-        icon: '👤',
-        action: 'Ver guía'
+        title: 'Gestión de Cursos',
+        description: 'Creación y administración de cursos, asignación de estudiantes y docentes',
+        icon: '📚'
       },
       {
-        title: 'Navegar por la Plataforma',
-        description: 'Conoce las diferentes secciones y funcionalidades',
-        icon: '🧭',
-        action: 'Ver guía'
+        title: 'Clases en Vivo',
+        description: 'Transmisión de video y audio en tiempo real con tecnología WebRTC',
+        icon: '🎥'
       },
       {
-        title: 'Gestionar Notificaciones',
-        description: 'Configura cómo y cuándo recibir alertas',
-        icon: '🔔',
-        action: 'Ver guía'
-      }
-    ],
-    'tutorials': [
-      {
-        title: 'Crear una Clase Virtual',
-        description: 'Tutorial paso a paso para docentes',
-        icon: '🎥',
-        duration: '5 min',
-        action: 'Ver video'
+        title: 'Pizarra Colaborativa',
+        description: 'Herramienta de dibujo compartida para explicaciones visuales',
+        icon: '✏️'
       },
       {
-        title: 'Unirse a una Clase',
-        description: 'Guía rápida para estudiantes',
-        icon: '📚',
-        duration: '3 min',
-        action: 'Ver video'
+        title: 'Chat en Tiempo Real',
+        description: 'Comunicación instantánea entre participantes durante las clases',
+        icon: '💬'
       },
       {
-        title: 'Compartir Materiales',
-        description: 'Cómo subir y compartir archivos',
-        icon: '📤',
-        duration: '4 min',
-        action: 'Ver video'
+        title: 'Compartir Pantalla',
+        description: 'Comparte tu pantalla para presentaciones y demostraciones',
+        icon: '🖥️'
+      },
+      {
+        title: 'Gestión de Participantes',
+        description: 'Control de permisos, silenciar participantes y gestión de aulas',
+        icon: '👥'
+      },
+      {
+        title: 'Responsive Design',
+        description: 'Funciona perfectamente en computadoras, tablets y dispositivos móviles',
+        icon: '📱'
+      },
+      {
+        title: 'Sistema de Roles',
+        description: 'Diferentes niveles de acceso: Administrador, Docente y Estudiante',
+        icon: '🔐'
       }
     ],
     'faq': [
       {
+        question: '¿Cómo inicio una clase en vivo como docente?',
+        answer: 'Ingresa al curso deseado, ve a la pestaña "Clases en Vivo" y presiona el botón "Iniciar Transmisión". Los estudiantes recibirán una notificación automáticamente.'
+      },
+      {
+        question: '¿Puedo usar la plataforma desde mi celular?',
+        answer: 'Sí, la plataforma es totalmente responsive y funciona perfectamente en dispositivos móviles (smartphones y tablets). Todas las funcionalidades están optimizadas para pantallas pequeñas.'
+      },
+      {
+        question: '¿Cómo me uno a una clase en vivo como estudiante?',
+        answer: 'Cuando el docente inicie una clase, verás un indicador "EN VIVO" en el curso. Ingresa al curso y haz clic en "Unirse a clase en vivo" en la pestaña de Clases.'
+      },
+      {
+        question: '¿Qué navegadores son compatibles?',
+        answer: 'La plataforma funciona mejor en navegadores modernos como Google Chrome, Microsoft Edge, Firefox y Safari (versiones recientes). Para mejor experiencia en videollamadas, recomendamos Chrome o Edge.'
+      },
+      {
+        question: '¿Puedo compartir mi pantalla durante una clase?',
+        answer: 'Sí, tanto docentes como estudiantes pueden compartir su pantalla durante las clases en vivo. Solo presiona el botón de "Compartir Pantalla" en los controles del video.'
+      },
+      {
+        question: '¿Cómo funciona la pizarra colaborativa?',
+        answer: 'La pizarra está disponible durante las clases en vivo. Presiona el botón de pizarra, selecciona el color y herramienta de dibujo, y dibuja directamente sobre el video. Todos los participantes verán tus trazos en tiempo real.'
+      },
+      {
+        question: '¿Necesito instalar algún programa adicional?',
+        answer: 'No, la plataforma funciona completamente en el navegador web. No necesitas descargar ni instalar ningún software adicional.'
+      },
+      {
         question: '¿Cómo cambio mi contraseña?',
-        answer: 'Ve a tu perfil → Cambiar Contraseña. Necesitarás tu contraseña actual.'
+        answer: 'Haz clic en tu perfil (esquina superior derecha) → Cambiar Contraseña. Necesitarás ingresar tu contraseña actual y la nueva contraseña dos veces para confirmar.'
       },
       {
-        question: '¿Puedo usar la plataforma en móvil?',
-        answer: 'Sí, la plataforma es totalmente responsive y funciona en cualquier dispositivo.'
+        question: '¿Los estudiantes pueden activar su cámara y micrófono?',
+        answer: 'Sí, los estudiantes pueden activar/desactivar su cámara y micrófono durante las clases. El docente puede silenciar a todos los estudiantes si es necesario.'
       },
       {
-        question: '¿Cómo recupero mi cuenta?',
-        answer: 'Contacta al administrador con tu email institucional para restablecer acceso.'
-      },
-      {
-        question: '¿Dónde veo mis clases grabadas?',
-        answer: 'En la sección "Grabaciones" de cada materia encontrarás el historial completo.'
+        question: '¿Qué hago si tengo problemas de conexión durante una clase?',
+        answer: 'Verifica tu conexión a internet. Si el problema persiste, intenta recargar la página o salir y volver a unirte a la clase. Para mejor experiencia, usa conexión Wi-Fi estable.'
       }
     ],
-    'contact': [
-      {
-        type: 'email',
-        title: 'Soporte Técnico',
-        value: 'soporte@plataforma.com',
-        description: 'Respuesta en 24-48 horas',
-        icon: Mail
-      },
-      {
-        type: 'phone',
-        title: 'Mesa de Ayuda',
-        value: '+593 XX-XXX-XXXX',
-        description: 'Lun-Vie 9:00-18:00',
-        icon: MessageCircle
-      }
-    ]
+    'contact': {
+      email: 'ashlyortega@atomicmail.com',
+      author: 'Ashly Ortega',
+      role: 'Desarrolladora - Proyecto de Tesis',
+      message: 'Para consultas, soporte técnico o más información sobre el proyecto, puedes contactarme a través del siguiente correo electrónico:'
+    }
   };
 
   const filteredContent = searchQuery
@@ -175,24 +201,52 @@ const HelpModal = ({ isOpen, onClose }) => {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
-            {activeCategory === 'getting-started' && (
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Primeros Pasos</h3>
-                {helpContent['getting-started'].map((item, index) => (
-                  <div
-                    key={index}
-                    className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer group"
-                  >
-                    <div className="flex items-start gap-4">
-                      <span className="text-3xl">{item.icon}</span>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800 mb-1">{item.title}</h4>
-                        <p className="text-sm text-gray-600">{item.description}</p>
+            {activeCategory === 'about' && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-200">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-2">{helpContent.about.title}</h3>
+                  <p className="text-sm text-blue-600 font-semibold mb-1">{helpContent.about.subtitle}</p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    <span className="font-semibold">Autora:</span> {helpContent.about.author}
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">{helpContent.about.description}</p>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-bold text-gray-800 mb-3">Objetivos del Proyecto</h4>
+                  <div className="space-y-2">
+                    {helpContent.about.objectives.map((objective, index) => (
+                      <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                          {index + 1}
+                        </div>
+                        <p className="text-sm text-gray-700">{objective}</p>
                       </div>
-                      <ChevronRight size={20} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
-                    </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+              </div>
+            )}
+
+            {activeCategory === 'features' && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Funcionalidades de la Plataforma</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {helpContent.features.map((item, index) => (
+                    <div
+                      key={index}
+                      className="p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all hover:shadow-md"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="text-3xl">{item.icon}</span>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800 mb-1">{item.title}</h4>
+                          <p className="text-sm text-gray-600">{item.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -217,50 +271,37 @@ const HelpModal = ({ isOpen, onClose }) => {
             )}
 
             {activeCategory === 'contact' && (
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Contacta con Nosotros</h3>
-                {helpContent.contact.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <div
-                      key={index}
-                      className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                          <Icon size={24} className="text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-bold text-gray-800 mb-1">{item.title}</h4>
-                          <p className="text-blue-600 font-mono text-sm mb-1">{item.value}</p>
-                          <p className="text-xs text-gray-600">{item.description}</p>
-                        </div>
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Información de Contacto</h3>
+
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-200">
+                  <p className="text-gray-700 mb-6 leading-relaxed">{helpContent.contact.message}</p>
+
+                  <div className="bg-white p-6 rounded-lg border-2 border-blue-300 shadow-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Mail size={28} className="text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-gray-800 mb-1">{helpContent.contact.author}</h4>
+                        <p className="text-sm text-gray-600 mb-3">{helpContent.contact.role}</p>
+                        <a
+                          href={`mailto:${helpContent.contact.email}`}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm"
+                        >
+                          <Mail size={16} />
+                          {helpContent.contact.email}
+                        </a>
                       </div>
                     </div>
-                  );
-                })}
-
-                {/* Formulario de Contacto */}
-                <div className="mt-6 p-6 bg-white rounded-lg border-2 border-dashed border-gray-300">
-                  <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <FileText size={20} />
-                    Enviar Mensaje
-                  </h4>
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      placeholder="Asunto"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
-                    <textarea
-                      placeholder="Describe tu problema o consulta..."
-                      rows="4"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
-                    />
-                    <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm">
-                      Enviar Mensaje
-                    </button>
                   </div>
+                </div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold text-yellow-800">Nota:</span> Este proyecto fue desarrollado como trabajo de tesis.
+                    Para consultas académicas, técnicas o cualquier información adicional, no dudes en contactarme.
+                  </p>
                 </div>
               </div>
             )}
