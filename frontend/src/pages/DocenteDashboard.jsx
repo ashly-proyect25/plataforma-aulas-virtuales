@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import {
   BookOpen,
   Users,
-  Settings,
   Loader,
   AlertCircle,
   ChevronRight,
@@ -17,7 +16,6 @@ import api from '../services/api';
 import UserMenu from '../components/UserMenu';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import EditProfileModal from '../components/EditProfileModal';
-import SettingsModal from '../components/SettingsModal';
 import HelpModal from '../components/HelpModal';
 
 const DocenteDashboard = () => {
@@ -28,25 +26,21 @@ const DocenteDashboard = () => {
   const [error, setError] = useState('');
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Event listeners para modales
   useEffect(() => {
     const handleOpenChangePassword = () => setShowChangePasswordModal(true);
     const handleOpenEditProfile = () => setShowEditProfileModal(true);
-    const handleOpenSettings = () => setShowSettingsModal(true);
     const handleOpenHelp = () => setShowHelpModal(true);
 
     window.addEventListener('openChangePasswordModal', handleOpenChangePassword);
     window.addEventListener('openEditProfileModal', handleOpenEditProfile);
-    window.addEventListener('openSettingsModal', handleOpenSettings);
     window.addEventListener('openHelpModal', handleOpenHelp);
 
     return () => {
       window.removeEventListener('openChangePasswordModal', handleOpenChangePassword);
       window.removeEventListener('openEditProfileModal', handleOpenEditProfile);
-      window.removeEventListener('openSettingsModal', handleOpenSettings);
       window.removeEventListener('openHelpModal', handleOpenHelp);
     };
   }, []);
@@ -282,10 +276,6 @@ const DocenteDashboard = () => {
       <EditProfileModal
         isOpen={showEditProfileModal}
         onClose={() => setShowEditProfileModal(false)}
-      />
-      <SettingsModal
-        isOpen={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
       />
       <HelpModal
         isOpen={showHelpModal}
