@@ -96,6 +96,7 @@ app.get('/api/health', (req, res) => {
 // ==================== SOCKET.IO - WebRTC ====================
 const streamingSessions = new Map(); // courseId -> { teacherId, viewers: Map(socketId -> {id, name, email, sessionTimeout}), screenSharer: null }
 const sessionTimeouts = new Map(); // socketId -> timeoutId
+const reconnectionTimers = new Map(); // userId -> { timeoutId, socketId, courseId, viewerData }
 
 // Función para generar room code único
 function generateRoomCode() {
@@ -173,10 +174,11 @@ io.on('connection', (socket) => {
   console.log('✅ Usuario conectado:', socket.id);
 
   // Iniciar transmisión (Docente)
-  socket.on('start-streaming', async ({ courseId, teacherId, cameraEnabled = true }) => {
+  socket.on('start-streaming', async ({ courseId, teacherId, cameraEnabled = true, teacherInfo }) => {
     console.log(`📡 [STREAM] Docente ${teacherId} inició transmisión en curso ${courseId} (socket: ${socket.id})`);
 
     const roomCode = generateRoomCode();
+    const teacherUserId = teacherInfo?.id || teacherId; // Usar teacherInfo.id si está disponible
 
     // ✅ Registrar clase en vivo en la base de datos
     try {
@@ -227,9 +229,31 @@ io.on('connection', (socket) => {
       // Continuar aunque falle el registro en BD
     }
 
-    if (!streamingSessions.has(courseId)) {
+    // ✅ RECONNECTION: Verificar si el docente estaba en período de reconexión
+    if (teacherUserId && reconnectionTimers.has(`teacher-${teacherUserId}`)) {
+      const reconnectionInfo = reconnectionTimers.get(`teacher-${teacherUserId}`);
+      console.log(`🔄 [RECONNECTION] Docente ${teacherUserId} se reconectó! Cancelando finalización de clase...`);
+
+      // Cancelar el timeout de finalización
+      clearTimeout(reconnectionInfo.timeoutId);
+
+      // Obtener la sesión existente y actualizar el socket.id del docente
+      const existingSession = streamingSessions.get(courseId);
+      if (existingSession) {
+        existingSession.teacherId = socket.id;
+        existingSession.teacherUserId = teacherUserId;
+        console.log(`✅ [RECONNECTION] Docente reconectado, nuevo socketId: ${socket.id}`);
+
+        // Notificar a todos los estudiantes que el docente se reconectó
+        io.to(`course-${courseId}`).emit('teacher-reconnected');
+      }
+
+      // Limpiar del Map de reconexiones
+      reconnectionTimers.delete(`teacher-${teacherUserId}`);
+    } else if (!streamingSessions.has(courseId)) {
       streamingSessions.set(courseId, {
         teacherId: socket.id,
+        teacherUserId: teacherUserId, // ✅ Guardar userId del docente para reconexiones
         viewers: new Map(),
         roomCode: roomCode,
         cameraEnabled: cameraEnabled, // ✅ Store initial camera state
@@ -305,12 +329,35 @@ io.on('connection', (socket) => {
     const session = streamingSessions.get(courseId);
     if (session) {
       console.log(`📺 [VIEWER] Sesión en vivo encontrada para curso ${courseId}`);
+
+      const userId = userInfo?.id || null;
+
+      // ✅ RECONNECTION: Verificar si este usuario estaba en período de reconexión
+      if (userId && reconnectionTimers.has(userId)) {
+        const reconnectionInfo = reconnectionTimers.get(userId);
+        console.log(`🔄 [RECONNECTION] Usuario ${userId} se reconectó! Cancelando eliminación...`);
+
+        // Cancelar el timeout de eliminación
+        clearTimeout(reconnectionInfo.timeoutId);
+
+        // Eliminar al viewer con el socket.id antiguo
+        if (session.viewers.has(reconnectionInfo.socketId)) {
+          session.viewers.delete(reconnectionInfo.socketId);
+          console.log(`🗑️ [RECONNECTION] Viewer antiguo ${reconnectionInfo.socketId} eliminado`);
+        }
+
+        // Limpiar del Map de reconexiones
+        reconnectionTimers.delete(userId);
+
+        console.log(`✅ [RECONNECTION] Reconexión exitosa para userId ${userId}, nuevo socketId: ${socket.id}`);
+      }
+
       // Guardar información del viewer con userId para las sesiones
       const viewerData = {
         id: socket.id,
         name: userInfo?.name || 'Usuario',
         email: userInfo?.email || '',
-        userId: userInfo?.id || null,
+        userId: userId,
         joinedAt: new Date(),
         cameraEnabled: false, // ✅ Estado inicial de cámara
         isScreenSharing: false // ✅ Estado inicial de pantalla compartida
@@ -910,67 +957,185 @@ io.on('connection', (socket) => {
     // Limpiar si era docente transmitiendo
     for (const [courseId, session] of streamingSessions.entries()) {
       if (session.teacherId === socket.id) {
-        console.log(`📴 [DISCONNECT] Docente desconectado, finalizando transmisión del curso ${courseId}`);
+        const teacherUserId = session.teacherUserId;
+        console.log(`⏳ [RECONNECTION] Docente desconectado, iniciando período de reconexión de 10s para curso ${courseId}`);
 
-        // ✅ FIX CRÍTICO: Marcar clase como finalizada en la base de datos
-        try {
-          await prisma.classroom.updateMany({
-            where: {
-              courseId: parseInt(courseId),
-              isLive: true
-            },
-            data: {
-              isLive: false
-            }
-          });
-          console.log(`✅ [DISCONNECT-DB] Clases en vivo del curso ${courseId} marcadas como finalizadas`);
-        } catch (error) {
-          console.error('❌ [DISCONNECT-DB] Error al finalizar clase:', error);
-          // Continuar aunque falle
-        }
+        // ✅ RECONNECTION PERIOD: Esperar 10 segundos antes de finalizar la clase
+        const reconnectionTimeout = setTimeout(async () => {
+          console.log(`⏰ [RECONNECTION] Tiempo de reconexión expirado para docente del curso ${courseId}`);
 
-        // Guardar todas las sesiones activas antes de cerrar
-        for (const [viewerSocketId, viewer] of session.viewers.entries()) {
-          const duration = Date.now() - viewer.joinedAt.getTime();
-          await saveSession(viewer, courseId, duration);
-
-          // Cancelar timeouts de viewers
-          if (sessionTimeouts.has(viewerSocketId)) {
-            clearTimeout(sessionTimeouts.get(viewerSocketId));
-            sessionTimeouts.delete(viewerSocketId);
+          // Verificar si la sesión aún existe
+          const currentSession = streamingSessions.get(courseId);
+          if (!currentSession) {
+            console.log(`ℹ️ [RECONNECTION] Sesión del curso ${courseId} ya fue manejada, saliendo...`);
+            if (teacherUserId) reconnectionTimers.delete(`teacher-${teacherUserId}`);
+            return;
           }
+
+          console.log(`📴 [RECONNECTION] Finalizando transmisión del curso ${courseId} tras timeout`);
+
+          // ✅ FIX CRÍTICO: Marcar clase como finalizada en la base de datos
+          try {
+            await prisma.classroom.updateMany({
+              where: {
+                courseId: parseInt(courseId),
+                isLive: true
+              },
+              data: {
+                isLive: false
+              }
+            });
+            console.log(`✅ [DISCONNECT-DB] Clases en vivo del curso ${courseId} marcadas como finalizadas`);
+          } catch (error) {
+            console.error('❌ [DISCONNECT-DB] Error al finalizar clase:', error);
+            // Continuar aunque falle
+          }
+
+          // Guardar todas las sesiones activas antes de cerrar
+          for (const [viewerSocketId, viewer] of currentSession.viewers.entries()) {
+            const duration = Date.now() - viewer.joinedAt.getTime();
+            await saveSession(viewer, courseId, duration);
+
+            // Cancelar timeouts de viewers
+            if (sessionTimeouts.has(viewerSocketId)) {
+              clearTimeout(sessionTimeouts.get(viewerSocketId));
+              sessionTimeouts.delete(viewerSocketId);
+            }
+          }
+
+          // ✅ CRÍTICO: Notificar a todos los estudiantes que la transmisión finalizó
+          io.to(`course-${courseId}`).emit('streaming-stopped');
+          console.log(`📢 [DISCONNECT] Enviado 'streaming-stopped' a todos los estudiantes del curso ${courseId}`);
+
+          streamingSessions.delete(courseId);
+
+          // Limpiar del Map de reconexiones
+          if (teacherUserId) reconnectionTimers.delete(`teacher-${teacherUserId}`);
+        }, 10000); // 10 segundos de espera
+
+        // Guardar el timeout para poder cancelarlo si se reconecta
+        if (teacherUserId) {
+          reconnectionTimers.set(`teacher-${teacherUserId}`, {
+            timeoutId: reconnectionTimeout,
+            socketId: socket.id,
+            courseId: courseId,
+            sessionData: session
+          });
+          console.log(`✅ [RECONNECTION] Timer de reconexión establecido para docente userId ${teacherUserId}`);
+        } else {
+          // Si no hay teacherUserId, finalizar inmediatamente (no se puede rastrear reconexión)
+          console.log(`⚠️ [RECONNECTION] No hay teacherUserId, finalizando transmisión inmediatamente`);
+          clearTimeout(reconnectionTimeout);
+
+          // Finalizar inmediatamente
+          try {
+            await prisma.classroom.updateMany({
+              where: {
+                courseId: parseInt(courseId),
+                isLive: true
+              },
+              data: {
+                isLive: false
+              }
+            });
+          } catch (error) {
+            console.error('❌ Error al finalizar clase:', error);
+          }
+
+          for (const [viewerSocketId, viewer] of session.viewers.entries()) {
+            const duration = Date.now() - viewer.joinedAt.getTime();
+            await saveSession(viewer, courseId, duration);
+
+            if (sessionTimeouts.has(viewerSocketId)) {
+              clearTimeout(sessionTimeouts.get(viewerSocketId));
+              sessionTimeouts.delete(viewerSocketId);
+            }
+          }
+
+          io.to(`course-${courseId}`).emit('streaming-stopped');
+          streamingSessions.delete(courseId);
         }
-
-        // ✅ CRÍTICO: Notificar a todos los estudiantes que la transmisión finalizó
-        io.to(`course-${courseId}`).emit('streaming-stopped');
-        console.log(`📢 [DISCONNECT] Enviado 'streaming-stopped' a todos los estudiantes del curso ${courseId}`);
-
-        streamingSessions.delete(courseId);
       } else if (session.viewers.has(socket.id)) {
         const viewer = session.viewers.get(socket.id);
-        const duration = Date.now() - viewer.joinedAt.getTime();
+        const userId = viewer.userId;
 
-        // Guardar sesión del viewer que se desconectó
-        await saveSession(viewer, courseId, duration);
+        console.log(`⏳ [RECONNECTION] Iniciando período de reconexión de 10s para viewer ${socket.id} (userId: ${userId})`);
 
-        session.viewers.delete(socket.id);
+        // ✅ RECONNECTION PERIOD: Esperar 10 segundos antes de eliminar al usuario
+        const reconnectionTimeout = setTimeout(async () => {
+          console.log(`⏰ [RECONNECTION] Tiempo de reconexión expirado para userId ${userId}`);
 
-        const viewersList = Array.from(session.viewers.values());
+          // Verificar si la sesión y el viewer aún existen
+          const currentSession = streamingSessions.get(courseId);
+          if (!currentSession || !currentSession.viewers.has(socket.id)) {
+            console.log(`ℹ️ [RECONNECTION] Viewer ${socket.id} ya fue manejado, saliendo...`);
+            reconnectionTimers.delete(userId);
+            return;
+          }
 
-        io.to(session.teacherId).emit('viewer-left', socket.id);
-        io.to(`course-${courseId}`).emit('viewer-count', session.viewers.size);
-        io.to(`course-${courseId}`).emit('viewers-list', viewersList); // ✅ Enviar a TODOS los participantes
+          const viewerData = currentSession.viewers.get(socket.id);
+          const duration = Date.now() - viewerData.joinedAt.getTime();
 
-        // ✅ DUAL STREAM: If this viewer was sharing screen, release the lock
-        if (session.screenSharer === socket.id) {
-          session.screenSharer = null;
-          session.isScreenSharing = false;
-          console.log(`📺 [SCREEN-SHARE-LOCK] Lock released due to viewer ${socket.id} disconnection`);
-          io.to(`course-${courseId}`).emit('screen-sharer-changed', {
-            sharerId: null,
-            sharerName: null,
-            isSharing: false
+          // Guardar sesión del viewer que se desconectó definitivamente
+          await saveSession(viewerData, courseId, duration);
+
+          currentSession.viewers.delete(socket.id);
+
+          const viewersList = Array.from(currentSession.viewers.values());
+
+          io.to(currentSession.teacherId).emit('viewer-left', socket.id);
+          io.to(`course-${courseId}`).emit('viewer-count', currentSession.viewers.size);
+          io.to(`course-${courseId}`).emit('viewers-list', viewersList);
+
+          console.log(`🚪 [RECONNECTION] Viewer ${socket.id} eliminado definitivamente tras no reconectarse`);
+
+          // ✅ DUAL STREAM: If this viewer was sharing screen, release the lock
+          if (currentSession.screenSharer === socket.id) {
+            currentSession.screenSharer = null;
+            currentSession.isScreenSharing = false;
+            console.log(`📺 [SCREEN-SHARE-LOCK] Lock released due to viewer ${socket.id} final disconnection`);
+            io.to(`course-${courseId}`).emit('screen-sharer-changed', {
+              sharerId: null,
+              sharerName: null,
+              isSharing: false
+            });
+          }
+
+          // Limpiar del Map de reconexiones
+          reconnectionTimers.delete(userId);
+        }, 10000); // 10 segundos de espera
+
+        // Guardar el timeout para poder cancelarlo si se reconecta
+        if (userId) {
+          reconnectionTimers.set(userId, {
+            timeoutId: reconnectionTimeout,
+            socketId: socket.id,
+            courseId: courseId,
+            viewerData: viewer
           });
+          console.log(`✅ [RECONNECTION] Timer de reconexión establecido para userId ${userId}`);
+        } else {
+          // Si no hay userId, eliminar inmediatamente (no se puede rastrear reconexión)
+          console.log(`⚠️ [RECONNECTION] No hay userId, eliminando inmediatamente`);
+          clearTimeout(reconnectionTimeout);
+
+          const duration = Date.now() - viewer.joinedAt.getTime();
+          await saveSession(viewer, courseId, duration);
+          session.viewers.delete(socket.id);
+          const viewersList = Array.from(session.viewers.values());
+          io.to(session.teacherId).emit('viewer-left', socket.id);
+          io.to(`course-${courseId}`).emit('viewer-count', session.viewers.size);
+          io.to(`course-${courseId}`).emit('viewers-list', viewersList);
+
+          if (session.screenSharer === socket.id) {
+            session.screenSharer = null;
+            session.isScreenSharing = false;
+            io.to(`course-${courseId}`).emit('screen-sharer-changed', {
+              sharerId: null,
+              sharerName: null,
+              isSharing: false
+            });
+          }
         }
       }
     }

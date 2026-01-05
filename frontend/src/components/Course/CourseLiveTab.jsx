@@ -42,7 +42,7 @@ const forceH264Codec = (sdp) => {
 };
 
 const CourseLiveTab = ({ course, isMinimizedView = false }) => {
-  const { activeLiveClass, setActiveLiveClass, updateActiveLiveClass, clearActiveLiveClass } = useStore();
+  const { user, activeLiveClass, setActiveLiveClass, updateActiveLiveClass, clearActiveLiveClass } = useStore();
 
   // Estados principales
   const [view, setView] = useState('schedule'); // 'schedule' | 'live'
@@ -1099,7 +1099,8 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       socketRef.current.emit('start-streaming', {
         courseId: course.id,
         teacherId: course.teacherId,
-        cameraEnabled: startWithCamera // ✅ Send initial camera state
+        cameraEnabled: startWithCamera, // ✅ Send initial camera state
+        teacherInfo: user // ✅ RECONNECTION: Enviar info del docente para reconexiones
       });
 
       // ✅ Activar estado de clase en vivo en el store
