@@ -1182,8 +1182,8 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
     setViewers(0);
     setPinnedParticipant(null);
 
-    // ✅ Notificar al servidor
-    socketRef.current.emit('stop-streaming', { courseId: course.id });
+    // ✅ INTENTIONAL EXIT: Notificar al servidor que es una salida intencional (sin período de reconexión)
+    socketRef.current.emit('stop-streaming-intentional', { courseId: course.id });
 
     // ✅ Resetear estados UI
     setIsStreaming(false);

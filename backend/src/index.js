@@ -307,6 +307,61 @@ io.on('connection', (socket) => {
     socket.leave(`course-${courseId}`);
   });
 
+  // ✅ INTENTIONAL EXIT: Docente detiene transmisión intencionalmente (sin período de reconexión)
+  socket.on('stop-streaming-intentional', async ({ courseId }) => {
+    console.log(`🚪 [INTENTIONAL-EXIT] Docente deteniendo transmisión intencionalmente en curso ${courseId}`);
+
+    const session = streamingSessions.get(courseId);
+    if (session) {
+      const teacherUserId = session.teacherUserId;
+
+      // ✅ CRITICAL: Cancelar timeout de reconexión si existe (salida intencional)
+      if (teacherUserId && reconnectionTimers.has(`teacher-${teacherUserId}`)) {
+        const reconnectionInfo = reconnectionTimers.get(`teacher-${teacherUserId}`);
+        clearTimeout(reconnectionInfo.timeoutId);
+        reconnectionTimers.delete(`teacher-${teacherUserId}`);
+        console.log(`❌ [INTENTIONAL-EXIT] Timer de reconexión cancelado para docente userId ${teacherUserId}`);
+      }
+
+      // Guardar todas las sesiones activas antes de cerrar
+      for (const [viewerSocketId, viewer] of session.viewers.entries()) {
+        const duration = Date.now() - viewer.joinedAt.getTime();
+        await saveSession(viewer, courseId, duration);
+
+        // Cancelar timeouts de viewers
+        if (sessionTimeouts.has(viewerSocketId)) {
+          clearTimeout(sessionTimeouts.get(viewerSocketId));
+          sessionTimeouts.delete(viewerSocketId);
+        }
+      }
+    }
+
+    // ✅ Marcar clase como finalizada en la base de datos
+    try {
+      await prisma.classroom.updateMany({
+        where: {
+          courseId: parseInt(courseId),
+          isLive: true
+        },
+        data: {
+          isLive: false
+        }
+      });
+      console.log(`✅ [DB] Clases en vivo del curso ${courseId} marcadas como finalizadas`);
+    } catch (error) {
+      console.error('❌ [DB] Error al finalizar clase:', error);
+      // Continuar aunque falle
+    }
+
+    // Notificar a todos los espectadores
+    io.to(`course-${courseId}`).emit('streaming-stopped');
+
+    streamingSessions.delete(courseId);
+    socket.leave(`course-${courseId}`);
+
+    console.log(`✅ [INTENTIONAL-EXIT] Transmisión finalizada inmediatamente (sin reconexión)`);
+  });
+
   // Verificar si hay una sesión en vivo (para cuando estudiante entra después de que ya empezó)
   socket.on('check-live-status', ({ courseId }) => {
     const session = streamingSessions.get(courseId);
@@ -466,6 +521,59 @@ io.on('connection', (socket) => {
       io.to(session.teacherId).emit('viewer-left', socket.id);
       io.to(`course-${courseId}`).emit('viewer-count', session.viewers.size);
       io.to(`course-${courseId}`).emit('viewers-list', viewersList); // ✅ Enviar a TODOS los participantes
+    }
+    socket.leave(`course-${courseId}`);
+  });
+
+  // ✅ INTENTIONAL EXIT: Salida intencional sin período de reconexión
+  socket.on('leave-viewer-intentional', async ({ courseId }) => {
+    console.log(`🚪 [INTENTIONAL-EXIT] Estudiante ${socket.id} saliendo intencionalmente del curso ${courseId}`);
+
+    const session = streamingSessions.get(courseId);
+    if (session && session.viewers.has(socket.id)) {
+      const viewer = session.viewers.get(socket.id);
+      const userId = viewer.userId;
+      const duration = Date.now() - viewer.joinedAt.getTime();
+
+      // ✅ CRITICAL: Cancelar timeout de reconexión si existe (salida intencional)
+      if (userId && reconnectionTimers.has(userId)) {
+        const reconnectionInfo = reconnectionTimers.get(userId);
+        clearTimeout(reconnectionInfo.timeoutId);
+        reconnectionTimers.delete(userId);
+        console.log(`❌ [INTENTIONAL-EXIT] Timer de reconexión cancelado para userId ${userId}`);
+      }
+
+      // Cancelar timeout de inactividad
+      if (sessionTimeouts.has(socket.id)) {
+        clearTimeout(sessionTimeouts.get(socket.id));
+        sessionTimeouts.delete(socket.id);
+      }
+
+      // Guardar sesión en base de datos
+      await saveSession(viewer, courseId, duration);
+
+      // Limpiar viewer INMEDIATAMENTE
+      session.viewers.delete(socket.id);
+
+      const viewersList = Array.from(session.viewers.values());
+
+      io.to(session.teacherId).emit('viewer-left', socket.id);
+      io.to(`course-${courseId}`).emit('viewer-count', session.viewers.size);
+      io.to(`course-${courseId}`).emit('viewers-list', viewersList);
+
+      // ✅ DUAL STREAM: Si estaba compartiendo pantalla, liberar el lock
+      if (session.screenSharer === socket.id) {
+        session.screenSharer = null;
+        session.isScreenSharing = false;
+        console.log(`📺 [SCREEN-SHARE-LOCK] Lock released due to intentional exit of ${socket.id}`);
+        io.to(`course-${courseId}`).emit('screen-sharer-changed', {
+          sharerId: null,
+          sharerName: null,
+          isSharing: false
+        });
+      }
+
+      console.log(`✅ [INTENTIONAL-EXIT] Viewer ${socket.id} eliminado inmediatamente (sin reconexión)`);
     }
     socket.leave(`course-${courseId}`);
   });

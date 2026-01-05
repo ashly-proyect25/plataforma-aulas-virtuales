@@ -2677,10 +2677,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
     isMutedRef.current = true;
     peerStudentScreenSharingStatesRef.current = {};
 
-    // ✅ CRITICAL: Emitir evento de salida al servidor
+    // ✅ CRITICAL: Emitir evento de salida INTENCIONAL al servidor (sin período de reconexión)
     if (socketRef.current) {
-      console.log('📤 [STUDENT] Emitiendo leave-viewer al servidor...');
-      socketRef.current.emit('leave-viewer', { courseId: course.id });
+      console.log('📤 [STUDENT] Emitiendo leave-viewer-intentional al servidor (salida intencional)...');
+      socketRef.current.emit('leave-viewer-intentional', { courseId: course.id });
     }
 
     // ✅ CRITICAL: Limpiar estado de clase en vivo del store (Zustand)
