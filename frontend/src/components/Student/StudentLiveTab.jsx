@@ -5,7 +5,7 @@ import {
   Video, VideoOff, Mic, MicOff, Loader, Users, Maximize, Minimize,
   MessageCircle, Send, X, UserCircle, AlertCircle, Clock, Minimize2, Play,
   Monitor, MonitorOff, Paintbrush, Eraser, Download, Trash2, Calendar,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, LogOut
 } from 'lucide-react';
 import io from 'socket.io-client';
 import { useStore } from '../../store/store';
@@ -4992,8 +4992,18 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                   <button
                     onClick={toggleFullscreen}
                     className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition"
+                    title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
                   >
                     {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                  </button>
+
+                  {/* Botón de Salir */}
+                  <button
+                    onClick={leaveClass}
+                    className="p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+                    title="Salir de la clase"
+                  >
+                    <LogOut size={20} />
                   </button>
                 </div>
                   </div>
