@@ -2533,26 +2533,20 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   };
 
   const leaveClass = () => {
-    console.log('🚪 [STUDENT] Iniciando limpieza completa al salir de clase...');
-
-    // ✅ CRITICAL: Limpiar intervalos
     if (keepAliveIntervalRef.current) {
       clearInterval(keepAliveIntervalRef.current);
       keepAliveIntervalRef.current = null;
     }
 
+    // ✅ FIX: Limpiar interval de verificación de estado
     if (liveStatusCheckIntervalRef.current) {
       clearInterval(liveStatusCheckIntervalRef.current);
       liveStatusCheckIntervalRef.current = null;
     }
 
-    // ✅ CRITICAL: Detener y limpiar stream propio del estudiante
+    // Detener stream del estudiante si existe
     if (myStream) {
-      console.log('🛑 [STUDENT] Deteniendo stream propio...');
-      myStream.getTracks().forEach(track => {
-        track.stop();
-        console.log(`🛑 [STUDENT] Track detenido: ${track.kind} - ${track.label}`);
-      });
+      myStream.getTracks().forEach(track => track.stop());
       setMyStream(null);
     }
 
@@ -2560,47 +2554,28 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
       myVideoRef.current.srcObject = null;
     }
 
-    // ✅ CRITICAL: Detener y limpiar screen stream propio si existe
-    if (screenStreamRef.current) {
-      console.log('🛑 [STUDENT] Deteniendo screen stream propio...');
-      screenStreamRef.current.getTracks().forEach(track => {
-        track.stop();
-        console.log(`🛑 [STUDENT] Screen track detenido: ${track.kind} - ${track.label}`);
-      });
-      screenStreamRef.current = null;
-    }
-
-    // ✅ CRITICAL: Cerrar conexión peer con docente
     if (studentPeerConnectionRef.current) {
-      console.log('🔌 [STUDENT] Cerrando conexión peer con docente...');
       studentPeerConnectionRef.current.close();
       studentPeerConnectionRef.current = null;
     }
 
+    socketRef.current.emit('leave-viewer', { courseId: course.id });
+    setIsJoined(false);
+    setHasStream(false);
+    setIsCameraEnabled(false);
+    setShowStreamModal(false); // Cerrar modal al salir
+    setIsMinimized(false); // Reset minimizado
+
     if (peerConnectionRef.current) {
-      console.log('🔌 [STUDENT] Cerrando conexión peer principal...');
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
     }
 
-    // ✅ CRITICAL: Cerrar todas las conexiones P2P con otros estudiantes
-    if (peerStudentsRef.current && peerStudentsRef.current.size > 0) {
-      console.log(`🔌 [STUDENT] Cerrando ${peerStudentsRef.current.size} conexiones P2P con estudiantes...`);
-      peerStudentsRef.current.forEach((pc, viewerId) => {
-        if (pc) {
-          pc.close();
-          console.log(`🔌 [STUDENT] Conexión cerrada con estudiante ${viewerId}`);
-        }
-      });
-      peerStudentsRef.current.clear();
-    }
-
-    // ✅ CRITICAL: Limpiar elementos de video
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
 
-    // ✅ CRITICAL: Limpiar elementos de audio
+    // ✅ FIX AUDIO: Limpiar elementos de audio
     if (teacherAudioRef.current) {
       teacherAudioRef.current.srcObject = null;
       teacherAudioRef.current = null;
@@ -2612,82 +2587,10 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         delete peerAudioRefs.current[viewerId];
       }
     });
-    peerAudioRefs.current = {};
 
-    // ✅ CRITICAL: Limpiar video refs de peers
-    Object.keys(peerVideoRefs.current).forEach(viewerId => {
-      if (peerVideoRefs.current[viewerId]) {
-        peerVideoRefs.current[viewerId].srcObject = null;
-        delete peerVideoRefs.current[viewerId];
-      }
-    });
-    peerVideoRefs.current = {};
-
-    // ✅ CRITICAL: Detener y limpiar teacher screen stream
-    setTeacherScreenStream(prev => {
-      if (prev) {
-        console.log('🛑 [STUDENT] Deteniendo teacher screen stream...');
-        prev.getTracks().forEach(track => {
-          track.stop();
-          console.log(`🛑 [STUDENT] Teacher screen track detenido: ${track.kind} - ${track.label}`);
-        });
-      }
-      return null;
-    });
-
-    // ✅ CRITICAL: Limpiar teacher stream ref
-    if (teacherStreamRef.current) {
-      console.log('🛑 [STUDENT] Limpiando teacher stream ref...');
-      teacherStreamRef.current.getTracks().forEach(track => track.stop());
-      teacherStreamRef.current = null;
-    }
-
-    // ✅ CRITICAL: Resetear TODOS los estados a valores iniciales
-    console.log('🔄 [STUDENT] Reseteando todos los estados...');
-    setIsJoined(false);
-    setIsLive(false);
-    setHasStream(false);
-    setIsCameraEnabled(false);
-    setIsMuted(true);
-    setIsForceMuted(false);
-    setIsScreenSharing(false);
-    setScreenSharePending(false);
-    setIsScreenShareBlocked(false);
-    setIsTeacherCameraOn(true);
-    setIsTeacherScreenSharing(false);
-    setNeedsUserInteraction(false);
-    setShowStreamModal(false);
-    setIsMinimized(false);
-    setPinnedParticipant(null);
-    setShowWhiteboard(false);
-    setViewers(0);
-    setViewersList([]);
-    setMessages([]);
-    setPeerStudentStreams({});
-    setPeerStudentScreenStreams({});
-    setPeerStudentCameraStates({});
-    setPeerStudentScreenSharingStates({});
-    setTeacherStreamVersion(0);
-
-    // ✅ CRITICAL: Resetear TODOS los refs
-    console.log('🔄 [STUDENT] Reseteando todos los refs...');
-    isJoinedRef.current = false;
-    myStreamRef.current = null;
-    isScreenSharingRef.current = false;
-    isMutedRef.current = true;
-    peerStudentScreenSharingStatesRef.current = {};
-
-    // ✅ CRITICAL: Emitir evento de salida INTENCIONAL al servidor (sin período de reconexión)
-    if (socketRef.current) {
-      console.log('📤 [STUDENT] Emitiendo leave-viewer-intentional al servidor (salida intencional)...');
-      socketRef.current.emit('leave-viewer-intentional', { courseId: course.id });
-    }
-
-    // ✅ CRITICAL: Limpiar estado de clase en vivo del store (Zustand)
-    console.log('🗑️ [STUDENT] Limpiando activeLiveClass del store...');
+    // ✅ Limpiar estado de clase en vivo del store
     clearActiveLiveClass();
 
-    console.log('✅ [STUDENT] Limpieza completa finalizada');
     showToastMessage('Has salido de la clase', 'info');
   };
 
@@ -3365,12 +3268,6 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
   // ✅ SCREEN SHARE: Request permission from teacher
   const requestScreenShare = () => {
-    // ✅ MOBILE CHECK: Bloquear compartir pantalla en dispositivos móviles
-    if (isMobile || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
-      showToastMessage('Opción no disponible en móvil', 'warning');
-      return;
-    }
-
     setScreenSharePending(true);
     socketRef.current.emit('request-screen-share');
     showToastMessage('Solicitando permiso al docente...', 'info');
@@ -4022,8 +3919,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
                         />
 
                         {/* ✅ CRITICAL FIX: Verificar estados en el orden correcto */}
-                        {/* ⚠️ DEFENSIVE CHECK: Solo mostrar placeholder si NO hay screen stream Y cámara OFF */}
-                        {!isTeacherScreenSharing && !teacherScreenStream && !isTeacherCameraOn ? (
+                        {!isTeacherCameraOn && !isTeacherScreenSharing ? (
                           // Cámara desactivada Y NO compartiendo pantalla - Mostrar placeholder
                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 z-10">
                             <div className="relative">

@@ -42,7 +42,7 @@ const forceH264Codec = (sdp) => {
 };
 
 const CourseLiveTab = ({ course, isMinimizedView = false }) => {
-  const { user, activeLiveClass, setActiveLiveClass, updateActiveLiveClass, clearActiveLiveClass } = useStore();
+  const { activeLiveClass, setActiveLiveClass, updateActiveLiveClass, clearActiveLiveClass } = useStore();
 
   // Estados principales
   const [view, setView] = useState('schedule'); // 'schedule' | 'live'
@@ -1099,8 +1099,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       socketRef.current.emit('start-streaming', {
         courseId: course.id,
         teacherId: course.teacherId,
-        cameraEnabled: startWithCamera, // ✅ Send initial camera state
-        teacherInfo: user // ✅ RECONNECTION: Enviar info del docente para reconexiones
+        cameraEnabled: startWithCamera // ✅ Send initial camera state
       });
 
       // ✅ Activar estado de clase en vivo en el store
@@ -1182,8 +1181,8 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
     setViewers(0);
     setPinnedParticipant(null);
 
-    // ✅ INTENTIONAL EXIT: Notificar al servidor que es una salida intencional (sin período de reconexión)
-    socketRef.current.emit('stop-streaming-intentional', { courseId: course.id });
+    // ✅ Notificar al servidor
+    socketRef.current.emit('stop-streaming', { courseId: course.id });
 
     // ✅ Resetear estados UI
     setIsStreaming(false);
