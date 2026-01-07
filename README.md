@@ -1,6 +1,16 @@
-# 🎓 Plataforma de Aulas Virtuales - Proyecto de Tesis
+# 🎓 Plataforma de Aulas Virtuales
 
 Sistema de clases virtuales en tiempo real con video streaming, pizarra colaborativa y chat en vivo.
+
+## 📚 Documentación de Instalación
+
+Para instalar el proyecto en tu computadora, sigue estas guías:
+
+1. 📋 **[REQUISITOS-INSTALACION.md](./REQUISITOS-INSTALACION.md)** - Instalación de tecnologías necesarias (Node.js, Docker, Git)
+2. 📦 **[INSTALACION.md](./INSTALACION.md)** - Guía completa de instalación del proyecto
+3. ⚡ **Scripts de instalación automática:**
+   - **Linux/Mac:** `bash setup.sh`
+   - **Windows:** `.\setup.ps1` (ejecutar en PowerShell como Administrador)
 
 ## 🚀 Tecnologías
 

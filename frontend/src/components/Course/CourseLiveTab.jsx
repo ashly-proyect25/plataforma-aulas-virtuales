@@ -256,11 +256,30 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
     socket.on('viewers-list', (viewers) => {
       console.log('👥 Lista de espectadores actualizada:', viewers);
       setViewersList(viewers);
+
+      // ✅ FIX: Inicializar estados de cámara para todos los espectadores en la lista
+      const cameraStates = {};
+      viewers.forEach(viewer => {
+        cameraStates[viewer.id] = viewer.cameraEnabled ?? false;
+      });
+      setStudentCameraStates(prev => ({
+        ...prev,
+        ...cameraStates
+      }));
+      console.log('📹 [TEACHER-INIT] Estados de cámara inicializados para viewers:', cameraStates);
     });
 
     socket.on('viewer-joined', async ({ viewerId, viewerInfo }) => {
       console.log('👤 Nuevo espectador:', viewerId, viewerInfo);
       showToastMessage(`${viewerInfo.name} se unió a la clase`, 'info');
+
+      // ✅ FIX: Inicializar estado de cámara del estudiante cuando se une
+      setStudentCameraStates(prev => ({
+        ...prev,
+        [viewerId]: viewerInfo.cameraEnabled ?? false
+      }));
+      console.log(`📹 [TEACHER-INIT] Estado inicial de cámara para ${viewerId}: ${viewerInfo.cameraEnabled ?? false}`);
+
       await createPeerConnection(viewerId);
     });
 
@@ -270,6 +289,14 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         peerConnectionsRef.current[viewerId].close();
         delete peerConnectionsRef.current[viewerId];
       }
+
+      // ✅ FIX: Limpiar estado de cámara del estudiante que se desconectó
+      setStudentCameraStates(prev => {
+        const updated = { ...prev };
+        delete updated[viewerId];
+        return updated;
+      });
+      console.log(`🗑️ [TEACHER-CLEANUP] Estado de cámara eliminado para viewer ${viewerId}`);
     });
 
     socket.on('room-code', (code) => {
@@ -1106,26 +1133,69 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   };
 
   const stopStreaming = () => {
+    console.log('🛑 [TEACHER] Deteniendo streaming y limpiando TODOS los recursos...');
+
+    // ✅ Detener y limpiar stream principal del docente (cámara)
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        console.log(`🛑 [TEACHER] Track detenido: ${track.kind} - ${track.label}`);
+      });
       streamRef.current = null;
     }
 
+    // ✅ Detener y limpiar stream de pantalla compartida
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach(track => {
+        track.stop();
+        console.log(`🛑 [TEACHER] Screen track detenido: ${track.kind}`);
+      });
+      screenStreamRef.current = null;
+    }
+
+    // ✅ Limpiar video del docente
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
 
-    Object.values(peerConnectionsRef.current).forEach(pc => pc.close());
+    // ✅ Cerrar todas las peer connections con espectadores
+    Object.values(peerConnectionsRef.current).forEach(pc => {
+      pc.close();
+    });
     peerConnectionsRef.current = {};
 
+    // ✅ Cerrar todas las peer connections con estudiantes
+    Object.values(studentPeerConnectionsRef.current).forEach(pc => {
+      pc.close();
+    });
+    studentPeerConnectionsRef.current = {};
+
+    // ✅ Limpiar todos los streams de estudiantes
+    setStudentScreenStreams({});
+    setStudentCameraStreams({});
+    setStudentStreams({});
+
+    // ✅ Limpiar estados de estudiantes
+    setStudentCameraStates({});
+    setViewersList([]);
+    setViewers(0);
+    setPinnedParticipant(null);
+
+    // ✅ Notificar al servidor
     socketRef.current.emit('stop-streaming', { courseId: course.id });
+
+    // ✅ Resetear estados UI
     setIsStreaming(false);
+    isStreamingRef.current = false;
     setIsScreenSharing(false);
-    setShowStreamModal(false); // Cerrar modal al detener streaming
-    setIsMinimized(false); // Reset minimizado
+    isScreenSharingRef.current = false;
+    setShowStreamModal(false);
+    setIsMinimized(false);
 
     // ✅ Limpiar estado de clase en vivo del store
     clearActiveLiveClass();
+
+    console.log('✅ [TEACHER] Streaming detenido y recursos limpiados completamente');
   };
 
   const toggleMute = async () => {
@@ -2556,11 +2626,17 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                         if (el) {
                           if (screenStream && el.srcObject !== screenStream) {
                             console.log(`📺 [TEACHER-PIN] Asignando pantalla compartida de ${pinnedViewer?.name}`);
-                            el.srcObject = screenStream;
+                            // ✅ FIX: Clonar stream para evitar conflictos cuando el mismo stream está en múltiples elementos de video
+                            const clonedStream = new MediaStream(screenStream.getTracks());
+                            el.srcObject = clonedStream;
                             el.muted = false;
                             el.play().catch(err => console.log('Autoplay prevented:', err));
                           } else if (!screenStream && el.srcObject) {
                             console.log(`🗑️ [TEACHER-PIN] Limpiando pantalla compartida de ${pinnedViewer?.name}`);
+                            // ✅ FIX: Detener todos los tracks antes de limpiar
+                            if (el.srcObject) {
+                              el.srcObject.getTracks().forEach(track => track.stop());
+                            }
                             el.srcObject = null;
                           }
                         }
@@ -2578,11 +2654,17 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                           if (el) {
                             if (cameraStream && el.srcObject !== cameraStream) {
                               console.log(`📹 [TEACHER-PIN] Asignando cámara de ${pinnedViewer?.name}`);
-                              el.srcObject = cameraStream;
+                              // ✅ FIX: Clonar stream para evitar conflictos cuando el mismo stream está en múltiples elementos de video
+                              const clonedStream = new MediaStream(cameraStream.getTracks());
+                              el.srcObject = clonedStream;
                               el.muted = false;
                               el.play().catch(err => console.log('Autoplay prevented:', err));
                             } else if (!cameraStream && el.srcObject) {
                               console.log(`🗑️ [TEACHER-PIN] Limpiando cámara de ${pinnedViewer?.name}`);
+                              // ✅ FIX: Detener todos los tracks antes de limpiar
+                              if (el.srcObject) {
+                                el.srcObject.getTracks().forEach(track => track.stop());
+                              }
                               el.srcObject = null;
                             }
                           }
@@ -2608,14 +2690,29 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                       )}
                     </>
                   ) : (
-                    // Sin stream
-                    <div className="w-full h-full flex flex-col items-center justify-center">
-                      <div className="w-32 h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
-                        <UserCircle size={80} className="text-white" />
-                      </div>
-                      <span className="text-2xl text-white mt-4 font-semibold">
-                        {pinnedViewer?.name || 'Estudiante'}
-                      </span>
+                    // Sin stream o cámara apagada
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                      {studentCameraStates[pinnedParticipant] === false ? (
+                        // ✅ FIX: Mostrar overlay de cámara apagada cuando no hay stream pero sabemos que la cámara está apagada
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full"></div>
+                          <div className="relative bg-gray-700/50 backdrop-blur-sm p-8 rounded-2xl border border-gray-600">
+                            <VideoOff size={80} className="text-gray-400 mb-4 mx-auto" />
+                            <p className="text-white text-xl font-semibold mb-2 text-center">Cámara desactivada</p>
+                            <p className="text-gray-400 text-sm text-center">{pinnedViewer?.name || 'Estudiante'}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        // Sin stream (conectando o esperando)
+                        <>
+                          <div className="w-32 h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
+                            <UserCircle size={80} className="text-white" />
+                          </div>
+                          <span className="text-2xl text-white mt-4 font-semibold">
+                            {pinnedViewer?.name || 'Estudiante'}
+                          </span>
+                        </>
+                      )}
                     </div>
                   )}
 
@@ -2970,7 +3067,9 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                 : viewersList;
 
               return viewersToShow.map((viewer, index) => {
-              const hasCamera = studentCameraStreams[viewer.id] || studentStreams[viewer.id];
+              // ✅ FIX: Verificar que el stream tenga video tracks activos, no solo que el stream exista
+              const cameraStream = studentCameraStreams[viewer.id] || studentStreams[viewer.id];
+              const hasCamera = cameraStream && cameraStream.getVideoTracks().some(t => t.readyState === 'live');
               const hasScreen = studentScreenStreams[viewer.id];
               const isPinned = pinnedParticipant === viewer.id;
 
