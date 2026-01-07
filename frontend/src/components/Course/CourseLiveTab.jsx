@@ -256,30 +256,11 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
     socket.on('viewers-list', (viewers) => {
       console.log('👥 Lista de espectadores actualizada:', viewers);
       setViewersList(viewers);
-
-      // ✅ FIX: Inicializar estados de cámara para todos los espectadores en la lista
-      const cameraStates = {};
-      viewers.forEach(viewer => {
-        cameraStates[viewer.id] = viewer.cameraEnabled ?? false;
-      });
-      setStudentCameraStates(prev => ({
-        ...prev,
-        ...cameraStates
-      }));
-      console.log('📹 [TEACHER-INIT] Estados de cámara inicializados para viewers:', cameraStates);
     });
 
     socket.on('viewer-joined', async ({ viewerId, viewerInfo }) => {
       console.log('👤 Nuevo espectador:', viewerId, viewerInfo);
       showToastMessage(`${viewerInfo.name} se unió a la clase`, 'info');
-
-      // ✅ FIX: Inicializar estado de cámara del estudiante cuando se une
-      setStudentCameraStates(prev => ({
-        ...prev,
-        [viewerId]: viewerInfo.cameraEnabled ?? false
-      }));
-      console.log(`📹 [TEACHER-INIT] Estado inicial de cámara para ${viewerId}: ${viewerInfo.cameraEnabled ?? false}`);
-
       await createPeerConnection(viewerId);
     });
 
@@ -289,14 +270,6 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         peerConnectionsRef.current[viewerId].close();
         delete peerConnectionsRef.current[viewerId];
       }
-
-      // ✅ FIX: Limpiar estado de cámara del estudiante que se desconectó
-      setStudentCameraStates(prev => {
-        const updated = { ...prev };
-        delete updated[viewerId];
-        return updated;
-      });
-      console.log(`🗑️ [TEACHER-CLEANUP] Estado de cámara eliminado para viewer ${viewerId}`);
     });
 
     socket.on('room-code', (code) => {
@@ -2690,29 +2663,14 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                       )}
                     </>
                   ) : (
-                    // Sin stream o cámara apagada
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
-                      {studentCameraStates[pinnedParticipant] === false ? (
-                        // ✅ FIX: Mostrar overlay de cámara apagada cuando no hay stream pero sabemos que la cámara está apagada
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full"></div>
-                          <div className="relative bg-gray-700/50 backdrop-blur-sm p-8 rounded-2xl border border-gray-600">
-                            <VideoOff size={80} className="text-gray-400 mb-4 mx-auto" />
-                            <p className="text-white text-xl font-semibold mb-2 text-center">Cámara desactivada</p>
-                            <p className="text-gray-400 text-sm text-center">{pinnedViewer?.name || 'Estudiante'}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        // Sin stream (conectando o esperando)
-                        <>
-                          <div className="w-32 h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
-                            <UserCircle size={80} className="text-white" />
-                          </div>
-                          <span className="text-2xl text-white mt-4 font-semibold">
-                            {pinnedViewer?.name || 'Estudiante'}
-                          </span>
-                        </>
-                      )}
+                    // Sin stream
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                      <div className="w-32 h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
+                        <UserCircle size={80} className="text-white" />
+                      </div>
+                      <span className="text-2xl text-white mt-4 font-semibold">
+                        {pinnedViewer?.name || 'Estudiante'}
+                      </span>
                     </div>
                   )}
 

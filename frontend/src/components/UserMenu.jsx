@@ -75,10 +75,16 @@ const UserMenu = ({ loginPath = '/login' }) => {
       divider: true
     },
     {
+      icon: Settings,
+      label: 'Configuración',
+      onClick: handleSettings,
+      description: 'Preferencias del sistema'
+    },
+    {
       icon: HelpCircle,
       label: 'Ayuda y Soporte',
       onClick: handleHelp,
-      description: 'Información y contacto',
+      description: 'Guías y tutoriales',
       divider: true
     },
     {
