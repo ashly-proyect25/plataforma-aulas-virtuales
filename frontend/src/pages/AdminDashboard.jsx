@@ -14,6 +14,7 @@ import AdminStatsPanel from '../components/Admin/AdminStatsPanel';
 import UserMenu from '../components/UserMenu';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import EditProfileModal from '../components/EditProfileModal';
+import SettingsModal from '../components/SettingsModal';
 import HelpModal from '../components/HelpModal';
 
 const AdminDashboard = () => {
@@ -26,6 +27,7 @@ const AdminDashboard = () => {
   const coursesPanelRef = useRef(null);
 
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   
   // Escuchar evento para abrir modal de cambiar contraseña
@@ -38,11 +40,14 @@ const AdminDashboard = () => {
     return () => window.removeEventListener('openChangePasswordModal', handleOpenChangePassword);
   }, []);
   useEffect(() => {
+    const handleOpenSettings = () => setShowSettingsModal(true);
     const handleOpenHelp = () => setShowHelpModal(true);
-
+    
+    window.addEventListener('openSettingsModal', handleOpenSettings);
     window.addEventListener('openHelpModal', handleOpenHelp);
-
+    
     return () => {
+      window.removeEventListener('openSettingsModal', handleOpenSettings);
       window.removeEventListener('openHelpModal', handleOpenHelp);
     };
   }, []);
@@ -170,6 +175,7 @@ const AdminDashboard = () => {
         isOpen={showEditProfileModal}
         onClose={() => setShowEditProfileModal(false)}
       />
+      <SettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
       <HelpModal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} />
     </div>
   );
