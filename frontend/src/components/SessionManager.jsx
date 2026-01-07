@@ -77,9 +77,7 @@ const SessionManager = () => {
         clearInterval(checkIntervalRef.current);
       }
     };
-    // ✅ FIX: Removemos lastActivity de dependencias para evitar re-montar el efecto constantemente
-    // El valor de lastActivity se lee directamente del store cuando se necesita en checkSession
-  }, [isAuthenticated, sessionStartTime, showSessionRenewalModal]);
+  }, [isAuthenticated, lastActivity, sessionStartTime, showSessionRenewalModal]);
 
   const handleRenew = () => {
     renewSession();
