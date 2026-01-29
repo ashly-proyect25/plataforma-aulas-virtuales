@@ -107,11 +107,15 @@ const AdminTeachersPanel = forwardRef((props, ref) => {
     }
 
     try {
-      // Implementar endpoint de eliminación si es necesario
-      setSuccessMessage('Docente eliminado exitosamente');
-      setTimeout(() => setSuccessMessage(''), 3000);
+      const response = await api.delete(`/auth/users/${teacherId}`);
+      if (response.data.success) {
+        setTeachers(prev => prev.filter(teacher => teacher.id !== teacherId));
+        setSuccessMessage('Docente eliminado exitosamente');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      }
     } catch (err) {
-      setError('Error al eliminar docente');
+      setError(err.response?.data?.message || 'Error al eliminar docente');
+      setTimeout(() => setError(''), 3000);
     }
   };
 

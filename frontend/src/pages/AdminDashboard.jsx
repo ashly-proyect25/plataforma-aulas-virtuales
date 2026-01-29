@@ -16,6 +16,7 @@ import ChangePasswordModal from '../components/ChangePasswordModal';
 import EditProfileModal from '../components/EditProfileModal';
 import SettingsModal from '../components/SettingsModal';
 import HelpModal from '../components/HelpModal';
+import api from '../services/api';
 
 const AdminDashboard = () => {
   const { user } = useStore();
@@ -77,8 +78,74 @@ const AdminDashboard = () => {
     }, 100);
   };
 
-  const handleDownloadReport = () => {
-    alert('Función de descarga de reporte en desarrollo');
+  const handleDownloadReport = async () => {
+    try {
+      // Obtener datos
+      const teachersRes = await api.get('/auth/users/teachers');
+      const coursesRes = await api.get('/courses');
+
+      const teachers = teachersRes.data.teachers || [];
+      const courses = coursesRes.data.courses || [];
+
+      // Calcular estadísticas
+      const activeTeachers = teachers.filter(t => t.isActive).length;
+      const activeCourses = courses.filter(c => c.isActive).length;
+      const totalEnrollments = courses.reduce((sum, c) => sum + (c._count?.enrollments || 0), 0);
+
+      // Generar CSV
+      const csvContent = [
+        // Estadísticas Generales
+        ['REPORTE DE ESTADÍSTICAS - PLATAFORMA DE AULAS VIRTUALES'],
+        ['Fecha de generación:', new Date().toLocaleString()],
+        [''],
+        ['RESUMEN GENERAL'],
+        ['Concepto', 'Cantidad'],
+        ['Total Docentes', teachers.length],
+        ['Docentes Activos', activeTeachers],
+        ['Docentes Inactivos', teachers.length - activeTeachers],
+        ['Total Materias', courses.length],
+        ['Materias Activas', activeCourses],
+        ['Materias Inactivas', courses.length - activeCourses],
+        ['Total Inscripciones', totalEnrollments],
+        [''],
+        ['LISTADO DE DOCENTES'],
+        ['Nombre', 'Email', 'Usuario', 'Estado', 'Materias Asignadas'],
+        ...teachers.map(t => [
+          t.name,
+          t.email,
+          t.username || '',
+          t.isActive ? 'Activo' : 'Inactivo',
+          t._count?.teachingCourses || 0
+        ]),
+        [''],
+        ['LISTADO DE MATERIAS'],
+        ['Código', 'Título', 'Descripción', 'Estado', 'Estudiantes Inscritos', 'Clases Programadas'],
+        ...courses.map(c => [
+          c.code,
+          c.title,
+          c.description || '',
+          c.isActive ? 'Activa' : 'Inactiva',
+          c._count?.enrollments || 0,
+          c._count?.classrooms || 0
+        ])
+      ].map(row => row.join(',')).join('\n');
+
+      // Descargar archivo
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      const fileName = `reporte_${new Date().toISOString().split('T')[0]}.csv`;
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', fileName);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error al generar reporte:', error);
+      alert('Error al generar el reporte. Por favor, intenta nuevamente.');
+    }
   };
 
   const tabs = [

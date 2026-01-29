@@ -131,13 +131,14 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
 
     try {
       const response = await api.delete(`/courses/${courseId}`);
-      if (response.data.message) {
+      if (response.data.success) {
         setCourses(prev => prev.filter(course => course.id !== courseId));
         setSuccessMessage('Materia eliminada exitosamente');
         setTimeout(() => setSuccessMessage(''), 3000);
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al eliminar materia');
+      setError(err.response?.data?.message || 'Error al eliminar materia');
+      setTimeout(() => setError(''), 5000);
     }
   };
 
