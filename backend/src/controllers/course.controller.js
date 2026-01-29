@@ -1364,6 +1364,19 @@ export const scheduleClass = async (req, res) => {
     const [hours, minutes] = time.split(':').map(Number);
     const scheduledAt = new Date(year, month - 1, day, hours, minutes);
 
+    // Validar que la fecha/hora no sea en el pasado (zona horaria Ecuador UTC-5)
+    const now = new Date();
+    // Convertir a hora de Ecuador (UTC-5)
+    const ecuadorOffset = -5 * 60; // -5 horas en minutos
+    const nowEcuador = new Date(now.getTime() + (ecuadorOffset - now.getTimezoneOffset()) * 60000);
+
+    if (scheduledAt < nowEcuador) {
+      return res.status(400).json({
+        success: false,
+        message: 'No puedes programar clases en el pasado. Por favor selecciona una fecha y hora futura.'
+      });
+    }
+
     // Crear la clase programada
     const classroom = await prisma.classroom.create({
       data: {

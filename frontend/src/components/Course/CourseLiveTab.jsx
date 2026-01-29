@@ -15,6 +15,7 @@ import { getAuthToken } from '../../utils/getAuthToken';
 import { useStore } from '../../store/store';
 import ScheduledClassesCarousel from './ScheduledClassesCarousel';
 import ClassRecordsModal from './ClassRecordsModal';
+import api from '../../services/api';
 
 // ✅ iOS FIX: Función para forzar H.264 codec (compatibilidad con Safari iOS)
 const forceH264Codec = (sdp) => {
@@ -2019,24 +2020,9 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/courses/${course.id}/schedule-class`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getAuthToken()}`
-        },
-        body: JSON.stringify(scheduleForm)
-      });
+      const response = await api.post(`/courses/${course.id}/schedule-class`, scheduleForm);
 
-      // Verificar si la respuesta es JSON válido
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('La respuesta del servidor no es JSON válido');
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         // Recargar clases programadas
         await loadScheduledClasses();
         setShowScheduleModal(false);
@@ -2049,11 +2035,12 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         });
         showToastMessage('Clase programada exitosamente', 'success');
       } else {
-        showToastMessage(data.message || 'Error al programar la clase', 'error');
+        showToastMessage(response.data.message || 'Error al programar la clase', 'error');
       }
     } catch (error) {
       console.error('Error al programar clase:', error);
-      showToastMessage(error.message || 'Error al programar la clase', 'error');
+      const errorMessage = error.response?.data?.message || error.message || 'Error al programar la clase';
+      showToastMessage(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -2062,25 +2049,11 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   // Cargar clases programadas desde el backend
   const loadScheduledClasses = async () => {
     try {
-      const response = await fetch(`/api/courses/${course.id}/scheduled-classes`, {
-        headers: {
-          'Authorization': `Bearer ${getAuthToken()}`
-        }
-      });
+      const response = await api.get(`/courses/${course.id}/scheduled-classes`);
 
-      // Verificar si la respuesta es JSON válido
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.error('❌ [LIVE-TAB] La respuesta no es JSON válido:', contentType);
-        setScheduledClasses([]);
-        return;
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         // Ordenar clases por fecha más cercana primero
-        const sortedClasses = (data.classes || []).sort((a, b) => {
+        const sortedClasses = (response.data.classes || []).sort((a, b) => {
           const now = new Date();
 
           const dateA = new Date(a.date);
@@ -2122,24 +2095,18 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       message: '¿Estás seguro de que deseas cancelar esta clase programada?',
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/courses/${course.id}/scheduled-classes/${classId}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${getAuthToken()}`
-            }
-          });
+          const response = await api.delete(`/courses/${course.id}/scheduled-classes/${classId}`);
 
-          const data = await response.json();
-
-          if (data.success) {
+          if (response.data.success) {
             await loadScheduledClasses();
             showToastMessage('Clase cancelada exitosamente', 'info');
           } else {
-            showToastMessage(data.message || 'Error al cancelar la clase', 'error');
+            showToastMessage(response.data.message || 'Error al cancelar la clase', 'error');
           }
         } catch (error) {
           console.error('Error al cancelar clase:', error);
-          showToastMessage('Error al cancelar la clase', 'error');
+          const errorMessage = error.response?.data?.message || error.message || 'Error al cancelar la clase';
+          showToastMessage(errorMessage, 'error');
         }
         setShowConfirmDialog(false);
       }
