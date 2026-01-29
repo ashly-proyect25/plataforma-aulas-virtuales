@@ -1,7 +1,7 @@
 // frontend/src/components/Course/CourseResourcesTab.jsx
 
 import { useState, useEffect } from 'react';
-import { Plus, Video, FileText, Link as LinkIcon, Info, Trash2, Edit2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Video, Info, Trash2, Edit2, CheckCircle, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
 import ConfirmDialog from '../ConfirmDialog';
 import Toast from '../Toast';
@@ -122,18 +122,14 @@ const CourseResourcesTab = ({ courseId }) => {
   const getIcon = (type) => {
     const icons = {
       VIDEO: <Video size={20} className="text-red-500" />,
-      DOCUMENT: <FileText size={20} className="text-blue-500" />,
-      LINK: <LinkIcon size={20} className="text-green-500" />,
       INFORMATION: <Info size={20} className="text-yellow-500" />
     };
-    return icons[type] || <FileText size={20} />;
+    return icons[type] || <Info size={20} />;
   };
 
   const getTypeLabel = (type) => {
     const labels = {
       VIDEO: 'Video',
-      DOCUMENT: 'Documento',
-      LINK: 'Enlace',
       INFORMATION: 'Información'
     };
     return labels[type] || type;
@@ -203,8 +199,6 @@ const CourseResourcesTab = ({ courseId }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="VIDEO">Video</option>
-                <option value="DOCUMENT">Documento</option>
-                <option value="LINK">Enlace</option>
                 <option value="INFORMATION">Información</option>
               </select>
             </div>
