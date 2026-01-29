@@ -1495,6 +1495,8 @@ export const getScheduledClasses = async (req, res) => {
         const ecuadorDate = new Date(utcDate.getTime() - 5 * 60 * 60 * 1000);
         dateEcuador = ecuadorDate.toISOString().split('T')[0];
         timeEcuador = ecuadorDate.toISOString().split('T')[1].substring(0, 5); // HH:MM
+
+        console.log(`📅 [DEBUG] Clase ${classroom.id}: UTC=${utcDate.toISOString()} -> Ecuador=${dateEcuador} ${timeEcuador}`);
       }
 
       return {
