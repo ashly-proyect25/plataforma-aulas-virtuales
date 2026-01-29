@@ -2260,19 +2260,25 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Hora * (formato 24h)
                     </label>
-                    <input
-                      type="time"
+                    <select
                       value={scheduleForm.time}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, time: e.target.value })}
-                      step="60"
-                      min={
-                        scheduleForm.date === new Date().toISOString().split('T')[0]
-                          ? new Date().toTimeString().slice(0, 5)
-                          : undefined
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="HH:MM (24 horas)"
-                    />
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                    >
+                      <option value="">Selecciona una hora</option>
+                      {Array.from({ length: 24 }, (_, hour) => {
+                        return [0, 15, 30, 45].map(minute => {
+                          const h = hour.toString().padStart(2, '0');
+                          const m = minute.toString().padStart(2, '0');
+                          const timeValue = `${h}:${m}`;
+                          return (
+                            <option key={timeValue} value={timeValue}>
+                              {timeValue}
+                            </option>
+                          );
+                        });
+                      }).flat()}
+                    </select>
                   </div>
 
                   <div>
