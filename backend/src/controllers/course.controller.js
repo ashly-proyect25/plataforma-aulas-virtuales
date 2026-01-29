@@ -1363,19 +1363,37 @@ export const scheduleClass = async (req, res) => {
     const [year, month, day] = date.split('-').map(Number);
     const [hours, minutes] = time.split(':').map(Number);
 
-    // Crear la fecha en UTC agregando 5 horas (Ecuador a UTC)
-    // Si el usuario envía 22:25 en Ecuador, en UTC son las 03:25 del día siguiente
-    const scheduledAtEcuador = new Date(Date.UTC(year, month - 1, day, hours, minutes));
-    const scheduledAt = new Date(scheduledAtEcuador.getTime() + (5 * 60 * 60 * 1000)); // +5 horas
+    // Convertir hora de Ecuador a UTC sumando 5 horas
+    let utcHours = hours + 5;
+    let utcDay = day;
+    let utcMonth = month;
+    let utcYear = year;
+
+    // Manejar overflow de horas
+    if (utcHours >= 24) {
+      utcHours -= 24;
+      utcDay += 1;
+
+      // Manejar overflow de días (simplificado)
+      const daysInMonth = new Date(utcYear, utcMonth, 0).getDate();
+      if (utcDay > daysInMonth) {
+        utcDay = 1;
+        utcMonth += 1;
+        if (utcMonth > 12) {
+          utcMonth = 1;
+          utcYear += 1;
+        }
+      }
+    }
+
+    const scheduledAt = new Date(Date.UTC(utcYear, utcMonth - 1, utcDay, utcHours, minutes, 0, 0));
 
     // Validar que la fecha/hora no sea en el pasado
-    // Comparar en UTC
     const now = new Date();
 
     console.log('🕐 [SCHEDULE-CLASS] Validación de fecha/hora:');
-    console.log('  📅 Fecha recibida:', date, 'Hora recibida:', time);
-    console.log('  🇪🇨 Hora Ecuador:', scheduledAtEcuador.toISOString());
-    console.log('  🌍 Hora UTC (guardada):', scheduledAt.toISOString());
+    console.log('  📅 Fecha/Hora Ecuador:', `${date} ${time}`);
+    console.log('  🌍 Fecha/Hora UTC:', scheduledAt.toISOString());
     console.log('  ⏰ Hora actual UTC:', now.toISOString());
     console.log('  ✅ ¿Es futura?:', scheduledAt > now);
 
