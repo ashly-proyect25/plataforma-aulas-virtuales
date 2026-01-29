@@ -1426,8 +1426,8 @@ export const scheduleClass = async (req, res) => {
         id: classroom.id,
         title: classroom.title,
         description: classroom.description,
-        date: classroom.scheduledAt,
-        time: classroom.scheduledAt.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        date: date, // Devolver la fecha original de Ecuador
+        time: time, // Devolver la hora original de Ecuador
         duration: classroom.duration,
         status: 'scheduled'
       }
@@ -1453,11 +1453,15 @@ export const getScheduledClasses = async (req, res) => {
     const { id } = req.params;
     const courseId = parseInt(id);
 
-    // Obtener TODAS las clases programadas del curso con información de sesiones
-    // No filtramos por fecha para que el docente pueda ver clases recién creadas
+    // Obtener solo clases programadas futuras (no pasadas)
+    // Ordenar por fecha ascendente para mostrar la más próxima primero
+    const now = new Date();
     const classrooms = await prisma.classroom.findMany({
       where: {
-        courseId: courseId
+        courseId: courseId,
+        scheduledAt: {
+          gte: now // Solo clases futuras o actuales
+        }
       },
       include: {
         sessions: {
@@ -1473,7 +1477,7 @@ export const getScheduledClasses = async (req, res) => {
         }
       },
       orderBy: {
-        scheduledAt: 'desc' // Mostrar las más recientes primero
+        scheduledAt: 'asc' // Más próxima primero
       }
     });
 
@@ -1482,13 +1486,24 @@ export const getScheduledClasses = async (req, res) => {
       // Una clase fue iniciada si tiene sesiones registradas (alguien se conectó)
       const wasStarted = classroom.sessions.length > 0;
 
+      // Convertir de UTC a hora Ecuador (UTC-5) para mostrar correctamente
+      let dateEcuador = null;
+      let timeEcuador = null;
+      if (classroom.scheduledAt) {
+        const utcDate = new Date(classroom.scheduledAt);
+        // Restar 5 horas para convertir de UTC a Ecuador
+        const ecuadorDate = new Date(utcDate.getTime() - 5 * 60 * 60 * 1000);
+        dateEcuador = ecuadorDate.toISOString().split('T')[0];
+        timeEcuador = ecuadorDate.toISOString().split('T')[1].substring(0, 5); // HH:MM
+      }
+
       return {
         id: classroom.id,
         title: classroom.title,
         description: classroom.description,
         scheduledAt: classroom.scheduledAt, // ✅ FIX: Agregar scheduledAt completo para AttendanceModal
-        date: classroom.scheduledAt ? classroom.scheduledAt.toISOString().split('T')[0] : null,
-        time: classroom.scheduledAt ? classroom.scheduledAt.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : null,
+        date: dateEcuador,
+        time: timeEcuador,
         duration: classroom.duration,
         status: classroom.isLive ? 'live' : (wasStarted ? 'completed' : 'scheduled'),
         isLive: classroom.isLive,
