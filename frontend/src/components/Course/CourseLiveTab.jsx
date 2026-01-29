@@ -2006,6 +2006,17 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       return;
     }
 
+    // Validar que la fecha/hora no sea en el pasado
+    const now = new Date();
+    const selectedDate = new Date(scheduleForm.date);
+    const [hours, minutes] = scheduleForm.time.split(':').map(Number);
+    selectedDate.setHours(hours, minutes, 0, 0);
+
+    if (selectedDate < now) {
+      showToastMessage('No puedes programar clases en el pasado. Por favor selecciona una fecha y hora futura.', 'error');
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`/api/courses/${course.id}/schedule-class`, {
@@ -2016,6 +2027,12 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         },
         body: JSON.stringify(scheduleForm)
       });
+
+      // Verificar si la respuesta es JSON válido
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('La respuesta del servidor no es JSON válido');
+      }
 
       const data = await response.json();
 
@@ -2036,7 +2053,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       }
     } catch (error) {
       console.error('Error al programar clase:', error);
-      showToastMessage('Error al programar la clase', 'error');
+      showToastMessage(error.message || 'Error al programar la clase', 'error');
     } finally {
       setLoading(false);
     }
@@ -2050,6 +2067,14 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
           'Authorization': `Bearer ${getAuthToken()}`
         }
       });
+
+      // Verificar si la respuesta es JSON válido
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('❌ [LIVE-TAB] La respuesta no es JSON válido:', contentType);
+        setScheduledClasses([]);
+        return;
+      }
 
       const data = await response.json();
 
@@ -2075,9 +2100,12 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
         setScheduledClasses(sortedClasses);
         console.log(`✅ [LIVE-TAB] ${sortedClasses.length} clases programadas cargadas (ordenadas por proximidad)`);
+      } else {
+        setScheduledClasses([]);
       }
     } catch (error) {
       console.error('Error al cargar clases programadas:', error);
+      setScheduledClasses([]);
     }
   };
 
@@ -2256,6 +2284,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                       type="date"
                       value={scheduleForm.date}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, date: e.target.value })}
+                      min={new Date().toISOString().split('T')[0]}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -2268,6 +2297,11 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                       type="time"
                       value={scheduleForm.time}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, time: e.target.value })}
+                      min={
+                        scheduleForm.date === new Date().toISOString().split('T')[0]
+                          ? new Date().toTimeString().slice(0, 5)
+                          : undefined
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -2285,6 +2319,9 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                     />
                   </div>
                 </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  * Solo puedes programar clases desde la fecha y hora actual en adelante
+                </p>
               </div>
 
               <div className="bg-gray-50 px-6 py-4 flex gap-3 rounded-b-xl">
