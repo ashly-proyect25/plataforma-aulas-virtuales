@@ -1359,18 +1359,28 @@ export const scheduleClass = async (req, res) => {
       });
     }
 
-    // Combinar fecha y hora en un DateTime
+    // Los valores de fecha y hora vienen en hora de Ecuador (UTC-5)
     const [year, month, day] = date.split('-').map(Number);
     const [hours, minutes] = time.split(':').map(Number);
-    const scheduledAt = new Date(year, month - 1, day, hours, minutes);
 
-    // Validar que la fecha/hora no sea en el pasado (zona horaria Ecuador UTC-5)
+    // Crear la fecha en UTC agregando 5 horas (Ecuador a UTC)
+    // Si el usuario envía 22:25 en Ecuador, en UTC son las 03:25 del día siguiente
+    const scheduledAtEcuador = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+    const scheduledAt = new Date(scheduledAtEcuador.getTime() + (5 * 60 * 60 * 1000)); // +5 horas
+
+    // Validar que la fecha/hora no sea en el pasado
+    // Comparar en UTC
     const now = new Date();
-    // Convertir a hora de Ecuador (UTC-5)
-    const ecuadorOffset = -5 * 60; // -5 horas en minutos
-    const nowEcuador = new Date(now.getTime() + (ecuadorOffset - now.getTimezoneOffset()) * 60000);
 
-    if (scheduledAt < nowEcuador) {
+    console.log('🕐 [SCHEDULE-CLASS] Validación de fecha/hora:');
+    console.log('  📅 Fecha recibida:', date, 'Hora recibida:', time);
+    console.log('  🇪🇨 Hora Ecuador:', scheduledAtEcuador.toISOString());
+    console.log('  🌍 Hora UTC (guardada):', scheduledAt.toISOString());
+    console.log('  ⏰ Hora actual UTC:', now.toISOString());
+    console.log('  ✅ ¿Es futura?:', scheduledAt > now);
+
+    if (scheduledAt < now) {
+      console.log('❌ [SCHEDULE-CLASS] Clase rechazada - está en el pasado');
       return res.status(400).json({
         success: false,
         message: 'No puedes programar clases en el pasado. Por favor selecciona una fecha y hora futura.'
