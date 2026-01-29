@@ -2008,10 +2008,18 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
     }
 
     // Validar que la fecha/hora no sea en el pasado
-    const now = new Date();
-    const selectedDate = new Date(scheduleForm.date);
+    // Crear fecha/hora seleccionada correctamente en zona horaria local
+    const [year, month, day] = scheduleForm.date.split('-').map(Number);
     const [hours, minutes] = scheduleForm.time.split(':').map(Number);
-    selectedDate.setHours(hours, minutes, 0, 0);
+    const selectedDate = new Date(year, month - 1, day, hours, minutes, 0, 0);
+    const now = new Date();
+
+    console.log('[DEBUG] Validación de hora:');
+    console.log('  - Fecha seleccionada:', scheduleForm.date);
+    console.log('  - Hora seleccionada:', scheduleForm.time);
+    console.log('  - selectedDate:', selectedDate.toString());
+    console.log('  - now:', now.toString());
+    console.log('  - selectedDate < now?', selectedDate < now);
 
     if (selectedDate < now) {
       showToastMessage('No puedes programar clases en el pasado. Por favor selecciona una fecha y hora futura.', 'error');
@@ -2258,27 +2266,14 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Hora * (formato 24h)
+                      Hora *
                     </label>
-                    <select
+                    <input
+                      type="time"
                       value={scheduleForm.time}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, time: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
-                    >
-                      <option value="">Selecciona una hora</option>
-                      {Array.from({ length: 24 }, (_, hour) => {
-                        return [0, 15, 30, 45].map(minute => {
-                          const h = hour.toString().padStart(2, '0');
-                          const m = minute.toString().padStart(2, '0');
-                          const timeValue = `${h}:${m}`;
-                          return (
-                            <option key={timeValue} value={timeValue}>
-                              {timeValue}
-                            </option>
-                          );
-                        });
-                      }).flat()}
-                    </select>
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
 
                   <div>
