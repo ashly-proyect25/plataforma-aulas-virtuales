@@ -10,14 +10,29 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
+  // Función auxiliar para crear fecha correctamente en zona horaria local
+  const parseClassDateTime = (dateStr, timeStr) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return new Date(year, month - 1, day, hours, minutes, 0, 0);
+  };
+
+  // Función para formatear fecha en español
+  const formatDate = (dateStr) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   // Función para validar si una clase puede iniciarse (30 min antes o después)
   const canStartClass = (scheduledClass) => {
     const now = new Date();
-    const classDate = new Date(scheduledClass.date);
-
-    // Parsear la hora de la clase
-    const [hours, minutes] = scheduledClass.time.split(':').map(Number);
-    classDate.setHours(hours, minutes, 0, 0);
+    const classDate = parseClassDateTime(scheduledClass.date, scheduledClass.time);
 
     const diffInMinutes = (classDate - now) / (1000 * 60);
 
@@ -36,9 +51,7 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
     }
 
     const now = new Date();
-    const classDate = new Date(scheduledClass.date);
-    const [hours, minutes] = scheduledClass.time.split(':').map(Number);
-    classDate.setHours(hours, minutes, 0, 0);
+    const classDate = parseClassDateTime(scheduledClass.date, scheduledClass.time);
 
     if (now > classDate) {
       return { label: 'No iniciada', color: 'red', icon: XCircle };
@@ -54,9 +67,7 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
   // Función para obtener el mensaje de tiempo
   const getTimeMessage = (scheduledClass) => {
     const now = new Date();
-    const classDate = new Date(scheduledClass.date);
-    const [hours, minutes] = scheduledClass.time.split(':').map(Number);
-    classDate.setHours(hours, minutes, 0, 0);
+    const classDate = parseClassDateTime(scheduledClass.date, scheduledClass.time);
 
     const diffInMinutes = Math.round((classDate - now) / (1000 * 60));
 
@@ -169,12 +180,7 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
                         <div className="flex items-center gap-3 text-gray-700">
                           <Calendar size={20} className="text-blue-600" />
                           <span className="font-semibold">
-                            {new Date(scheduledClass.date).toLocaleDateString('es-ES', {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
+                            {formatDate(scheduledClass.date)}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 text-gray-700">
