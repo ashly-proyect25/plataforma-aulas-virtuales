@@ -17,6 +17,7 @@ import EditProfileModal from '../components/EditProfileModal';
 import SettingsModal from '../components/SettingsModal';
 import HelpModal from '../components/HelpModal';
 import api from '../services/api';
+import * as XLSX from 'xlsx';
 
 const AdminDashboard = () => {
   const { user } = useStore();
@@ -87,61 +88,164 @@ const AdminDashboard = () => {
       const teachers = teachersRes.data.teachers || [];
       const courses = coursesRes.data.courses || [];
 
+      // Obtener estudiantes de cada curso
+      const coursesWithStudents = await Promise.all(
+        courses.map(async (course) => {
+          try {
+            const studentsRes = await api.get(`/courses/${course.id}/students`);
+            return {
+              ...course,
+              students: studentsRes.data.students || []
+            };
+          } catch (err) {
+            return {
+              ...course,
+              students: []
+            };
+          }
+        })
+      );
+
       // Calcular estadísticas
       const activeTeachers = teachers.filter(t => t.isActive).length;
       const activeCourses = courses.filter(c => c.isActive).length;
       const totalEnrollments = courses.reduce((sum, c) => sum + (c._count?.enrollments || 0), 0);
 
-      // Generar CSV
-      const csvContent = [
-        // Estadísticas Generales
-        ['REPORTE DE ESTADÍSTICAS - PLATAFORMA DE AULAS VIRTUALES'],
-        ['Fecha de generación:', new Date().toLocaleString()],
+      // Crear libro de Excel
+      const workbook = XLSX.utils.book_new();
+
+      // === HOJA 1: Resumen General ===
+      const resumenData = [
+        ['REPORTE DE ESTADÍSTICAS'],
+        ['PLATAFORMA DE AULAS VIRTUALES'],
+        [''],
+        ['Fecha de Generación:', new Date().toLocaleString()],
         [''],
         ['RESUMEN GENERAL'],
         ['Concepto', 'Cantidad'],
         ['Total Docentes', teachers.length],
         ['Docentes Activos', activeTeachers],
         ['Docentes Inactivos', teachers.length - activeTeachers],
+        [''],
         ['Total Materias', courses.length],
         ['Materias Activas', activeCourses],
         ['Materias Inactivas', courses.length - activeCourses],
-        ['Total Inscripciones', totalEnrollments],
         [''],
+        ['Total Inscripciones', totalEnrollments],
+        ['Promedio de Estudiantes por Materia', courses.length > 0 ? Math.round(totalEnrollments / courses.length) : 0]
+      ];
+
+      const wsResumen = XLSX.utils.aoa_to_sheet(resumenData);
+      wsResumen['!cols'] = [{ wch: 35 }, { wch: 15 }];
+      XLSX.utils.book_append_sheet(workbook, wsResumen, 'Resumen General');
+
+      // === HOJA 2: Docentes ===
+      const docentesData = [
         ['LISTADO DE DOCENTES'],
+        [''],
         ['Nombre', 'Email', 'Usuario', 'Estado', 'Materias Asignadas'],
         ...teachers.map(t => [
           t.name,
           t.email,
-          t.username || '',
+          t.username || '-',
           t.isActive ? 'Activo' : 'Inactivo',
           t._count?.teachingCourses || 0
-        ]),
-        [''],
-        ['LISTADO DE MATERIAS'],
-        ['Código', 'Título', 'Descripción', 'Estado', 'Estudiantes Inscritos', 'Clases Programadas'],
-        ...courses.map(c => [
-          c.code,
-          c.title,
-          c.description || '',
-          c.isActive ? 'Activa' : 'Inactiva',
-          c._count?.enrollments || 0,
-          c._count?.classrooms || 0
         ])
-      ].map(row => row.join(',')).join('\n');
+      ];
 
-      // Descargar archivo
-      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      const fileName = `reporte_${new Date().toISOString().split('T')[0]}.csv`;
+      const wsDocentes = XLSX.utils.aoa_to_sheet(docentesData);
+      wsDocentes['!cols'] = [{ wch: 30 }, { wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(workbook, wsDocentes, 'Docentes');
 
-      link.setAttribute('href', url);
-      link.setAttribute('download', fileName);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // === HOJA 3: Materias ===
+      const materiasData = [
+        ['LISTADO DE MATERIAS'],
+        [''],
+        ['Código', 'Título', 'Descripción', 'Docente', 'Estado', 'Estudiantes', 'Clases'],
+        ...coursesWithStudents.map(c => {
+          const teacher = teachers.find(t => t.id === c.teacherId);
+          return [
+            c.code,
+            c.title,
+            c.description || '-',
+            teacher ? teacher.name : 'Sin asignar',
+            c.isActive ? 'Activa' : 'Inactiva',
+            c._count?.enrollments || 0,
+            c._count?.classrooms || 0
+          ];
+        })
+      ];
+
+      const wsMaterias = XLSX.utils.aoa_to_sheet(materiasData);
+      wsMaterias['!cols'] = [{ wch: 12 }, { wch: 30 }, { wch: 40 }, { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 10 }];
+      XLSX.utils.book_append_sheet(workbook, wsMaterias, 'Materias');
+
+      // === HOJAS 4+: Una hoja por cada materia con sus estudiantes ===
+      coursesWithStudents.forEach((course, index) => {
+        if (course.students && course.students.length > 0) {
+          const teacher = teachers.find(t => t.id === course.teacherId);
+
+          const courseStudentsData = [
+            [`MATERIA: ${course.title}`],
+            [`Código: ${course.code}`],
+            [`Docente: ${teacher ? teacher.name : 'Sin asignar'}`],
+            [`Total Estudiantes: ${course.students.length}`],
+            [''],
+            ['Nombre', 'Email', 'Usuario', 'Estado'],
+            ...course.students.map(s => [
+              s.name,
+              s.email,
+              s.username || '-',
+              s.isActive ? 'Activo' : 'Inactivo'
+            ])
+          ];
+
+          const wsCourseStudents = XLSX.utils.aoa_to_sheet(courseStudentsData);
+          wsCourseStudents['!cols'] = [{ wch: 30 }, { wch: 30 }, { wch: 20 }, { wch: 12 }];
+
+          // Limitar nombre de hoja a 31 caracteres (límite de Excel)
+          let sheetName = `${course.code}`.substring(0, 31);
+          XLSX.utils.book_append_sheet(workbook, wsCourseStudents, sheetName);
+        }
+      });
+
+      // === HOJA FINAL: Detalle por Docente ===
+      const docentesMaterias = teachers.map(teacher => {
+        const materias = coursesWithStudents.filter(c => c.teacherId === teacher.id);
+        const totalEstudiantes = materias.reduce((sum, c) => sum + (c.students?.length || 0), 0);
+
+        return {
+          docente: teacher.name,
+          email: teacher.email,
+          estado: teacher.isActive ? 'Activo' : 'Inactivo',
+          materias: materias.length,
+          estudiantes: totalEstudiantes,
+          materiasList: materias.map(m => m.title).join(', ') || 'Ninguna'
+        };
+      });
+
+      const docentesDetalleData = [
+        ['DETALLE POR DOCENTE'],
+        [''],
+        ['Docente', 'Email', 'Estado', 'Materias', 'Total Estudiantes', 'Materias Asignadas'],
+        ...docentesMaterias.map(d => [
+          d.docente,
+          d.email,
+          d.estado,
+          d.materias,
+          d.estudiantes,
+          d.materiasList
+        ])
+      ];
+
+      const wsDocentesDetalle = XLSX.utils.aoa_to_sheet(docentesDetalleData);
+      wsDocentesDetalle['!cols'] = [{ wch: 25 }, { wch: 30 }, { wch: 12 }, { wch: 10 }, { wch: 18 }, { wch: 50 }];
+      XLSX.utils.book_append_sheet(workbook, wsDocentesDetalle, 'Detalle por Docente');
+
+      // Generar y descargar archivo
+      const fileName = `Reporte_Completo_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
     } catch (error) {
       console.error('Error al generar reporte:', error);
       alert('Error al generar el reporte. Por favor, intenta nuevamente.');

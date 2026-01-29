@@ -21,6 +21,7 @@ import CreateCourseModal from './CreateCourseModal';
 import ImportStudentsModal from './ImportStudentsModal';
 import CourseStudentsModal from './CourseStudentsModal';
 import CourseScheduleModal from '../Course/CourseScheduleModal';
+import ConfirmModal from '../ConfirmModal';
 
 const AdminCoursesPanel = forwardRef((props, ref) => {
   const [courses, setCourses] = useState([]);
@@ -39,6 +40,8 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
   const [selectedCourseForStudents, setSelectedCourseForStudents] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedCourseForSchedule, setSelectedCourseForSchedule] = useState(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState(null);
 
   // Exponer métodos al padre mediante ref
   useImperativeHandle(ref, () => ({
@@ -124,21 +127,26 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
     }
   };
 
-  const handleDeleteCourse = async (courseId) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar esta materia?')) {
-      return;
-    }
+  const handleDeleteCourse = (course) => {
+    setCourseToDelete(course);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDeleteCourse = async () => {
+    if (!courseToDelete) return;
 
     try {
-      const response = await api.delete(`/courses/${courseId}`);
+      const response = await api.delete(`/courses/${courseToDelete.id}`);
       if (response.data.success) {
-        setCourses(prev => prev.filter(course => course.id !== courseId));
+        setCourses(prev => prev.filter(course => course.id !== courseToDelete.id));
         setSuccessMessage('Materia eliminada exitosamente');
         setTimeout(() => setSuccessMessage(''), 3000);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Error al eliminar materia');
       setTimeout(() => setError(''), 5000);
+    } finally {
+      setCourseToDelete(null);
     }
   };
 
@@ -381,7 +389,7 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                           <Edit2 size={18} />
                         </button>
                         <button
-                          onClick={() => handleDeleteCourse(course.id)}
+                          onClick={() => handleDeleteCourse(course)}
                           className="p-2 bg-red-100 text-red-600 hover:bg-red-200:bg-red-800 rounded-lg transition"
                           title="Eliminar"
                         >
@@ -488,6 +496,20 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
         onSuccess={() => {
           fetchCourses();
         }}
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmDelete}
+        onClose={() => {
+          setShowConfirmDelete(false);
+          setCourseToDelete(null);
+        }}
+        onConfirm={confirmDeleteCourse}
+        title="Eliminar Materia"
+        message={`¿Estás seguro de que deseas eliminar la materia "${courseToDelete?.title}" (${courseToDelete?.code})? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
       />
     </div>
   );

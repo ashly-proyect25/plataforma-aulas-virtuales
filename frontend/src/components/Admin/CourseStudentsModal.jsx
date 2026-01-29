@@ -4,6 +4,7 @@ import { X, Users, Plus, Edit, Trash2, Loader, AlertCircle, CheckCircle, Mail, U
 import api from '../../services/api';
 import { useToast } from '../common/ToastContainer';
 import { validateUserForm } from '../../utils/validation';
+import ConfirmModal from '../ConfirmModal';
 
 const CourseStudentsModal = ({ isOpen, onClose, course }) => {
   const toast = useToast();
@@ -19,6 +20,8 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
 
   useEffect(() => {
     if (isOpen && course) {
@@ -141,18 +144,23 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
     }
   };
 
-  const handleRemoveStudent = async (studentId) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar este alumno de la materia?')) {
-      return;
-    }
+  const handleRemoveStudent = (student) => {
+    setStudentToDelete(student);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmRemoveStudent = async () => {
+    if (!studentToDelete) return;
 
     try {
-      await api.delete(`/courses/${course.id}/students/${studentId}`);
+      await api.delete(`/courses/${course.id}/students/${studentToDelete.id}`);
       toast.success('Alumno eliminado de la materia');
       await fetchStudents();
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Error al eliminar alumno';
       toast.error(errorMsg);
+    } finally {
+      setStudentToDelete(null);
     }
   };
 
@@ -351,7 +359,7 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleRemoveStudent(student.id)}
+                        onClick={() => handleRemoveStudent(student)}
                         className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition"
                         title="Eliminar de la materia"
                       >
@@ -384,6 +392,20 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
           </button>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirmDelete}
+        onClose={() => {
+          setShowConfirmDelete(false);
+          setStudentToDelete(null);
+        }}
+        onConfirm={confirmRemoveStudent}
+        title="Eliminar Alumno"
+        message={`¿Estás seguro de que deseas eliminar a "${studentToDelete?.name}" de la materia "${course?.title}"? El alumno no podrá acceder más a esta materia.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </div>
   );
 };

@@ -15,6 +15,7 @@ import {
 import api from '../../services/api';
 import CreateTeacherModal from './CreateTeacherModal';
 import EditTeacherModal from './EditTeacherModal';
+import ConfirmModal from '../ConfirmModal';
 
 const AdminTeachersPanel = forwardRef((props, ref) => {
   const [teachers, setTeachers] = useState([]);
@@ -25,6 +26,8 @@ const AdminTeachersPanel = forwardRef((props, ref) => {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [filterActive, setFilterActive] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [teacherToDelete, setTeacherToDelete] = useState(null);
 
   // Exponer métodos al padre mediante ref
   useImperativeHandle(ref, () => ({
@@ -101,21 +104,26 @@ const AdminTeachersPanel = forwardRef((props, ref) => {
     }
   };
 
-  const handleDeleteTeacher = async (teacherId) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar este docente?')) {
-      return;
-    }
+  const handleDeleteTeacher = (teacher) => {
+    setTeacherToDelete(teacher);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDeleteTeacher = async () => {
+    if (!teacherToDelete) return;
 
     try {
-      const response = await api.delete(`/auth/users/${teacherId}`);
+      const response = await api.delete(`/auth/users/${teacherToDelete.id}`);
       if (response.data.success) {
-        setTeachers(prev => prev.filter(teacher => teacher.id !== teacherId));
+        setTeachers(prev => prev.filter(teacher => teacher.id !== teacherToDelete.id));
         setSuccessMessage('Docente eliminado exitosamente');
         setTimeout(() => setSuccessMessage(''), 3000);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Error al eliminar docente');
       setTimeout(() => setError(''), 3000);
+    } finally {
+      setTeacherToDelete(null);
     }
   };
 
@@ -243,7 +251,7 @@ const AdminTeachersPanel = forwardRef((props, ref) => {
                     {teacher.isActive ? <Eye size={18} /> : <EyeOff size={18} />}
                   </button>
                   <button
-                    onClick={() => handleDeleteTeacher(teacher.id)}
+                    onClick={() => handleDeleteTeacher(teacher)}
                     className="p-2 bg-red-100 text-red-600 hover:bg-red-200:bg-red-800 rounded-lg transition"
                     title="Eliminar"
                   >
@@ -281,6 +289,20 @@ const AdminTeachersPanel = forwardRef((props, ref) => {
         }}
         teacher={selectedTeacher}
         onTeacherUpdated={handleTeacherUpdated}
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmDelete}
+        onClose={() => {
+          setShowConfirmDelete(false);
+          setTeacherToDelete(null);
+        }}
+        onConfirm={confirmDeleteTeacher}
+        title="Eliminar Docente"
+        message={`¿Estás seguro de que deseas eliminar al docente "${teacherToDelete?.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
       />
     </div>
   );
