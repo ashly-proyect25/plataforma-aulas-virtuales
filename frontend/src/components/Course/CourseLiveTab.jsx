@@ -2190,6 +2190,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             <ScheduledClassesCarousel
               scheduledClasses={scheduledClasses}
               onStartClass={handleStartStreamingClick}
+              onDeleteClass={handleCancelScheduledClass}
               loading={loading}
             />
           ) : (

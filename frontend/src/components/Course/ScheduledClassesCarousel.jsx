@@ -1,9 +1,9 @@
 // frontend/src/components/Course/ScheduledClassesCarousel.jsx
 
-import { useState, useRef, useEffect } from 'react';
-import { Calendar, Clock, Play, ChevronLeft, ChevronRight, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { Calendar, Clock, Play, ChevronLeft, ChevronRight, AlertCircle, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 
-const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) => {
+const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, onDeleteClass, loading }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -28,6 +28,23 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
       day: 'numeric'
     });
   };
+
+  // Ordenar clases por proximidad (más cercana a la hora actual primero)
+  const sortedClasses = useMemo(() => {
+    if (!scheduledClasses || scheduledClasses.length === 0) return [];
+
+    const now = new Date();
+    return [...scheduledClasses].sort((a, b) => {
+      const dateA = parseClassDateTime(a.date, a.time);
+      const dateB = parseClassDateTime(b.date, b.time);
+
+      // Ordenar por diferencia absoluta con la hora actual (más cercana primero)
+      const diffA = Math.abs(dateA - now);
+      const diffB = Math.abs(dateB - now);
+
+      return diffA - diffB;
+    });
+  }, [scheduledClasses]);
 
   // Función para validar si una clase puede iniciarse (30 min antes o después)
   const canStartClass = (scheduledClass) => {
@@ -91,11 +108,11 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
   };
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : scheduledClasses.length - 1));
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : sortedClasses.length - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev < scheduledClasses.length - 1 ? prev + 1 : 0));
+    setCurrentIndex((prev) => (prev < sortedClasses.length - 1 ? prev + 1 : 0));
   };
 
   // Manejo de arrastre táctil
@@ -117,7 +134,7 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
     setIsDragging(false);
   };
 
-  if (!scheduledClasses || scheduledClasses.length === 0) {
+  if (!sortedClasses || sortedClasses.length === 0) {
     return null;
   }
 
@@ -134,7 +151,7 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
-          {scheduledClasses.map((scheduledClass) => {
+          {sortedClasses.map((scheduledClass) => {
             const status = getClassStatus(scheduledClass);
             const StatusIcon = status.icon;
             const canStart = canStartClass(scheduledClass) && !scheduledClass.wasStarted && !scheduledClass.isLive;
@@ -215,6 +232,16 @@ const ScheduledClassesCarousel = ({ scheduledClasses, onStartClass, loading }) =
                             : 'Fuera del horario permitido'}
                         </span>
                       </div>
+                    )}
+                    {/* Botón eliminar - solo si no está en vivo ni fue iniciada */}
+                    {!scheduledClass.isLive && !scheduledClass.wasStarted && onDeleteClass && (
+                      <button
+                        onClick={() => onDeleteClass(scheduledClass.id)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all font-semibold"
+                        title="Eliminar clase"
+                      >
+                        <Trash2 size={20} />
+                      </button>
                     )}
                   </div>
 
