@@ -636,22 +636,55 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
           console.log('✅ [TEACHER-DUAL] Streams separados y limpiados');
         } else if (videoTracks.length === 1) {
-          // SINGLE STREAM: Solo cámara
-          console.log('📹 [TEACHER-SINGLE] Stream único para estudiante', viewerId);
+          // SINGLE STREAM: Puede ser cámara O pantalla
+          const singleTrack = videoTracks[0];
+          const label = singleTrack.label.toLowerCase();
+          const isScreen = label.includes('screen') || label.includes('window') ||
+                          label.includes('monitor') || label.includes('ubuntu') ||
+                          label.includes('chrome') || label.includes('firefox') ||
+                          label.includes('entire') || label.includes('display');
 
-          const singleStream = new MediaStream([...videoTracks, ...audioTracks]);
+          if (isScreen) {
+            // SCREEN ONLY: Solo pantalla compartida (sin cámara)
+            console.log('📺 [TEACHER-SCREEN-ONLY] Solo pantalla compartida para estudiante', viewerId, 'label:', singleTrack.label);
 
-          setStudentStreams(prev => ({ ...prev, [viewerId]: singleStream }));
-          setStudentCameraStreams(prev => {
-            const newStreams = { ...prev };
-            delete newStreams[viewerId];
-            return newStreams;
-          });
-          setStudentScreenStreams(prev => {
-            const newStreams = { ...prev };
-            delete newStreams[viewerId];
-            return newStreams;
-          });
+            const screenStream = new MediaStream([singleTrack]);
+            const audioStream = audioTracks.length > 0 ? new MediaStream([...audioTracks]) : null;
+
+            setStudentScreenStreams(prev => ({ ...prev, [viewerId]: screenStream }));
+            // Guardar audio en studentStreams para que se reproduzca
+            if (audioStream) {
+              setStudentStreams(prev => ({ ...prev, [viewerId]: audioStream }));
+            } else {
+              setStudentStreams(prev => {
+                const newStreams = { ...prev };
+                delete newStreams[viewerId];
+                return newStreams;
+              });
+            }
+            setStudentCameraStreams(prev => {
+              const newStreams = { ...prev };
+              delete newStreams[viewerId];
+              return newStreams;
+            });
+          } else {
+            // CAMERA ONLY: Solo cámara
+            console.log('📹 [TEACHER-CAMERA-ONLY] Solo cámara para estudiante', viewerId, 'label:', singleTrack.label);
+
+            const cameraStream = new MediaStream([...videoTracks, ...audioTracks]);
+
+            setStudentStreams(prev => ({ ...prev, [viewerId]: cameraStream }));
+            setStudentCameraStreams(prev => {
+              const newStreams = { ...prev };
+              delete newStreams[viewerId];
+              return newStreams;
+            });
+            setStudentScreenStreams(prev => {
+              const newStreams = { ...prev };
+              delete newStreams[viewerId];
+              return newStreams;
+            });
+          }
         } else if (videoTracks.length === 0 && audioTracks.length > 0) {
           // AUDIO ONLY: Solo audio (cámara desactivada o no disponible)
           console.log('🎤 [TEACHER-AUDIO] Solo audio para estudiante', viewerId);
