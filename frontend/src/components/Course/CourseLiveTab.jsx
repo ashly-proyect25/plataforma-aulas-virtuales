@@ -2640,10 +2640,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                             el.play().catch(err => console.log('Autoplay prevented:', err));
                           } else if (!screenStream && el.srcObject) {
                             console.log(`🗑️ [TEACHER-PIN] Limpiando pantalla compartida de ${pinnedViewer?.name}`);
-                            // ✅ FIX: Detener todos los tracks antes de limpiar
-                            if (el.srcObject) {
-                              el.srcObject.getTracks().forEach(track => track.stop());
-                            }
+                            // Solo limpiar referencia, NO detener tracks (son compartidos con el stream original)
                             el.srcObject = null;
                           }
                         }
@@ -2668,10 +2665,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                               el.play().catch(err => console.log('Autoplay prevented:', err));
                             } else if (!cameraStream && el.srcObject) {
                               console.log(`🗑️ [TEACHER-PIN] Limpiando cámara de ${pinnedViewer?.name}`);
-                              // ✅ FIX: Detener todos los tracks antes de limpiar
-                              if (el.srcObject) {
-                                el.srcObject.getTracks().forEach(track => track.stop());
-                              }
+                              // Solo limpiar referencia, NO detener tracks (son compartidos con el stream original)
                               el.srcObject = null;
                             }
                           }
