@@ -5,7 +5,7 @@ import { X, Upload, Download, FileSpreadsheet, AlertCircle, CheckCircle, Users, 
 import * as XLSX from 'xlsx';
 import api from '../../services/api';
 
-const ImportStudentsModal = ({ isOpen, onClose, courseId, onSuccess }) => {
+const ImportStudentsModal = ({ isOpen, onClose, onSuccess, onStudentsImported }) => {
   const [file, setFile] = useState(null);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -103,8 +103,7 @@ const ImportStudentsModal = ({ isOpen, onClose, courseId, onSuccess }) => {
     setError('');
 
     try {
-      const response = await api.post('/courses/import-students', {
-        courseId,
+      const response = await api.post('/auth/users/students/import', {
         students: students.map(s => ({
           username: s.username.trim(),
           name: s.name.trim(),
@@ -115,6 +114,12 @@ const ImportStudentsModal = ({ isOpen, onClose, courseId, onSuccess }) => {
 
       if (response.data.success) {
         setSuccess(true);
+
+        // Notificar al componente padre con los estudiantes importados
+        if (onStudentsImported && response.data.students) {
+          onStudentsImported(response.data.students);
+        }
+
         setTimeout(() => {
           onSuccess && onSuccess();
           onClose();

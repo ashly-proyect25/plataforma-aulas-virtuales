@@ -763,14 +763,28 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         console.log(`🔗 [TEACHER] Student ${viewerId} connection state:`, pc.connectionState);
         if (pc.connectionState === 'connected') {
           console.log(`✅ [TEACHER] Conexión establecida con estudiante ${viewerId}`);
-        } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-          console.log(`❌ [TEACHER] Conexión falló con estudiante ${viewerId}`);
-          // Limpiar stream del estudiante
+        } else if (pc.connectionState === 'failed') {
+          // ✅ FIX: Solo limpiar en 'failed', no en 'disconnected' (puede ser momentáneo durante renegociación)
+          console.log(`❌ [TEACHER] Conexión FALLÓ con estudiante ${viewerId}`);
+          // Limpiar TODOS los streams del estudiante (normal, cámara dual y pantalla)
           setStudentStreams(prev => {
             const newStreams = { ...prev };
             delete newStreams[viewerId];
             return newStreams;
           });
+          setStudentCameraStreams(prev => {
+            const newStreams = { ...prev };
+            delete newStreams[viewerId];
+            return newStreams;
+          });
+          setStudentScreenStreams(prev => {
+            const newStreams = { ...prev };
+            delete newStreams[viewerId];
+            return newStreams;
+          });
+        } else if (pc.connectionState === 'disconnected') {
+          // ✅ FIX: 'disconnected' puede ser temporal durante renegociación, no limpiar inmediatamente
+          console.log(`⚠️ [TEACHER] Conexión temporalmente desconectada con estudiante ${viewerId} (puede reconectar)`);
         }
       };
 
@@ -808,12 +822,23 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   }, [studentStreams]);
 
   // ✅ FIX AUDIO: Reproducir audio de estudiantes en elementos Audio() separados
+  // ✅ CRITICAL FIX: También incluir studentCameraStreams para dual stream (cuando estudiante comparte pantalla)
   useEffect(() => {
-    console.log('🔊 [TEACHER-AUDIO-FIX] Actualizando audio de estudiantes...', Object.keys(studentStreams));
+    // Combinar todos los streams que tienen audio: studentStreams + studentCameraStreams
+    const allStreamsWithAudio = {
+      ...studentStreams,
+      ...studentCameraStreams // ✅ FIX: El audio está en cameraStream cuando hay dual stream
+    };
+
+    console.log('🔊 [TEACHER-AUDIO-FIX] Actualizando audio de estudiantes...', {
+      studentStreams: Object.keys(studentStreams),
+      studentCameraStreams: Object.keys(studentCameraStreams),
+      combined: Object.keys(allStreamsWithAudio)
+    });
 
     // Crear/actualizar elementos de audio para cada estudiante
-    Object.keys(studentStreams).forEach(viewerId => {
-      const stream = studentStreams[viewerId];
+    Object.keys(allStreamsWithAudio).forEach(viewerId => {
+      const stream = allStreamsWithAudio[viewerId];
       if (!stream) return;
 
       const audioTracks = stream.getAudioTracks();
@@ -822,7 +847,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         return;
       }
 
-      console.log(`🔊 [TEACHER-AUDIO-FIX] Configurando audio para estudiante ${viewerId} con ${audioTracks.length} tracks`);
+      console.log(`🔊 [TEACHER-AUDIO-FIX] Configurando audio para estudiante ${viewerId} con ${audioTracks.length} tracks (dual: ${!!studentCameraStreams[viewerId]})`);
 
       // Crear o reutilizar elemento de audio
       if (!studentAudioRefs.current[viewerId]) {
@@ -860,9 +885,10 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
       }
     });
 
-    // Limpiar elementos de audio de estudiantes que ya no están
+    // Limpiar elementos de audio de estudiantes que ya no están en NINGUNO de los streams
     Object.keys(studentAudioRefs.current).forEach(viewerId => {
-      if (!studentStreams[viewerId]) {
+      // ✅ FIX: Solo limpiar si el estudiante no está en ningún stream (normal o dual)
+      if (!studentStreams[viewerId] && !studentCameraStreams[viewerId]) {
         console.log(`🗑️ [TEACHER-AUDIO-FIX] Limpiando audio de estudiante ${viewerId} que se desconectó`);
         if (studentAudioRefs.current[viewerId]) {
           studentAudioRefs.current[viewerId].srcObject = null;
@@ -870,7 +896,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
         }
       }
     });
-  }, [studentStreams]);
+  }, [studentStreams, studentCameraStreams]); // ✅ FIX: Agregar studentCameraStreams como dependencia
 
   const showToastMessage = (message, type = 'success') => {
     setToastMessage(message);
@@ -3102,12 +3128,13 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                       <video
                         ref={(el) => {
                           if (el) {
-                            if (hasCamera && el.srcObject !== hasCamera) {
+                            // ✅ FIX: Usar cameraStream (el MediaStream real), no hasCamera (boolean)
+                            if (cameraStream && el.srcObject !== cameraStream) {
                               console.log(`📹 [TEACHER-THUMB] Asignando cámara de ${viewer.name}`);
-                              el.srcObject = hasCamera;
+                              el.srcObject = cameraStream;
                               el.muted = false;
                               el.play().catch(err => console.log('Autoplay prevented:', err));
-                            } else if (!hasCamera && el.srcObject) {
+                            } else if (!cameraStream && el.srcObject) {
                               console.log(`🗑️ [TEACHER-THUMB] Limpiando cámara de ${viewer.name}`);
                               el.srcObject = null;
                             }

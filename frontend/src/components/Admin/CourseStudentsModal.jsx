@@ -1,22 +1,24 @@
 // frontend/src/components/Admin/CourseStudentsModal.jsx
 import { useState, useEffect } from 'react';
-import { X, Users, Plus, Edit, Trash2, Loader, AlertCircle, CheckCircle, Mail, User as UserIcon } from 'lucide-react';
+import { X, Users, UserPlus, Edit, Trash2, Loader, Mail, User as UserIcon, Search } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../common/ToastContainer';
 import { validateUserForm } from '../../utils/validation';
 import ConfirmModal from '../ConfirmModal';
+import AssignStudentsModal from './AssignStudentsModal';
 
 const CourseStudentsModal = ({ isOpen, onClose, course }) => {
   const toast = useToast();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     username: '',
-    email: '',
-    password: ''
+    email: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,45 +58,16 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
     setFormData({
       name: '',
       username: '',
-      email: '',
-      password: ''
+      email: ''
     });
     setErrors({});
-    setShowAddForm(false);
+    setShowEditForm(false);
     setEditingStudent(null);
   };
 
-  const handleAddStudent = async (e) => {
-    e.preventDefault();
-    setErrors({});
-
-    // Validar formulario
-    const validation = validateUserForm(formData, true);
-    if (!validation.valid) {
-      setErrors(validation.errors);
-      toast.error(Object.values(validation.errors)[0]);
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const response = await api.post('/auth/users/student', {
-        ...formData,
-        courseId: course.id
-      });
-
-      if (response.data.success) {
-        toast.success('Alumno creado e inscrito exitosamente');
-        await fetchStudents();
-        resetForm();
-      }
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Error al crear alumno';
-      toast.error(errorMsg);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleStudentsAssigned = (count) => {
+    toast.success(`${count} estudiante(s) asignado(s) exitosamente`);
+    fetchStudents();
   };
 
   const handleEditStudent = (student) => {
@@ -102,11 +75,21 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
     setFormData({
       name: student.name,
       username: student.username,
-      email: student.email,
-      password: '' // No mostrar la contraseña actual
+      email: student.email
     });
-    setShowAddForm(true);
+    setShowEditForm(true);
   };
+
+  // Filtrar estudiantes por búsqueda
+  const filteredStudents = students.filter(student => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      student.name?.toLowerCase().includes(term) ||
+      student.email?.toLowerCase().includes(term) ||
+      student.username?.toLowerCase().includes(term)
+    );
+  });
 
   const handleUpdateStudent = async (e) => {
     e.preventDefault();
@@ -190,35 +173,43 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* Botón Agregar Alumno */}
-          {!showAddForm && (
-            <div className="mb-4 flex justify-start">
+          {/* Barra de acciones y búsqueda */}
+          {!showEditForm && (
+            <div className="mb-4 flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => setShowAddForm(true)}
-                className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white rounded-lg font-medium transition-all flex items-center gap-2"
+                onClick={() => setShowAssignModal(true)}
+                className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-medium transition-all flex items-center gap-2"
               >
-                <Plus className="w-5 h-5" />
-                Agregar Alumno
+                <UserPlus className="w-5 h-5" />
+                Asignar Estudiantes
               </button>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar en la lista..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
             </div>
           )}
 
-          {/* Formulario Agregar/Editar */}
-          {showAddForm && (
+          {/* Formulario Editar */}
+          {showEditForm && editingStudent && (
             <div className="bg-gray-50/50 rounded-lg p-4 mb-4 border border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-800">
-                  {editingStudent ? 'Editar Alumno' : 'Nuevo Alumno'}
-                </h3>
+                <h3 className="text-lg font-bold text-gray-800">Editar Alumno</h3>
                 <button
                   onClick={resetForm}
-                  className="text-gray-400 hover:text-gray-600:text-white"
+                  className="text-gray-400 hover:text-gray-600"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={editingStudent ? handleUpdateStudent : handleAddStudent} className="space-y-3">
+              <form onSubmit={handleUpdateStudent} className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   {/* Nombre */}
                   <div>
@@ -263,54 +254,32 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Email */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className={`w-full pl-9 pr-3 py-2 bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 placeholder-gray-400 text-sm ${
-                          errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 focus:ring-blue-500'
-                        }`}
-                        placeholder="juan@email.com"
-                      />
-                    </div>
-                    {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={`w-full pl-9 pr-3 py-2 bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 placeholder-gray-400 text-sm ${
+                        errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 focus:ring-blue-500'
+                      }`}
+                      placeholder="juan@email.com"
+                    />
                   </div>
-
-                  {/* Contraseña (solo para crear) */}
-                  {!editingStudent && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Contraseña
-                      </label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className={`w-full px-3 py-2 bg-gray-50/50 border rounded-lg focus:outline-none focus:ring-2 text-gray-800 placeholder-gray-400 text-sm ${
-                          errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 focus:ring-blue-500'
-                        }`}
-                        placeholder="Mínimo 8 caracteres"
-                      />
-                      {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
-                    </div>
-                  )}
+                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 <div className="flex gap-2 pt-2">
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300:bg-slate-600 text-gray-800 rounded-lg font-medium transition-colors text-sm"
+                    className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors text-sm"
                   >
                     Cancelar
                   </button>
@@ -319,7 +288,7 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
                     disabled={isSubmitting}
                     className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-lg font-medium transition-all disabled:opacity-50 text-sm"
                   >
-                    {isSubmitting ? 'Guardando...' : editingStudent ? 'Actualizar' : 'Crear'}
+                    {isSubmitting ? 'Guardando...' : 'Actualizar'}
                   </button>
                 </div>
               </form>
@@ -337,9 +306,10 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
           {!loading && students.length > 0 && (
             <div className="space-y-2">
               <p className="text-sm text-gray-400 mb-3">
-                Total: {students.length} alumno{students.length !== 1 ? 's' : ''}
+                {searchTerm ? `${filteredStudents.length} de ` : ''}
+                {students.length} alumno{students.length !== 1 ? 's' : ''}
               </p>
-              {students.map((student) => (
+              {filteredStudents.map((student) => (
                 <div
                   key={student.id}
                   className="bg-gray-50/50 rounded-lg p-4 border border-gray-200 hover:border-slate-600 transition-colors"
@@ -375,9 +345,18 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
           {/* Empty State */}
           {!loading && students.length === 0 && (
             <div className="text-center py-12">
-              <Users className="mx-auto text-gray-600 mb-3" size={48} />
-              <p className="text-gray-400 font-semibold">No hay alumnos inscritos en esta materia</p>
-              <p className="text-gray-500 text-sm mt-1">Agrega alumnos para comenzar</p>
+              <Users className="mx-auto text-gray-400 mb-3" size={48} />
+              <p className="text-gray-600 font-semibold">No hay alumnos inscritos en esta materia</p>
+              <p className="text-gray-500 text-sm mt-1">Asigna estudiantes existentes para comenzar</p>
+            </div>
+          )}
+
+          {/* No results from search */}
+          {!loading && students.length > 0 && filteredStudents.length === 0 && (
+            <div className="text-center py-12">
+              <Search className="mx-auto text-gray-400 mb-3" size={48} />
+              <p className="text-gray-600 font-semibold">No se encontraron resultados</p>
+              <p className="text-gray-500 text-sm mt-1">Intenta con otro término de búsqueda</p>
             </div>
           )}
         </div>
@@ -405,6 +384,13 @@ const CourseStudentsModal = ({ isOpen, onClose, course }) => {
         confirmText="Eliminar"
         cancelText="Cancelar"
         type="danger"
+      />
+
+      <AssignStudentsModal
+        isOpen={showAssignModal}
+        onClose={() => setShowAssignModal(false)}
+        course={course}
+        onStudentsAssigned={handleStudentsAssigned}
       />
     </div>
   );

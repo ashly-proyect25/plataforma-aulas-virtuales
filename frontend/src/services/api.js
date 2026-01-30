@@ -124,7 +124,17 @@ export const authAPI = {
     api.get('/auth/users/students', { params }),
 
   toggleStudentStatus: (id) =>
-    api.patch(`/auth/users/students/${id}/toggle-status`)
+    api.patch(`/auth/users/students/${id}/toggle-status`),
+
+  // Admin - Gestión global de estudiantes
+  getAllStudents: () =>
+    api.get('/users/students'),
+
+  getAvailableStudents: (courseId, search) =>
+    api.get('/auth/users/students/available', { params: { courseId, search } }),
+
+  importStudentsBulk: (students) =>
+    api.post('/auth/users/students/import', { students })
 };
 
 /**

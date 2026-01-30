@@ -104,12 +104,29 @@ router.patch(
   authorize('ADMIN', 'TEACHER'),
   authController.toggleStudentStatus
 );
+
 // Obtener todos los estudiantes
 router.get(
   '/users/students',
   authenticate,
   authorize('ADMIN', 'TEACHER'),
   authController.getAllStudents
+);
+
+// Obtener estudiantes disponibles para asignar a un curso
+router.get(
+  '/auth/users/students/available',
+  authenticate,
+  authorize('ADMIN', 'TEACHER'),
+  authController.getAvailableStudents
+);
+
+// Importar estudiantes masivamente
+router.post(
+  '/auth/users/students/import',
+  authenticate,
+  authorize('ADMIN'),
+  authController.importStudents
 );
 
 export default router;

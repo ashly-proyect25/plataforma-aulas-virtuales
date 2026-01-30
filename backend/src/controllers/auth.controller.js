@@ -1145,6 +1145,208 @@ export const getAllStudents = async (req, res) => {
 };
 
 /**
+ * 📋 OBTENER ESTUDIANTES DISPONIBLES PARA ASIGNAR A UN CURSO
+ * GET /api/auth/users/students/available
+ * Query params: courseId (requerido), search (opcional)
+ */
+export const getAvailableStudents = async (req, res) => {
+  try {
+    console.log('📍 [GET-AVAILABLE-STUDENTS] Solicitud recibida');
+    const { courseId, search } = req.query;
+
+    if (!courseId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requiere el ID del curso'
+      });
+    }
+
+    // Obtener IDs de estudiantes ya inscritos en el curso
+    const enrolledStudents = await prisma.enrollment.findMany({
+      where: {
+        courseId: parseInt(courseId),
+        isActive: true
+      },
+      select: {
+        userId: true
+      }
+    });
+
+    const enrolledIds = enrolledStudents.map(e => e.userId);
+    console.log(`📋 [GET-AVAILABLE-STUDENTS] ${enrolledIds.length} estudiantes ya inscritos en curso ${courseId}`);
+
+    // Construir filtro de búsqueda
+    const whereClause = {
+      role: 'STUDENT',
+      isActive: true,
+      id: {
+        notIn: enrolledIds
+      }
+    };
+
+    // Agregar búsqueda por nombre o email si se proporciona
+    if (search && search.trim()) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { username: { contains: search, mode: 'insensitive' } }
+      ];
+    }
+
+    const students = await prisma.user.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        email: true,
+        isActive: true
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    });
+
+    console.log(`✅ [GET-AVAILABLE-STUDENTS] ${students.length} estudiantes disponibles`);
+
+    res.json({
+      success: true,
+      total: students.length,
+      students
+    });
+  } catch (error) {
+    console.error('❌ [GET-AVAILABLE-STUDENTS] ERROR:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener estudiantes disponibles',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * 📥 IMPORTAR ESTUDIANTES MASIVAMENTE
+ * POST /api/auth/users/students/import
+ * Body: { students: [{ username, name, email, password }] }
+ */
+export const importStudents = async (req, res) => {
+  try {
+    console.log('📍 [IMPORT-STUDENTS] Solicitud recibida');
+    const { students } = req.body;
+    const createdBy = req.user.id;
+
+    if (!students || !Array.isArray(students) || students.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requiere un array de estudiantes'
+      });
+    }
+
+    console.log(`📋 [IMPORT-STUDENTS] Procesando ${students.length} estudiantes`);
+
+    const results = {
+      success: [],
+      errors: [],
+      duplicates: []
+    };
+
+    for (const student of students) {
+      try {
+        const { username, name, email, password } = student;
+
+        // Validar campos requeridos
+        if (!username || !name || !email || !password) {
+          results.errors.push({
+            student,
+            error: 'Faltan campos requeridos (username, name, email, password)'
+          });
+          continue;
+        }
+
+        // Verificar si ya existe por username o email
+        const existing = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { username: username.toLowerCase() },
+              { email: email.toLowerCase() }
+            ]
+          }
+        });
+
+        if (existing) {
+          results.duplicates.push({
+            student,
+            existingId: existing.id,
+            existingUsername: existing.username
+          });
+          continue;
+        }
+
+        // Validaciones
+        const nameValidation = validateFullName(name);
+        if (!nameValidation.valid) {
+          results.errors.push({ student, error: nameValidation.message });
+          continue;
+        }
+
+        const usernameValidation = validateUsername(username);
+        if (!usernameValidation.valid) {
+          results.errors.push({ student, error: usernameValidation.message });
+          continue;
+        }
+
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.valid) {
+          results.errors.push({ student, error: emailValidation.message });
+          continue;
+        }
+
+        // Crear el estudiante
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newStudent = await prisma.user.create({
+          data: {
+            username: username.toLowerCase(),
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            name: name.trim(),
+            role: 'STUDENT',
+            createdBy
+          },
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            email: true
+          }
+        });
+
+        results.success.push(newStudent);
+      } catch (err) {
+        results.errors.push({
+          student,
+          error: err.message
+        });
+      }
+    }
+
+    console.log(`✅ [IMPORT-STUDENTS] Completado: ${results.success.length} creados, ${results.duplicates.length} duplicados, ${results.errors.length} errores`);
+
+    res.json({
+      success: true,
+      message: `Importación completada: ${results.success.length} creados, ${results.duplicates.length} duplicados, ${results.errors.length} errores`,
+      results
+    });
+  } catch (error) {
+    console.error('❌ [IMPORT-STUDENTS] ERROR:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Error al importar estudiantes',
+      error: error.message
+    });
+  }
+};
+
+/**
  * ✏️ ADMIN - EDITAR USUARIO
  * PATCH /api/auth/users/:id
  */

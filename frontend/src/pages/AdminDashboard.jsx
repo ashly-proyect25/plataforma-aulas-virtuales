@@ -5,12 +5,14 @@ import {
   LayoutDashboard,
   Users,
   BookOpen,
-  BarChart3
+  BarChart3,
+  GraduationCap
 } from 'lucide-react';
 import { useStore } from '../store/store';
 import AdminTeachersPanel from '../components/Admin/AdminTeachersPanel';
 import AdminCoursesPanel from '../components/Admin/AdminCoursesPanel';
 import AdminStatsPanel from '../components/Admin/AdminStatsPanel';
+import AdminStudentsPanel from '../components/Admin/AdminStudentsPanel';
 import UserMenu from '../components/UserMenu';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import EditProfileModal from '../components/EditProfileModal';
@@ -27,6 +29,7 @@ const AdminDashboard = () => {
   // Referencias para controlar los modales de otros paneles
   const teachersPanelRef = useRef(null);
   const coursesPanelRef = useRef(null);
+  const studentsPanelRef = useRef(null);
 
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -75,6 +78,24 @@ const AdminDashboard = () => {
     setTimeout(() => {
       if (coursesPanelRef.current?.openCreateModal) {
         coursesPanelRef.current.openCreateModal();
+      }
+    }, 100);
+  };
+
+  const handleOpenCreateStudent = () => {
+    setActiveTab('students');
+    setTimeout(() => {
+      if (studentsPanelRef.current?.openCreateModal) {
+        studentsPanelRef.current.openCreateModal();
+      }
+    }, 100);
+  };
+
+  const handleOpenImportStudents = () => {
+    setActiveTab('students');
+    setTimeout(() => {
+      if (studentsPanelRef.current?.openImportModal) {
+        studentsPanelRef.current.openImportModal();
       }
     }, 100);
   };
@@ -266,6 +287,12 @@ const AdminDashboard = () => {
       color: 'text-blue-600'
     },
     {
+      id: 'students',
+      label: 'Estudiantes',
+      icon: GraduationCap,
+      color: 'text-orange-600'
+    },
+    {
       id: 'courses',
       label: 'Materias',
       icon: BookOpen,
@@ -330,6 +357,10 @@ const AdminDashboard = () => {
 
         {activeTab === 'teachers' && (
           <AdminTeachersPanel ref={teachersPanelRef} />
+        )}
+
+        {activeTab === 'students' && (
+          <AdminStudentsPanel ref={studentsPanelRef} />
         )}
 
         {activeTab === 'courses' && (
