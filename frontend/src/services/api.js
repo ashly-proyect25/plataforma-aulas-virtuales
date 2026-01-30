@@ -134,7 +134,10 @@ export const authAPI = {
     api.get('/auth/users/students/available', { params: { courseId, search } }),
 
   importStudentsBulk: (students) =>
-    api.post('/auth/users/students/import', { students })
+    api.post('/auth/users/students/import', { students }),
+
+  deleteUser: (id) =>
+    api.delete(`/auth/users/${id}`)
 };
 
 /**

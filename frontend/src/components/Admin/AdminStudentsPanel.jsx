@@ -12,12 +12,13 @@ import {
   Edit,
   Upload,
   Search,
-  BookOpen
+  Trash2
 } from 'lucide-react';
 import { authAPI } from '../../services/api';
 import CreateStudentModal from './CreateStudentModal';
 import EditStudentModal from './EditStudentModal';
 import ImportStudentsModal from './ImportStudentsModal';
+import ConfirmModal from '../ConfirmModal';
 
 const AdminStudentsPanel = forwardRef((props, ref) => {
   const [students, setStudents] = useState([]);
@@ -30,6 +31,8 @@ const AdminStudentsPanel = forwardRef((props, ref) => {
   const [filterActive, setFilterActive] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
 
   // Exponer métodos al padre mediante ref
   useImperativeHandle(ref, () => ({
@@ -123,6 +126,29 @@ const AdminStudentsPanel = forwardRef((props, ref) => {
     } catch (err) {
       setError('Error al cambiar estado del estudiante');
       console.error(err);
+    }
+  };
+
+  const handleDeleteClick = (student) => {
+    setStudentToDelete(student);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDeleteStudent = async () => {
+    if (!studentToDelete) return;
+
+    try {
+      const response = await authAPI.deleteUser(studentToDelete.id);
+      if (response.data.success) {
+        setStudents(prev => prev.filter(s => s.id !== studentToDelete.id));
+        setSuccessMessage('Estudiante eliminado exitosamente');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al eliminar estudiante');
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setStudentToDelete(null);
     }
   };
 
@@ -310,7 +336,7 @@ const AdminStudentsPanel = forwardRef((props, ref) => {
                           onClick={() => handleToggleStatus(student.id, student.isActive)}
                           className={`p-2 rounded-lg transition ${
                             student.isActive
-                              ? 'text-red-600 hover:bg-red-50'
+                              ? 'text-orange-600 hover:bg-orange-50'
                               : 'text-green-600 hover:bg-green-50'
                           }`}
                           title={student.isActive ? 'Desactivar' : 'Activar'}
@@ -320,6 +346,13 @@ const AdminStudentsPanel = forwardRef((props, ref) => {
                           ) : (
                             <Eye className="w-5 h-5" />
                           )}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(student)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -356,6 +389,20 @@ const AdminStudentsPanel = forwardRef((props, ref) => {
           onStudentsImported={handleStudentsImported}
         />
       )}
+
+      <ConfirmModal
+        isOpen={showConfirmDelete}
+        onClose={() => {
+          setShowConfirmDelete(false);
+          setStudentToDelete(null);
+        }}
+        onConfirm={confirmDeleteStudent}
+        title="Eliminar Estudiante"
+        message={`¿Estás seguro de que deseas eliminar al estudiante "${studentToDelete?.name}"? Esta acción no se puede deshacer y el estudiante será removido de todas las materias.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </div>
   );
 });

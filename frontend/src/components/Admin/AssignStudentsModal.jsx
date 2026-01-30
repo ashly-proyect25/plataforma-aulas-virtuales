@@ -179,17 +179,23 @@ function AssignStudentsModal({ isOpen, onClose, course, onStudentsAssigned }) {
             <>
               {/* Select All */}
               <div className="flex items-center justify-between mb-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedStudents.length === students.length && students.length > 0}
-                    onChange={handleSelectAll}
-                    className="w-4 h-4 text-green-500 border-gray-300 rounded focus:ring-green-500"
-                  />
+                <div
+                  onClick={handleSelectAll}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition ${
+                    selectedStudents.length === students.length && students.length > 0
+                      ? 'bg-green-500 border-green-500'
+                      : 'border-gray-300 bg-white'
+                  }`}>
+                    {selectedStudents.length === students.length && students.length > 0 && (
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    )}
+                  </div>
                   <span className="text-sm font-medium text-gray-700">
                     Seleccionar todos ({students.length})
                   </span>
-                </label>
+                </div>
                 {selectedStudents.length > 0 && (
                   <span className="text-sm text-green-600 font-medium">
                     {selectedStudents.length} seleccionado(s)
@@ -199,31 +205,38 @@ function AssignStudentsModal({ isOpen, onClose, course, onStudentsAssigned }) {
 
               {/* Students List */}
               <div className="space-y-2">
-                {students.map((student) => (
-                  <label
-                    key={student.id}
-                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${
-                      selectedStudents.includes(student.id)
-                        ? 'bg-green-50 border-green-300'
-                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedStudents.includes(student.id)}
-                      onChange={() => handleSelectStudent(student.id)}
-                      className="w-4 h-4 text-green-500 border-gray-300 rounded focus:ring-green-500"
-                    />
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
-                      {student.name?.charAt(0).toUpperCase() || '?'}
+                {students.map((student) => {
+                  const isSelected = selectedStudents.includes(student.id);
+                  return (
+                    <div
+                      key={student.id}
+                      onClick={() => handleSelectStudent(student.id)}
+                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${
+                        isSelected
+                          ? 'bg-green-50 border-green-300'
+                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition ${
+                        isSelected
+                          ? 'bg-green-500 border-green-500'
+                          : 'border-gray-300 bg-white'
+                      }`}>
+                        {isSelected && (
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        )}
+                      </div>
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+                        {student.name?.charAt(0).toUpperCase() || '?'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-800 truncate">{student.name}</p>
+                        <p className="text-sm text-gray-500 truncate">{student.email}</p>
+                      </div>
+                      <span className="text-xs text-gray-400">@{student.username}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-800 truncate">{student.name}</p>
-                      <p className="text-sm text-gray-500 truncate">{student.email}</p>
-                    </div>
-                    <span className="text-xs text-gray-400">@{student.username}</span>
-                  </label>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}

@@ -425,13 +425,6 @@ const AdminCoursesPanel = forwardRef((props, ref) => {
                       Horario
                     </button>
                     <button
-                      onClick={() => handleOpenImportStudents(course)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50/20 text-green-600 hover:bg-green-100:bg-green-900/30 rounded-lg transition font-semibold text-sm"
-                    >
-                      <Upload size={16} />
-                      Importar
-                    </button>
-                    <button
                       onClick={() => handleOpenStudentsModal(course)}
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50/20 text-blue-600 hover:bg-blue-100:bg-blue-900/30 rounded-lg transition font-semibold text-sm"
                     >
