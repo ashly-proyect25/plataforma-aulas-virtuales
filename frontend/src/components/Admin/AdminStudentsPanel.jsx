@@ -244,6 +244,14 @@ const AdminStudentsPanel = forwardRef((props, ref) => {
             Inactivos
           </button>
         </div>
+
+        {/* Botón Actualizar */}
+        <button
+          onClick={fetchStudents}
+          className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition"
+        >
+          Actualizar
+        </button>
       </div>
 
       {/* Tabla de estudiantes */}
@@ -383,12 +391,11 @@ const AdminStudentsPanel = forwardRef((props, ref) => {
         />
       )}
 
-      {showImportModal && (
-        <ImportStudentsModal
-          onClose={() => setShowImportModal(false)}
-          onStudentsImported={handleStudentsImported}
-        />
-      )}
+      <ImportStudentsModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onStudentsImported={handleStudentsImported}
+      />
 
       <ConfirmModal
         isOpen={showConfirmDelete}

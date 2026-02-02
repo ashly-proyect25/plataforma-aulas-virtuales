@@ -1,7 +1,7 @@
 // frontend/src/components/Course/CourseResourcesTab.jsx
 
 import { useState, useEffect } from 'react';
-import { Plus, Video, Info, Trash2, Edit2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Video, Info, Trash2, Edit2, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import api from '../../services/api';
 import ConfirmDialog from '../ConfirmDialog';
 import Toast from '../Toast';

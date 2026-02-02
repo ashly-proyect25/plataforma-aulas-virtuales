@@ -5,7 +5,8 @@ import {
   Video, VideoOff, Mic, MicOff, Monitor, MonitorOff, Users, Loader,
   Maximize, Minimize, MessageCircle, Send, X, Paintbrush, Eraser,
   Download, Trash2, Calendar, Clock, Play, Square, UserCircle,
-  AlertCircle, CheckCircle, Plus, Minimize2, List, ChevronLeft, ChevronRight
+  AlertCircle, CheckCircle, Plus, Minimize2, List, ChevronLeft, ChevronRight,
+  Smartphone
 } from 'lucide-react';
 import io from 'socket.io-client';
 import ConfirmDialog from '../ConfirmDialog';
@@ -177,6 +178,16 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const ITEMS_PER_PAGE_MOBILE = 2; // Mostrar 2 participantes por página en móvil
+
+  // Estado para modal de advertencia de móvil (compartir pantalla)
+  const [showMobileScreenShareWarning, setShowMobileScreenShareWarning] = useState(false);
+
+  // Función para detectar si es un dispositivo móvil real (no solo ventana pequeña)
+  const isMobileDevice = () => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i;
+    return mobileRegex.test(userAgent) || ('ontouchstart' in window && window.innerWidth < 1024);
+  };
 
   // Detectar cambios de tamaño de pantalla
   useEffect(() => {
@@ -3333,7 +3344,13 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
             </button>
 
             <button
-              onClick={toggleScreenShare}
+              onClick={() => {
+                if (isMobileDevice()) {
+                  setShowMobileScreenShareWarning(true);
+                } else {
+                  toggleScreenShare();
+                }
+              }}
               className={`p-2 md:p-3 rounded-lg transition ${
                 isScreenSharing ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
               } text-white`}
@@ -3618,6 +3635,56 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
                 <AlertCircle size={14} className="inline mr-1" />
                 El estudiante podrá compartir su pantalla con toda la clase si lo apruebas
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de advertencia: No se puede compartir pantalla en móvil */}
+      {showMobileScreenShareWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 flex items-center justify-between rounded-t-xl">
+              <div className="flex items-center gap-3">
+                <Smartphone size={28} />
+                <div>
+                  <h3 className="text-xl font-bold">Función no disponible</h3>
+                  <p className="text-orange-100 text-sm">Compartir pantalla</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowMobileScreenShareWarning(false)}
+                className="hover:bg-white hover:bg-opacity-20 p-2 rounded-full transition"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="p-3 bg-orange-100 rounded-full">
+                  <Monitor size={24} className="text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-gray-800 font-medium mb-2">
+                    La función de compartir pantalla no está disponible en dispositivos móviles.
+                  </p>
+                  <p className="text-gray-600 text-sm">
+                    Para compartir tu pantalla, por favor conéctate desde una computadora de escritorio o laptop.
+                  </p>
+                </div>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-blue-800">
+                  <AlertCircle size={16} className="inline mr-2" />
+                  Los navegadores móviles no soportan la API de compartir pantalla por limitaciones del sistema operativo.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowMobileScreenShareWarning(false)}
+                className="w-full px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:shadow-lg transition font-semibold"
+              >
+                Entendido
+              </button>
             </div>
           </div>
         </div>

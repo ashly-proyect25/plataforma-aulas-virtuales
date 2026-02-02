@@ -134,23 +134,50 @@ const ImportStudentsModal = ({ isOpen, onClose, onSuccess, onStudentsImported })
   };
 
   const downloadTemplate = () => {
-    // Crear template Excel
+    // Crear template Excel con ejemplos variados
     const template = [
       {
         username: 'est001',
-        name: 'Juan Pérez',
+        name: 'Juan Pérez González',
         email: 'juan.perez@ejemplo.com',
-        password: 'password123'
+        password: 'Est2024*01'
       },
       {
         username: 'est002',
-        name: 'María García',
+        name: 'María García López',
         email: 'maria.garcia@ejemplo.com',
-        password: 'password456'
+        password: 'Est2024*02'
+      },
+      {
+        username: 'est003',
+        name: 'Carlos Rodríguez Martínez',
+        email: 'carlos.rodriguez@ejemplo.com',
+        password: 'Est2024*03'
+      },
+      {
+        username: 'est004',
+        name: 'Ana Fernández Ruiz',
+        email: 'ana.fernandez@ejemplo.com',
+        password: 'Est2024*04'
+      },
+      {
+        username: 'est005',
+        name: 'Luis Hernández Sánchez',
+        email: 'luis.hernandez@ejemplo.com',
+        password: 'Est2024*05'
       }
     ];
 
     const worksheet = XLSX.utils.json_to_sheet(template);
+
+    // Ajustar ancho de columnas
+    worksheet['!cols'] = [
+      { wch: 15 }, // username
+      { wch: 30 }, // name
+      { wch: 30 }, // email
+      { wch: 15 }  // password
+    ];
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Estudiantes');
     XLSX.writeFile(workbook, 'plantilla_estudiantes.xlsx');
