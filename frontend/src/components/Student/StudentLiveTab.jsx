@@ -12,6 +12,7 @@ import { useStore } from '../../store/store';
 import Toast from '../Toast';
 import { useNavigationGuard } from '../../hooks/useNavigationGuard';
 import { getAuthToken } from '../../utils/getAuthToken';
+import { initializeIceServers, getRTCConfig } from '../../services/webrtc';
 
 // ✅ iOS FIX: Función para forzar H.264 codec (compatibilidad con Safari iOS)
 // Safari iOS no soporta VP9, solo H.264 y VP8
@@ -93,6 +94,11 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
   const [minimizedPosition, setMinimizedPosition] = useState({ x: 20, y: 20 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+  // Inicializar credenciales TURN de metered.ca
+  useEffect(() => {
+    initializeIceServers();
+  }, []);
 
   // ✅ Sincronizar isJoinedRef con isJoined
   useEffect(() => {
@@ -906,14 +912,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
             // Crear nueva peer connection para este estudiante
             try {
-              const pc = new RTCPeerConnection({
-                iceServers: [
-                  { urls: 'stun:stun.l.google.com:19302' },
-                  { urls: 'stun:stun1.l.google.com:19302' },
-                  { urls: 'stun:stun2.l.google.com:19302' }
-                ],
-                iceCandidatePoolSize: 10
-              });
+              const pc = new RTCPeerConnection(getRTCConfig());
 
               // Agregar mis tracks
               myStreamRef.current.getTracks().forEach(track => {
@@ -1258,14 +1257,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
         // NO existe conexión - crear nueva
         console.log(`🆕 [STUDENT-P2P] Creando nueva peer connection para ${fromViewerId}`);
-        pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' }
-          ],
-          iceCandidatePoolSize: 10
-        });
+        pc = new RTCPeerConnection(getRTCConfig());
 
         // ✅ Si tengo mi propio stream, agregarlo a la conexión P2P
         if (myStreamRef.current) {
@@ -1668,9 +1660,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           console.log(`🆕 [STUDENT-P2P-SCREEN] Creando peer connection para ${viewerInfo?.name} que está compartiendo pantalla`);
 
           try {
-            const pc = new RTCPeerConnection({
-              iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-            });
+            const pc = new RTCPeerConnection(getRTCConfig());
 
             // Si tengo mi propio stream, agregarlo
             if (myStreamRef.current) {
@@ -2152,16 +2142,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
       if (!pc) {
         console.log('🆕 [STUDENT] Creando nuevo peerConnection');
-        pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' },
-            { urls: 'stun:stun3.l.google.com:19302' },
-            { urls: 'stun:stun4.l.google.com:19302' }
-          ],
-          iceCandidatePoolSize: 10
-        });
+        pc = new RTCPeerConnection(getRTCConfig());
 
         peerConnectionRef.current = pc;
 
@@ -2434,12 +2415,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
 
         // Crear peer connection para enviar al profesor (siempre, incluso si cámara está deshabilitada)
         console.log('🔗 [STUDENT-JOIN] Creando peer connection para enviar stream...');
-        const pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        });
+        const pc = new RTCPeerConnection(getRTCConfig());
 
         studentPeerConnectionRef.current = pc;
 
@@ -2790,12 +2766,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
             }
 
             // Crear peer connection para enviar al profesor
-            const pc = new RTCPeerConnection({
-              iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-              ]
-            });
+            const pc = new RTCPeerConnection(getRTCConfig());
 
             studentPeerConnectionRef.current = pc;
 
@@ -2863,12 +2834,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
               console.log(`🆕 [STUDENT-CAMERA-P2P] Creando conexión con ${viewer.name} (${viewer.id})`);
 
               try {
-                const peerPc = new RTCPeerConnection({
-                  iceServers: [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' }
-                  ]
-                });
+                const peerPc = new RTCPeerConnection(getRTCConfig());
 
                 // Agregar mis tracks
                 stream.getTracks().forEach(track => {
@@ -3141,12 +3107,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
           myStreamRef.current = audioOnlyStream; // ✅ Actualizar ref inmediatamente
 
           // Crear peer connection para enviar audio al profesor
-          const pc = new RTCPeerConnection({
-            iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' },
-              { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-          });
+          const pc = new RTCPeerConnection(getRTCConfig());
 
           studentPeerConnectionRef.current = pc;
 
@@ -3394,12 +3355,7 @@ const StudentLiveTab = ({ course, isMinimizedView = false }) => {
         // ✅ FIX CRÍTICO: Si no hay peer connection (estudiante nunca activó cámara), crear una nueva
         console.log('🆕 [STUDENT-SCREEN] No hay peer connection existente, creando nueva para compartir pantalla');
 
-        const pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        });
+        const pc = new RTCPeerConnection(getRTCConfig());
 
         studentPeerConnectionRef.current = pc;
 

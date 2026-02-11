@@ -14,6 +14,7 @@ import Toast from '../Toast';
 import { useNavigationGuard } from '../../hooks/useNavigationGuard';
 import { getAuthToken } from '../../utils/getAuthToken';
 import { useStore } from '../../store/store';
+import { initializeIceServers, getRTCConfig } from '../../services/webrtc';
 import ScheduledClassesCarousel from './ScheduledClassesCarousel';
 import ClassRecordsModal from './ClassRecordsModal';
 import api from '../../services/api';
@@ -73,6 +74,11 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
   const [minimizedPosition, setMinimizedPosition] = useState({ x: 20, y: 20 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+  // Inicializar credenciales TURN de metered.ca
+  useEffect(() => {
+    initializeIceServers();
+  }, []);
 
   // ✅ Sincronizar isStreamingRef con isStreaming
   useEffect(() => {
@@ -759,16 +765,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
 
       // NO existe conexión - crear nueva
       console.log(`🆕 [TEACHER] Creando nueva peer connection para estudiante ${viewerId}`);
-      pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' },
-          { urls: 'stun:stun3.l.google.com:19302' },
-          { urls: 'stun:stun4.l.google.com:19302' }
-        ],
-        iceCandidatePoolSize: 10
-      });
+      pc = new RTCPeerConnection(getRTCConfig());
 
       studentPeerConnectionsRef.current[viewerId] = pc;
 
@@ -973,16 +970,7 @@ const CourseLiveTab = ({ course, isMinimizedView = false }) => {
     const cameraTracks = streamRef.current.getTracks();
     console.log(`🔍 [TEACHER] Camera stream tracks:`, cameraTracks.map(t => `${t.kind}: ${t.label} (enabled: ${t.enabled}, readyState: ${t.readyState})`));
 
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun3.l.google.com:19302' },
-        { urls: 'stun:stun4.l.google.com:19302' }
-      ],
-      iceCandidatePoolSize: 10
-    });
+    const pc = new RTCPeerConnection(getRTCConfig());
 
     peerConnectionsRef.current[viewerId] = pc;
 
